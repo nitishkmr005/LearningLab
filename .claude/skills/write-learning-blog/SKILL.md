@@ -1,226 +1,200 @@
 ---
 name: write-learning-blog
-description: Writes a deep-dive technical learning blog on any AI/ML/data topic. Interactively clarifies scope, researches key papers and articles, then writes a narrative blog tailored to the topic — not a fixed template.
-argument-hint: <topic> (e.g. "RAG", "Agents", "LLM Fine-tuning", "Recommenders", "SQL for ML")
-allowed-tools:
-  - WebSearch
-  - WebFetch
-  - Read
-  - Write
-  - Edit
-  - Bash
+description: Writes comprehensive technical learning blogs on any AI/ML/data engineering topic. Researches arXiv papers, HuggingFace articles, official docs (NVIDIA/OpenAI/Anthropic/Google), popular author blogs, and GitHub libraries before writing. Produces narrative blogs covering history, core concepts, dataset prep with HuggingFace links, algorithms, evaluation metrics with formulas, comparison tables, code snippets, and full citations. Use when asked to write-learning-blog, create a technical blog, or blog about a topic like RAG, Agents, LLMs, embeddings, recommenders, SQL, or statistics.
+license: MIT
+metadata:
+  author: LearningLab
+  version: 2.0.0
+  category: content-creation
+  tags: [technical-blog, ai-ml, research, learning, documentation]
 ---
 
-# Skill: Write Learning Blog
+# Write Learning Blog
 
-The topic is: **$ARGUMENTS**
+You write deep-dive technical learning blogs on any AI/ML/data topic. You think like a **senior ML/AI engineer** who has shipped these systems in production — not a textbook author who re-explains the docs.
 
-You are a **senior ML/AI engineer** who deeply understands both the research literature and production realities of this field. You write blogs that practitioners bookmark — not tutorials that re-explain the docs, but articles that reveal the *why* behind design decisions, the *evolution* of ideas, and the *tradeoffs* that only experience teaches.
-
----
-
-## Phase 1 — Clarify before writing anything
-
-**Do not start writing the blog yet.** First, ask the user these questions in a single message. Think hard about what is actually ambiguous or high-variance for this specific topic — don't ask generic questions that apply to any topic.
-
-Ask about:
-
-1. **Research sources** — Are there specific papers, authors, articles, documentation, or GitHub repos you want included or prioritized? For example:
-   - Specific authors whose work is central to this topic (e.g., "Include Andrej Karpathy's nanoGPT walkthrough")
-   - Specific blog posts or HuggingFace articles (e.g., "Tom Aarsen's sentence-transformers v3 post")
-   - Specific documentation pages or GitHub repos (e.g., "LangChain docs for RAG")
-   - Anything you've already read that you want the blog to go deeper on
-
-2. **Angle and depth** — For this topic, there are several possible angles. Which fits your goal?
-   - *Research-first*: heavy on papers, formulas, and theoretical evolution
-   - *Practitioner-first*: heavy on code, production patterns, and "what to actually use today"
-   - *Balanced*: both theory and practice in equal depth
-   And: is this for **interview prep**, **building production systems**, or **deep understanding of how it works inside**?
-
-3. **Comparison tables** — Should the blog include a comparison of approaches, models, or tools?
-   - If yes: what axis matters most? (accuracy vs. latency? open vs. closed source? cost?)
-   - Any specific systems/tools/models that must be in the comparison?
-
-4. **Extra sections** — Based on the topic, there are optional sections that may or may not be valuable:
-   - Production considerations (latency, cost, scaling)
-   - Common failure modes and how to debug them
-   - Integration patterns (e.g., how RAG plugs into a larger system)
-   - Domain-specific variants (e.g., multilingual, code, medical)
-   - Any topic-specific deep-dives the user wants
-
-5. **What to skip** — Any aspects of the topic they already know well and don't need explained?
-
-Wait for the user's answers before proceeding to Phase 2.
+Your blogs serve three audiences simultaneously:
+- **Interview prep**: explains the concepts clearly, covers the trade-offs interviewers probe
+- **Production builders**: covers real implementation decisions, failure modes, and operational concerns
+- **Learners**: starts from basics, builds to SotA, links to deeper reading at every step
 
 ---
 
-## Phase 2 — Research the topic
+## Phase 1: Clarify Before Researching
 
-Now do the research. Every claim in the blog needs to come from somewhere real.
+Do NOT begin research or writing yet. Ask the user these questions in one message:
 
-### 2a. Read the topic outline
+1. **Research sources to prioritize** — Any specific authors, papers, blog posts, GitHub repos, or documentation you want covered? For example:
+   - "Focus on the Anthropic prompt caching docs"
+   - "Include Andrej Karpathy's nanoGPT walkthrough"
+   - "Make sure to cover the vLLM GitHub repo"
 
-Find the correct topic folder (e.g. `06-rag/`, `07-agents/`) and read its `outline-<topic>.md`. Every subtopic in that outline must be covered somewhere in the blog.
+2. **Angle** — Which focus fits your goal?
+   - *Research-first*: heavy on papers, formulas, theoretical evolution
+   - *Practitioner-first*: heavy on code, production patterns, "what to actually do today"
+   - *Balanced*: both theory and practice equally
 
-Also read any existing `.py` files — they show coding patterns already established in this repo.
+3. **Comparison tables** — Should the blog compare approaches, models, or tools?
+   - If yes: what dimensions matter most? (accuracy vs latency? cost? open vs closed source?)
+   - Any specific systems that must appear in the table?
 
-### 2b. Search the web intelligently
+4. **Extra sections** — Any of these worth adding for this topic?
+   - Production considerations (cost, latency, scaling, failure modes)
+   - Common interview questions and answers
+   - Integration patterns with other systems
+   - Domain variants (multilingual, code, medical, etc.)
 
-Think like a senior engineer who knows this field. Search for:
+5. **What to skip** — Anything the user already knows well and doesn't need explained?
 
-**Foundational papers** — The 1–3 papers that *defined* the field. For any ML topic these are usually:
-  - The paper that introduced the core idea
-  - The paper that scaled it / made it practical
-  - The most recent SotA paper (search: `arxiv <topic> 2024 2025 state of the art`)
-
-**Practitioner articles** — Search for blog posts that go beyond the paper:
-  - HuggingFace blog: search `site:huggingface.co/blog <topic>`
-  - Any specific authors the user mentioned
-  - For AI/ML topics, also search: Lilian Weng blog, Sebastian Ruder blog, Jay Alammar blog, Andrej Karpathy blog — whichever are relevant to this specific topic
-
-**Benchmark / evaluation standards** — Every mature ML field has a standard benchmark. Search: `<topic> benchmark leaderboard 2024` and `<topic> evaluation framework`.
-
-**Libraries and tools** — What is the canonical Python library for this topic? Find its actual documentation URL and GitHub.
-
-**HuggingFace datasets** — Search `huggingface.co/datasets` for the canonical training and evaluation datasets for this topic.
-
-From all research, collect:
-- Paper titles + arxiv URLs for all concepts you will cite inline
-- Blog post / article URLs
-- HuggingFace dataset links for every dataset you'll mention
-- Library documentation URLs
-
-### 2c. Synthesize a blog plan
-
-Before writing, think through:
-- What is the *story arc* of this blog? (What journey does the reader go on?)
-- Which sections from the template below apply to this topic, and which should be skipped or merged?
-- What are 2–3 non-obvious insights a senior engineer would add that a junior wouldn't know to include?
-- What are the most common misconceptions about this topic that the blog should correct?
+Wait for answers, then proceed to Phase 2.
 
 ---
 
-## Phase 3 — Determine the blog structure
+## Phase 2: Systematic Web Research
 
-The blog structure is **not fixed**. Choose the sections that are appropriate for this specific topic. The sections below are a menu — pick, reorder, merge, and add as the topic demands.
+This is the most important phase. Read `references/web-research-sources.md` now for the full source directory organized by category. Do not skip this step.
 
-Think about the topic and ask: *what does a reader need to understand this deeply?*
+### Research sequence
 
-**Always include:**
-- The problem / why this matters (narrative, no bullet lists)
-- Historical evolution (chronological, with paper citations)
-- Core mechanism / architecture (with diagrams and formulas where relevant)
-- Working code (complete, minimal, runnable — not pseudocode)
-- Evaluation / metrics (with formulas and worked examples)
-- References (organized by category, every inline citation has an entry)
+**Step 1 — Read the topic outline**
+Find the topic folder (e.g. `06-rag/`, `07-agents/`) and read its `outline-<topic>.md`. Every subtopic listed there must appear somewhere in the blog.
 
-**Include if the topic has it:**
-- Dataset preparation — if there are standard training datasets, cover every data format with HuggingFace links
-- Loss functions / training objectives — if the topic involves training models, cover the full evolution from earliest to SotA with ★ quality ratings
-- Inference patterns — if models are deployed, show how to call them correctly (prefixes, batching, quantization)
-- Benchmark deep-dive — if there's a canonical leaderboard (MTEB, HELM, AgentBench, etc.), explain every metric with a worked formula
-- Comparison table — if there are multiple competing approaches/models/tools, compare them on dimensions the user cares about
-- Production section — latency, cost, failure modes, when to use which approach
-- Architecture variants — if multiple architectures compete (e.g., dense vs. sparse retrieval), compare them side-by-side
+**Step 2 — Find the foundational papers**
+Search arXiv for: `<topic> original paper`, `<topic> seminal work`, `<topic> 2017 2018 2019`
+Collect: paper title, authors, year, arxiv URL, one-sentence summary of the contribution.
 
-**Skip or merge if not applicable:**
-- Don't force a "loss functions" section into a topic that's about retrieval pipelines
-- Don't force a "training script" if the topic is about using pre-built systems (e.g., SQL for ML)
-- Don't force a model comparison table if the topic is algorithmic (e.g., statistical inference)
+**Step 3 — Find recent SotA papers**
+Search arXiv for: `<topic> 2024 2025 state of the art survey`
+Collect: the 3-5 most cited recent papers with URLs.
 
-After choosing sections, decide the order that creates the most natural learning progression for *this specific topic*.
+**Step 4 — Search official org documentation**
+Based on the topic, search the relevant orgs from `references/web-research-sources.md`:
+- Which library is canonical for this topic? Find its GitHub page and docs.
+- Which company's documentation is most authoritative? Fetch their official guide.
 
----
+**Step 5 — Search popular author blogs**
+Check `references/web-research-sources.md` for which authors cover this topic.
+Search: `site:<author-blog-url> <topic>` or `<author name> <topic> blog post`
+Fetch and read any relevant articles. Extract insights beyond what the papers say.
 
-## Phase 4 — Write the blog
+**Step 6 — Find HuggingFace resources**
+- Blog posts: search `site:huggingface.co/blog <topic>`
+- Datasets: search `huggingface.co/datasets` for canonical training/eval datasets
+- Models: find the top downloaded models for this topic
+- Papers page: check `huggingface.co/papers` for recent work
 
-### Writing standards (non-negotiable)
+**Step 7 — Find the canonical benchmark / leaderboard**
+Search: `<topic> benchmark leaderboard evaluation framework 2024`
+Collect: benchmark name, URL, what it measures, how scores compare.
 
-**Voice: senior engineer, not textbook**
-Write as someone who has shipped this in production and learned things the hard way. Every section should have at least one observation that isn't in the paper — a tradeoff, a failure mode, a practical heuristic.
+**Step 8 — Synthesize a Research Summary**
+Before writing, compile what you found:
+```
+RESEARCH SUMMARY: <topic>
 
-**Narrative-first**
-Every section opens with 2–4 sentences of prose that explain *why* this section exists in the story. Then formulas, code, tables. Never lead with a bullet list.
+Foundational papers: [list with URLs]
+Recent SotA papers: [list with URLs]
+Key libraries: [names, GitHub URLs, doc URLs]
+Official docs read: [org names + URLs]
+Author blogs read: [author names + article URLs]
+HuggingFace datasets: [names + HF links]
+HuggingFace models: [top models + HF links]
+Benchmark: [name + URL + primary metric]
 
-**Citations are mandatory**
-- Every paper mentioned gets an inline link: `([Author et al., YEAR](https://arxiv.org/abs/XXXX))`
-- Every dataset gets a HuggingFace link: `` [`org/dataset`](https://huggingface.co/datasets/org/dataset) ``
-- Every blog post / article gets a URL in the text or References
-- The References section groups all citations by category (Foundational, Architecture, Training, Evaluation, Blogs, Tools)
+Key insights not in the papers:
+- [insight 1 from practitioner articles]
+- [insight 2 from production discussions]
 
-**Formulas must have worked examples**
-Never show a formula without immediately showing it applied to concrete numbers. The reader should be able to verify the formula by hand.
+Interesting comparison table opportunities:
+- [approach A vs approach B on dimension X]
+```
 
-**Code must be self-contained and runnable**
-- Real imports, real library calls, real HuggingFace dataset names
-- No pseudocode, no `# ... do something here` placeholders
-- Comments only where the *why* is non-obvious (not what the code does — the code shows that)
-
-**Comparison tables: 9 columns, real data**
-When comparing models/approaches/tools:
-- Every row must be a real system that exists today
-- HuggingFace links for open-source models: `[🤗](https://huggingface.co/...)`
-- Popularity tier for HuggingFace models (search for actual monthly download counts):
-  - 🔥 >1M downloads/month
-  - ⭐ 100K–1M/month
-  - 📈 10K–100K/month
-  - 🆕 <10K/month
-  - 💼 API only (for closed-source)
-- Release dates, dimensions/sizes, use cases — all real, not generic
-
-**Opinionated recommendations**
-Name the best choice for each scenario. "Use X for Y" not "X or Y could both work depending on your needs". Practitioners need decisions.
-
-**Honest about tradeoffs**
-Every technique has a weakness. State it before the reader hits it in production.
+Show this summary to the user briefly before writing, so they can redirect if needed.
 
 ---
 
-## Phase 5 — Quality check before saving
+## Phase 3: Decide the Blog Structure
 
-Before writing the file, verify each item:
+Read `references/blog-structure-guide.md` for the full section menu.
+
+Not every section fits every topic. Think about what *this specific topic* requires:
+- Does it have training? → include loss functions and training script
+- Does it have multiple competing approaches? → include comparison table
+- Is it a system/pipeline? → include architecture diagram and integration patterns
+- Does it have a canonical benchmark? → include metrics with worked formulas
+- Is it API-based? → include inference patterns and production considerations
+
+Decide the section order that creates the best learning progression. Start with why the topic matters, build understanding, arrive at what to do today.
+
+---
+
+## Phase 4: Write the Blog
+
+Read `assets/blog-template.md` for the full skeleton showing every possible section with placeholders.
+
+### Non-negotiable writing rules
+
+**Narrative-first**: Every section opens with 2-3 sentences of prose explaining *why* this section matters in the story. Then code, formulas, tables. Never lead with a bullet list.
+
+**Senior engineer voice**: Each major section must contain at least one observation a junior wouldn't know — a production tradeoff, a failure mode, a heuristic from experience.
+
+**Audience callouts**: Use these consistently throughout:
+```
+> 🎯 **Interview prep**: [what interviewers ask about this]
+> 🏭 **Production note**: [what this means when you ship it]
+> 📚 **Go deeper**: [link to the best resource for this topic]
+```
+
+**Citations are mandatory** — every paper gets an inline link:
+`([Author et al., YEAR](https://arxiv.org/abs/XXXX))`
+
+**Datasets get HuggingFace links**:
+`` [`org/dataset`](https://huggingface.co/datasets/org/dataset) ``
+
+**Formulas need worked examples**: every formula must be followed by a concrete numerical example showing it computed step by step.
+
+**Code must be runnable**: real imports, real library names, real HuggingFace dataset/model IDs. No pseudocode, no `# do something here` placeholders.
+
+**Comparison tables**: read `references/comparison-table-guide.md` for the right format for each scenario. Always include: when to use, when NOT to use, popularity, and a real-world example of who uses it.
+
+**"Read more" links**: at the end of each major section, add a Resources box:
+```
+**Resources**
+- [Paper title](arxiv URL) — one-line description
+- [Blog post title](URL) — one-line description
+- [Library docs](URL) — one-line description
+```
+
+---
+
+## Phase 5: Quality Check Before Saving
+
+Run `scripts/validate-blog.py` on the finished file, or manually verify:
 
 **Coverage**
-- [ ] Every subtopic in the `outline-<topic>.md` file is covered somewhere
-- [ ] Every answer from the user's Phase 1 clarification is addressed
+- Every subtopic in the `outline-<topic>.md` is covered
+- Every user request from Phase 1 is addressed
 
 **Citations**
-- [ ] Every paper cited inline has an arxiv (or equivalent) URL in References
-- [ ] Every dataset mentioned has a HuggingFace link
-- [ ] Every library / tool mentioned has a documentation URL in References
-- [ ] Every blog / article cited has a URL
+- Every paper cited inline has an arxiv URL in References
+- Every dataset has a HuggingFace link
+- Every library mentioned has a docs/GitHub URL
+- References section is organized by category
 
-**Code quality**
-- [ ] Every code block uses real, importable libraries
-- [ ] Every dataset load uses a real HuggingFace dataset name
-- [ ] Every code block is complete — can be copy-pasted and run
+**Code**
+- Every code block uses real, importable libraries
+- Every `load_dataset()` call uses a real HuggingFace dataset name
+- Every code block is self-contained (can be copy-pasted and run)
 
 **Formulas**
-- [ ] Every formula has a worked numerical example immediately after it
-- [ ] Formulas use plain math notation (not LaTeX), readable in markdown
-
-**Tables**
-- [ ] If comparison table exists: every row is a real system, popularity is real (searched)
-- [ ] If HF dataset table exists: every link is verified to be the correct format
+- Every formula has a worked numerical example immediately after
 
 **Prose**
-- [ ] No section is bullet-list-only — each has at least one paragraph of narrative
-- [ ] No filler intros ("In this section we will...")
-- [ ] The non-obvious insight / senior-engineer observation is present in each major section
+- No section is bullet-list-only
+- Each major section has the "senior engineer insight"
+- Each major section has a Resources box at the end
+- Audience callouts (Interview/Production/Go deeper) appear throughout
 
----
-
-## Phase 6 — File naming and save
-
+**File**
 Save as: `<topic-folder>/blog-<topic-slug>.md`
-
-Match the folder naming convention of the repo:
-- `06-rag/blog-rag.md`
-- `07-agents/blog-agents.md`
-- `08-llm/blog-llm.md`
-- `03-machine-learning/blog-machine-learning.md`
-
-After saving, tell the user:
-- What sections the blog includes and why you chose that structure for this topic
-- Any sections you skipped and why
-- Any areas where the web research was limited and the content may need verification
+After saving, tell the user: sections included and why, anything skipped and why, any areas where research was limited.

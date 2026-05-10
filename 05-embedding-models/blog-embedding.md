@@ -264,6 +264,8 @@ logits = W · input
 loss   = CrossEntropy(logits, label)
 ```
 
+**Dataset columns:** `sentence1`, `sentence2`, `label` (integer: 0 = contradiction, 1 = neutral, 2 = entailment)
+
 **Why it's limited:** The loss never directly optimizes cosine similarity between sentence vectors. You're training a classifier on top, and the geometric structure of the embedding space is an indirect consequence.
 
 ### 6.2 Generation 2 — Cosine Similarity Loss (Regression)
@@ -275,6 +277,8 @@ A simple MSE loss between predicted cosine similarity and the gold score from ST
 ŷ = cosine_similarity(u, v)
 loss = MSE(ŷ, y_gold)
 ```
+
+**Dataset columns:** `sentence1`, `sentence2`, `score` (float 0–1)
 
 This *does* directly optimize the cosine space. But MSE loss has a known weakness: it treats all prediction errors equally, regardless of whether correcting them would change the ranking of pairs. For retrieval, ranking is what matters.
 
@@ -291,6 +295,8 @@ Where:
 - `d(u,v)` is Euclidean distance
 - `margin` is a hyperparameter (minimum separation for negatives)
 
+**Dataset columns:** `sentence1`, `sentence2`, `label` (integer: 1 = similar, 0 = dissimilar — one row per pair, so the same anchor appears in multiple rows: once paired with a similar sentence and once with a dissimilar one; negatives must be explicitly labeled, no automatic in-batch construction)
+
 **Limitation:** Requires explicit negative pairs (no in-batch negatives). Also, the margin hyperparameter is sensitive — set it too low and the model stops learning; too high and training is noisy.
 
 ### 6.4 Generation 4 — Triplet Loss
@@ -305,6 +311,8 @@ loss = max(d(a, p) - d(a, n) + margin, 0)
 Where:
 - `d` is a distance function (cosine or Euclidean)
 - `margin` ensures the anchor is closer to the positive than the negative by at least `m`
+
+**Dataset columns:** `anchor`, `positive`, `negative` (all three in one row — unlike ContrastiveLoss, there is no label column; the negative is explicit and pre-curated per anchor, so one anchor = one row)
 
 **Advantage over contrastive loss:** Triplet loss doesn't force all positives to converge to a single point — it only requires that the anchor is *closer* to the positive than to the negative. This preserves intra-class variance (two correct answers can still differ from each other).
 
@@ -333,6 +341,8 @@ dataset = load_dataset("trec", split="train")
 loss = BatchSemiHardTripletLoss(model)
 # The trainer automatically groups same-label samples in each batch
 ```
+
+**Dataset columns:** `sentence`, `label` (integer class id — within each batch, sentences sharing the same label become positives for each other; sentences with different labels become negatives; no explicit pairs needed, the loss mines them automatically at training time)
 
 **When to use:** You have a labeled corpus (news categories, product types, intent labels) and want items from the same category embedded close together — without building explicit pairs.
 
@@ -363,6 +373,8 @@ model = SentenceTransformer("bert-base-uncased")
 loss = MultipleNegativesRankingLoss(model)
 ```
 
+**Dataset columns:** `anchor`, `positive` (no negative column — other positives in the same batch are automatically used as negatives; a batch of N pairs gives N−1 negatives per anchor for free)
+
 **Important caveat:** If your batch accidentally contains pairs where `aᵢ` is actually semantically close to `pⱼ` for some `i ≠ j`, you're training on false negatives. This is where **GISTEmbedLoss** comes in.
 
 ### 6.6 Generation 6 — CoSENTLoss and AnglELoss
@@ -386,6 +398,8 @@ This is a **list-wise** loss — it considers the relative ordering of all pairs
 angle_similarity(u, v) = angle between complex projections of u and v
 ```
 
+**Dataset columns:** `sentence1`, `sentence2`, `score` (float 0–1)
+
 In practice, AnglELoss outperforms CoSENTLoss, especially for long texts. **Use AnglELoss as your default for scored-pair data.**
 
 ### 6.7 Generation 7 — MatryoshkaLoss (Flexible Dimensions)
@@ -402,6 +416,8 @@ loss = Σ wₘ · base_loss(embeddings[:m])    for m in [768, 512, 256, 128, 64,
 Where `wₘ` are dimension-level weights (typically uniform).
 
 **Practical impact:** You train once but can serve at 1/24th the size (32d) with acceptable quality, or at full quality when precision matters. This is especially valuable for large-scale retrieval systems where storage and ANN speed matter.
+
+**Dataset columns:** same as the wrapped base loss (e.g., `anchor`, `positive` when wrapping MNRL)
 
 ```python
 from sentence_transformers.losses import MatryoshkaLoss, MultipleNegativesRankingLoss
@@ -420,6 +436,8 @@ from sentence_transformers.losses import GISTEmbedLoss
 guide_model = SentenceTransformer("BAAI/bge-small-en-v1.5")  # strong guide
 loss = GISTEmbedLoss(model, guide=guide_model)
 ```
+
+**Dataset columns:** `anchor`, `positive` (same as MNRL — one row per anchor, no negative column; in-batch negatives are auto-constructed from other positives in the batch, but the guide model then filters out any that are semantically close to the anchor before computing the loss)
 
 The trade-off is compute: every training step runs inference through both models. But for high-quality domain-specific fine-tuning, the cleaner negatives are worth it.
 

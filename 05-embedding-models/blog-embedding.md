@@ -425,28 +425,33 @@ The trade-off is compute: every training step runs inference through both models
 
 ### Summary: Complete Loss Function Reference
 
-| Loss | Data Format | When to Use | Quality |
-|------|------------|-------------|---------|
-| `SoftmaxLoss` | (a, b, class_label) | NLI-style classification over pairs | ★★☆ |
-| `CosineSimilarityLoss` | (a, b, float_score) | STS regression; simple but weak ordering | ★★☆ |
-| `ContrastiveLoss` | (a, b, 0/1) | Binary similar/dissimilar pairs | ★★☆ |
-| `OnlineContrastiveLoss` | (a, b, 0/1) | Contrastive with dynamic hard pair mining | ★★★ |
-| `TripletLoss` | (a, p, n) | Pre-curated triplets with explicit negatives | ★★★ |
-| `BatchSemiHardTripletLoss` | (sentence, class_id) | Labeled class data; auto-mines semi-hard triplets | ★★★ |
-| `BatchHardTripletLoss` | (sentence, class_id) | Labeled class data; hardest triplet per anchor | ★★★ |
-| `BatchAllTripletLoss` | (sentence, class_id) | Labeled class data; all valid triplets averaged | ★★★ |
-| `MultipleNegativesRankingLoss` | (a, p) | General-purpose; large in-batch negatives | ★★★★ |
-| `CachedMultipleNegativesRankingLoss` | (a, p) | Same as MNRL but supports very large virtual batches | ★★★★ |
-| `CoSENTLoss` | (a, b, float_score) | Scored pairs; rank-aware, better than MSE | ★★★★ |
-| `AnglELoss` | (a, b, float_score) | Best for scored pairs; angle-based, avoids saturation | ★★★★★ |
-| `MatryoshkaLoss` | wraps any loss | Variable-dimension serving from one model | ★★★★★ |
-| `Matryoshka2dLoss` | wraps any loss | Variable dims + variable layers simultaneously | ★★★★★ |
-| `GISTEmbedLoss` | (a, p) + guide model | Filters false negatives via a guide model | ★★★★★ |
-| `CachedGISTEmbedLoss` | (a, p) + guide model | GISTEmbed with large virtual batch caching | ★★★★★ |
-| `AdaptiveLayerLoss` | wraps any loss | Train model to work well with fewer transformer layers | ★★★★ |
-| `DenoisingAutoEncoderLoss` | (corrupted, original) | Unsupervised; no labeled data needed | ★★☆ |
-| `MSELoss` | (student_emb, teacher_emb) | Knowledge distillation from a larger teacher model | ★★★ |
-| `MarginMSELoss` | (a, p, n) + teacher scores | Distillation preserving teacher's margin between pairs | ★★★★ |
+| Loss | Data Format | When to Use | Use Case | Trained Embedding Model | HF Dataset | Loss Intuition | Quality |
+|------|------------|-------------|----------|------------------------|------------|----------------|---------|
+| `SoftmaxLoss` | (a, b, class_label) | NLI-style classification over pairs | Classification | `bert-base-nli-mean-tokens` (original SBERT) | [snli](https://huggingface.co/datasets/stanfordnlp/snli) | Cross-entropy over softmax of per-class similarity scores | ★★☆ |
+| `CosineSimilarityLoss` | (a, b, float_score) | STS regression; simple but weak ordering | Similarity | `stsb-bert-base` (original SBERT STS model) | [stsb](https://huggingface.co/datasets/sentence-transformers/stsb) | MSE between predicted cosine similarity and target float score | ★★☆ |
+| `ContrastiveLoss` | (a, b, 0/1) | Binary similar/dissimilar pairs | Similarity | — | [all-nli](https://huggingface.co/datasets/sentence-transformers/all-nli) | Pulls similar pairs close; pushes dissimilar pairs beyond a fixed margin | ★★☆ |
+| `OnlineContrastiveLoss` | (a, b, 0/1) | Contrastive with dynamic hard pair mining | Similarity | — | [all-nli](https://huggingface.co/datasets/sentence-transformers/all-nli) | Contrastive loss applied only to the hardest pairs mined from each batch | ★★★ |
+| `TripletLoss` | (a, p, n) | Pre-curated triplets with explicit negatives | Similarity / Retrieval | — | [all-nli](https://huggingface.co/datasets/sentence-transformers/all-nli) | max(0, d(a,p) − d(a,n) + margin); anchor must be closer to positive than negative | ★★★ |
+| `BatchSemiHardTripletLoss` | (sentence, class_id) | Labeled class data; auto-mines semi-hard triplets | Clustering / Similarity | — | [all-nli](https://huggingface.co/datasets/sentence-transformers/all-nli) | Triplet loss on negatives that are farther than the positive but still within margin | ★★★ |
+| `BatchHardTripletLoss` | (sentence, class_id) | Labeled class data; hardest triplet per anchor | Clustering / Similarity | — | [all-nli](https://huggingface.co/datasets/sentence-transformers/all-nli) | Triplet loss using farthest same-class positive and closest different-class negative per batch | ★★★ |
+| `BatchAllTripletLoss` | (sentence, class_id) | Labeled class data; all valid triplets averaged | Clustering / Similarity | — | [all-nli](https://huggingface.co/datasets/sentence-transformers/all-nli) | Average triplet loss over every valid (a, p, n) combination in the batch | ★★★ |
+| `MultipleNegativesRankingLoss` | (a, p) | General-purpose; large in-batch negatives | Retrieval | `all-mpnet-base-v2`, `BAAI/bge-base-en-v1.5`, `intfloat/e5-base` | [natural-questions](https://huggingface.co/datasets/sentence-transformers/natural-questions) | Cross-entropy: anchor's positive must rank highest among all in-batch negatives via dot-product softmax | ★★★★ |
+| `CachedMultipleNegativesRankingLoss` | (a, p) | Same as MNRL but supports very large virtual batches | Retrieval | `all-mpnet-base-v2`, `BAAI/bge-large-en-v1.5` | [natural-questions](https://huggingface.co/datasets/sentence-transformers/natural-questions) | MNRL with cached embeddings enabling virtual batch sizes far beyond GPU memory | ★★★★ |
+| `CoSENTLoss` | (a, b, float_score) | Scored pairs; rank-aware, better than MSE | Similarity | `shibing624/text2vec-base-chinese` | [stsb](https://huggingface.co/datasets/sentence-transformers/stsb) | Pairwise ranking loss penalising wrong ordering of cosine similarities relative to target scores | ★★★★ |
+| `AnglELoss` | (a, b, float_score) | Best for scored pairs; angle-based, avoids saturation | Similarity | `WhereIsAI/UAE-Large-V1` | [stsb](https://huggingface.co/datasets/sentence-transformers/stsb) | CoSENT-style ranking on angle (arccos) of complex-valued projections; sidesteps cosine saturation at extremes | ★★★★★ |
+| `MatryoshkaLoss` | wraps any loss | Variable-dimension serving from one model | Similarity / Retrieval | `nomic-ai/nomic-embed-text-v1`, `text-embedding-3-small` (OpenAI) | (same as wrapped loss) | Sum of wrapped loss evaluated independently at each truncated embedding dimension | ★★★★★ |
+| `Matryoshka2dLoss` | wraps any loss | Variable dims + variable layers simultaneously | Similarity / Retrieval | — | (same as wrapped loss) | Nested sum of wrapped loss across all (dimension, layer) truncation combinations | ★★★★★ |
+| `GISTEmbedLoss` | (a, p) + guide model | Filters false negatives via a guide model | Retrieval | `avsolatorio/GIST-Embedding-v0` | [gooaq](https://huggingface.co/datasets/sentence-transformers/gooaq) | MNRL with guide model masking in-batch negatives that score above a similarity threshold to the anchor | ★★★★★ |
+| `CachedGISTEmbedLoss` | (a, p) + guide model | GISTEmbed with large virtual batch caching | Retrieval | `avsolatorio/GIST-Embedding-v0` | [gooaq](https://huggingface.co/datasets/sentence-transformers/gooaq) | GISTEmbed loss with embedding cache enabling large virtual batches beyond GPU memory | ★★★★★ |
+| `AdaptiveLayerLoss` | wraps any loss | Train model to work well with fewer transformer layers | Similarity / Retrieval | — | (same as wrapped loss) | Wrapped loss summed at multiple intermediate layers; distills full model into early-exit sub-models | ★★★★ |
+| `DenoisingAutoEncoderLoss` | (corrupted, original) | Unsupervised; no labeled data needed | Similarity (unsupervised) | — (TSDAE-based models) | [wikipedia-en-sentences](https://huggingface.co/datasets/sentence-transformers/wikipedia-en-sentences) | Reconstruct original sentence from a corrupted version; encoder must build robust, noise-invariant representations | ★★☆ |
+| `MSELoss` | (student_emb, teacher_emb) | Knowledge distillation from a larger teacher model | Distillation | `all-MiniLM-L6-v2` (distilled from L12) | [stsb](https://huggingface.co/datasets/sentence-transformers/stsb) | Mean squared error between student and teacher embeddings; directly minimises the representation gap | ★★★ |
+| `MarginMSELoss` | (a, p, n) + teacher scores | Distillation preserving teacher's margin between pairs | Retrieval (distillation) | `msmarco-distilbert-base-v4` | [msmarco-bm25](https://huggingface.co/datasets/sentence-transformers/msmarco-bm25) | MSE between student's score margin (score_ap − score_an) and teacher's margin; preserves relative ranking | ★★★★ |
+
+> **Notes on `—` entries:**
+> - `ContrastiveLoss`, `OnlineContrastiveLoss`, `TripletLoss`, `BatchSemiHardTripletLoss`, `BatchHardTripletLoss`, `BatchAllTripletLoss` — older losses from the 2019 SBERT paper, used in experimental setups; no single well-known published model uses them exclusively today.
+> - `Matryoshka2dLoss`, `AdaptiveLayerLoss` — newer techniques from the sentence-transformers library without a prominent canonical published model yet.
+> - `DenoisingAutoEncoderLoss` — the TSDAE technique exists but the resulting models are not widely distributed under a standard name.
 
 ---
 

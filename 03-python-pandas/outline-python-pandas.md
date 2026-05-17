@@ -67,3 +67,43 @@ Categorical dtype; downcast numerics; chunked processing; Dask for out-of-core; 
 df.plot API (line, bar, hist, scatter, box, kde); subplots; Matplotlib fig/ax; seaborn for statistical plots.
 - https://pandas.pydata.org/docs/user_guide/visualization.html
 - https://seaborn.pydata.org/tutorial.html
+
+## 16 — Polars: Fast DataFrame Library
+Lazy vs eager API; scan_csv/scan_parquet; expressions and chained ops; group_by + agg; vs pandas performance benchmark; when to switch from pandas.
+- https://docs.pola.rs/user-guide/getting-started/
+- https://pola.rs/posts/benchmarks/
+
+## 17 — Python OOP, Decorators & Context Managers
+Classes for ML pipelines; @property, @classmethod, @staticmethod; @dataclass; __slots__ for memory; context managers (with/__enter__/__exit__); decorators for retry/logging.
+- https://docs.python.org/3/tutorial/classes.html
+- https://realpython.com/python-classes/
+
+## 18 — Type Hints, Pydantic & Dataclasses
+Function annotations; mypy basics; Pydantic BaseModel for config/API schemas; Field validators; model_validator; dataclasses vs NamedTuple vs TypedDict; used throughout LLM tooling (LangChain, FastAPI, Instructor).
+- https://docs.pydantic.dev/latest/
+- https://mypy.readthedocs.io/en/stable/
+
+## 19 — Python Debugging & Profiling
+pdb/ipdb breakpoints; cProfile + snakeviz; line_profiler (@profile); memory_profiler; py-spy for production; diagnosing slow notebooks and data pipelines.
+- https://docs.python.org/3/library/profile.html
+- https://github.com/benfred/py-spy
+
+## 20 — Virtual Environments & Packaging
+venv vs conda vs uv (fast resolver); pyproject.toml; pip-tools for lock files; packaging a DS utility library; reproducible environments for MLOps.
+- https://docs.astral.sh/uv/
+- https://packaging.python.org/en/latest/guides/
+
+## 21 — Async Python (asyncio)
+Event loop; async/await syntax; coroutines vs threads; asyncio.gather and asyncio.create_task for concurrency; aiohttp for async HTTP; async generators; StreamingResponse; essential for LLM streaming, voice agents, and real-time API servers.
+- https://docs.python.org/3/library/asyncio.html
+- https://realpython.com/async-io-python/
+
+## 22 — Multithreading & Multiprocessing
+threading.Thread for I/O-bound tasks; GIL and why it limits CPU parallelism; concurrent.futures (ThreadPoolExecutor, ProcessPoolExecutor); multiprocessing.Pool for CPU-bound; shared memory; Queue for inter-process communication; use in audio pipelines, data loaders, and voice agent backends.
+- https://docs.python.org/3/library/concurrent.futures.html
+- https://docs.python.org/3/library/multiprocessing.html
+
+## 23 — FastAPI for ML & AI Serving
+Path/query/body params; Pydantic request/response models; async endpoints; background tasks; StreamingResponse for LLM token streaming; middleware; deploy with uvicorn + gunicorn; used for LLM, ML model, and voice agent APIs.
+- https://fastapi.tiangolo.com/tutorial/
+- https://fastapi.tiangolo.com/advanced/custom-response/

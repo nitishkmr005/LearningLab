@@ -72,3 +72,8 @@ DPO derivation (implicit reward); RAFT; RLAIF; KTO; SimPO; comparison with RLHF;
 OpenAI Gym / Gymnasium; Stable-Baselines3; RLlib (Ray); Atari, MuJoCo, MiniGrid; TRL (Hugging Face) for RLHF.
 - https://stable-baselines3.readthedocs.io/en/master/
 - https://huggingface.co/docs/trl/index
+
+## 16 — GRPO (Group Relative Policy Optimization)
+DeepSeek R1's training algorithm; group sampling to estimate baseline reward without a value model; advantage normalization within group; vs PPO for LLM fine-tuning; lower memory cost; TRL implementation.
+- https://arxiv.org/abs/2501.12599
+- https://huggingface.co/docs/trl/grpo_trainer

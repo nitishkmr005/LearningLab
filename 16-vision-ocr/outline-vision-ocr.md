@@ -74,3 +74,18 @@ LayoutLM / LayoutLMv3 (text + layout + image); DocFormer; key-value extraction; 
 Image classification (Top-1/5 accuracy); detection (mAP@50, mAP@50:95); segmentation (mIoU, Dice); model latency; ONNX/TensorRT export; serving with Triton.
 - https://docs.ultralytics.com/guides/triton-inference-server/
 - https://docs.nvidia.com/deeplearning/triton-inference-server/
+
+## 16 — SAM & SAM 2 (Segment Anything)
+Meta's promptable segmentation with point/box/mask prompts; zero-shot instance segmentation; SAM 2 extends to video with memory attention; use in annotation pipelines and interactive tools.
+- https://arxiv.org/abs/2304.02643
+- https://github.com/facebookresearch/sam2
+
+## 17 — DINOv2: Self-Supervised Vision Features
+Distillation with no labels; patch-level features for dense prediction; strong frozen backbone beats supervised on many downstream tasks; linear probing vs fine-tuning; depth estimation.
+- https://arxiv.org/abs/2304.07193
+- https://github.com/facebookresearch/dinov2
+
+## 18 — Video Understanding
+Temporal models (TimeSformer, VideoMAE); optical flow (RAFT); action recognition on Kinetics; video captioning; frame sampling strategies (uniform, keyframe); inference memory management.
+- https://arxiv.org/abs/2106.05392
+- https://arxiv.org/abs/2203.12602

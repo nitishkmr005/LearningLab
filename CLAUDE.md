@@ -1,12 +1,19 @@
 # LearningLab
 
-An exhaustive, interview-ready learning system for data scientists covering SQL through advanced LLMs, vision, speech, and RL.
+An exhaustive, interview-ready learning system covering SQL through advanced LLMs, vision, speech, and RL — targeted at four roles:
+
+- **Data Scientist** — statistics, experimentation, classical ML, SQL, feature engineering
+- **ML Engineer** — model training, serving, MLOps, data pipelines, distributed systems
+- **AI Engineer** — LLMs, RAG, agents, prompt engineering, evaluation, fine-tuning
+- **GenAI Engineer** — multimodal models, inference optimization, tool use, reasoning models, voice/vision agents
+
+Every topic is chosen because it appears in interviews, production systems, or both for at least one of these roles.
 
 ## Goal
 
 Three complementary deliverables per topic:
 
-1. **Interview prep** — the blog serves as the one-stop literature survey covering history, theory, trade-offs, and everything an interviewer can probe.
+1. **Interview prep** — the blog serves as the one-stop literature survey covering history, theory, trade-offs, and everything an interviewer probes across DS / ML / AI / GenAI roles.
 2. **Literature survey blog** — a single-file deep-dive: history, theory, formulas, code, benchmarks, and citations from authoritative sources.
 3. **Learning snippets** — byte-sized, minimal scripts under `scripts/` to understand and learn advanced topics hands-on. Each script isolates one concept, runs in the terminal, and teaches through its output.
 
@@ -39,7 +46,7 @@ Use the `/write-learning-blog` skill. It handles research, structure, and citati
 Blog requirements (enforced by the skill):
 - Table of contents at the top.
 - Every claim cited inline: `([Author et al., YEAR](https://arxiv.org/abs/XXXX))`.
-- All citations must link to authoritative sources — papers on arXiv, or official docs/blogs from: Anthropic, Hugging Face, NVIDIA, OpenAI, PyTorch, Google DeepMind, Microsoft Research, Cohere, Unsloth, SBERT, Snowflake, or equivalent orgs.
+- All citations must link to authoritative sources — papers on arXiv, or substack/medium articles or official docs/blogs from: Anthropic, Hugging Face, NVIDIA, OpenAI, PyTorch, Google DeepMind, Microsoft Research, Cohere, Unsloth, SBERT, Snowflake, or equivalent orgs.
 - References section at the end, organised by category.
 - Save as `blog-<topic-slug>.md` in the topic folder.
 - Delete `outline-<topic>.md` after the blog is saved.

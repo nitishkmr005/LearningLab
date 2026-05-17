@@ -74,3 +74,13 @@ Post-training quantization (dynamic, static); QAT; torch.ao.quantization; unstru
 LightningModule (training_step, configure_optimizers); Trainer (devices, precision, callbacks); WandB/TensorBoard logging; torchmetrics.
 - https://lightning.ai/docs/pytorch/stable/
 - https://torchmetrics.readthedocs.io/en/stable/
+
+## 16 — einops: Readable Tensor Operations
+rearrange, reduce, repeat; replaces reshape/permute/unsqueeze chains; einsum notation; use in attention implementations and vision models; works with PyTorch, NumPy, JAX.
+- https://einops.rocks/
+- https://github.com/arogozhnikov/einops
+
+## 17 — torch.compile & PyTorch 2.0
+torch.compile(model, mode="reduce-overhead"); Dynamo graph capture; Inductor backend (CUDA, CPU); graph breaks and how to avoid them; speedup benchmarks; when compile helps vs hurts.
+- https://pytorch.org/docs/stable/torch.compiler.html
+- https://pytorch.org/tutorials/intermediate/torch_compile_tutorial.html

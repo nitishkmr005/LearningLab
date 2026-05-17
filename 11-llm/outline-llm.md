@@ -129,3 +129,13 @@ MMLU, HellaSwag, GSM8K, HumanEval, MATH, ARC, TruthfulQA; LM-Evaluation-Harness;
 Character-level GPT from scratch; dataset prep; training loop; generation; understand every component.
 - https://github.com/karpathy/nanoGPT
 - https://www.youtube.com/watch?v=kCc8FmEb1nY
+
+## 29 — Extended Thinking & Reasoning Models
+o1 / o3 architecture; DeepSeek R1; Claude 3.7 extended thinking; chain-of-thought budgets (thinking tokens); process reward models vs outcome reward models; when reasoning models outperform standard; cost vs quality.
+- https://arxiv.org/abs/2501.12599
+- https://www.anthropic.com/news/claude-3-7-sonnet
+
+## 30 — Model Merging
+Task vectors; SLERP (spherical linear interpolation); DARE-TIES (prune + merge); merging without retraining; MergeKit; when merging beats fine-tuning; domain-specialist + generalist fusion.
+- https://arxiv.org/abs/2312.01552
+- https://github.com/arcee-ai/mergekit

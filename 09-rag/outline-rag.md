@@ -124,3 +124,12 @@ Grounding system prompt; citation instructions; "I don't know" handling; structu
 Async retrieval; prompt caching for repeated prefixes; semantic caching (GPTCache); monitoring.
 - https://github.com/zilliztech/GPTCache
 - https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+
+## 29 — Contextual Retrieval
+Prepend chunk-level context summary using LLM before embedding; Anthropic's method reducing retrieval failures by 49%; combining with BM25 + contextual chunks; cost vs quality trade-off.
+- https://www.anthropic.com/news/contextual-retrieval
+
+## 30 — Agentic Document Parsing
+Vision models (Claude, GPT-4V) for complex PDFs with tables/charts/figures; Docling; LlamaParse for layout-aware parsing; vs rule-based extraction; when vision parsing is worth the cost.
+- https://github.com/DS4SD/docling
+- https://github.com/run-llama/llama_parse

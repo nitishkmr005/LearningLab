@@ -71,3 +71,8 @@ Why Git struggles with large binaries; git-lfs track, push, pull; pointer files;
 GitHub Actions triggered on push/PR; branch protection rules; semantic-release for automated versioning; MLflow / DVC for experiment tracking alongside git history.
 - https://docs.github.com/en/actions/writing-workflows/quickstart
 - https://dvc.org/doc/start/experiments
+
+## 16 — Conventional Commits & Changelog Automation
+Commit message format (feat/fix/chore/docs/refactor); BREAKING CHANGE footer; automated CHANGELOG generation; semantic versioning from commit types; commitlint + husky; standard in ML OSS repos.
+- https://www.conventionalcommits.org/en/v1.0.0/
+- https://github.com/conventional-changelog/conventional-changelog

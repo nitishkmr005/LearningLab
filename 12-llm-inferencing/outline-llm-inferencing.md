@@ -111,3 +111,8 @@ Kernel injection; tensor parallelism via DeepSpeed; ZeRO-Inference for CPU offlo
 llmperf, GenAI-Perf; measure TTFT/TPOT at P50/P99; GPU utilization; model FLOPS utilization (MFU).
 - https://github.com/ray-project/llmperf
 - https://github.com/NVIDIA/GenerativeAIExamples
+
+## 24 — KV Cache Quantization & Compression
+INT8/FP8 KV cache (halving memory with minimal quality loss); attention sinks (StreamingLLM for infinite context); KV cache eviction policies; grouped-query attention as architectural compression; trade-offs.
+- https://arxiv.org/abs/2309.17453
+- https://arxiv.org/abs/2307.03170

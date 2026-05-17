@@ -125,3 +125,17 @@ Counterfactuals; ATE, ATT; confounding; selection bias; propensity scores; overl
 Difference-in-differences; regression discontinuity; instrumental variables; matching; doubly robust estimators.
 - https://www.causalinferencebook.net/
 - https://matheusfacure.github.io/python-causality-handbook/
+
+## 29 — Information Theory for ML
+Entropy, joint entropy, conditional entropy; KL divergence and why it appears in VAEs, RL, and fine-tuning; mutual information; cross-entropy loss derivation; sklearn mutual_info_classif.
+- https://www.deeplearningbook.org/contents/prob.html
+- https://arxiv.org/abs/2106.09685
+
+## 30 — Missing Data Mechanisms (MCAR, MAR, MNAR)
+Missing completely at random vs informative missingness; listwise deletion pitfalls; multiple imputation (MICE); sklearn SimpleImputer vs IterativeImputer; missingness as a feature.
+- https://scikit-learn.org/stable/modules/impute.html
+
+## 31 — Gaussian Mixture Models & EM Algorithm
+Soft clustering; E-step / M-step derivation; log-likelihood optimization; BIC/AIC for k selection; sklearn GaussianMixture; use cases: user segmentation, density estimation, anomaly detection.
+- https://scikit-learn.org/stable/modules/mixture.html
+- https://arxiv.org/abs/1111.0352

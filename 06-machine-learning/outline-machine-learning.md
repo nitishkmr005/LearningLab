@@ -124,3 +124,33 @@ MLP for tabular data; forward pass, loss, backprop; training loop; BatchNorm, Dr
 ## 28 — MLflow: Experiment Tracking
 Log parameters, metrics, artifacts; compare runs; model registry; reproducible experiments.
 - https://mlflow.org/docs/latest/index.html
+
+## 29 — Gradient Descent Variants
+SGD + momentum; Adagrad (adaptive per-parameter lr); RMSprop; Adam (moment estimates); AdamW (decoupled weight decay); learning rate warm-up; cosine annealing; gradient clipping.
+- https://pytorch.org/docs/stable/optim.html
+- https://www.ruder.io/optimizing-gradient-descent/
+
+## 30 — Tabular Deep Learning
+TabNet (attention masks for feature selection); FT-Transformer (feature tokenizer + transformer); SAINT (intersample attention); when DL beats GBDT on tabular; benchmark on OpenML-CC18.
+- https://arxiv.org/abs/1908.07442
+- https://arxiv.org/abs/2106.11959
+
+## 31 — AutoML
+AutoGluon (stack ensembles, best-in-class); TPOT (genetic programming pipelines); H2O AutoML; meta-learning; when AutoML beats manual tuning; production use at scale.
+- https://auto.gluon.ai/stable/index.html
+- https://epistasislab.github.io/tpot/
+
+## 32 — Data Validation & Pipeline Testing
+Great Expectations (expectations suites, data docs); Pandera (schema + statistical checks on DataFrames); Evidently for data drift detection; testing data pipelines like code.
+- https://docs.greatexpectations.io/docs/
+- https://pandera.readthedocs.io/en/stable/
+
+## 33 — Feature Stores
+Online vs offline store; point-in-time correct joins (prevent leakage); Feast (open source); Tecton; Hopsworks; how feature stores eliminate training-serving skew.
+- https://docs.feast.dev/
+- https://www.tecton.ai/blog/what-is-a-feature-store/
+
+## 34 — Model Serving & MLOps Patterns
+BentoML for packaging models as services; Modal for serverless GPU; Docker + uvicorn for FastAPI model APIs; model versioning; canary deploys; monitoring with Evidently / Arize.
+- https://docs.bentoml.com/en/latest/
+- https://modal.com/docs/guide

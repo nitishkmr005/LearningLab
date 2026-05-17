@@ -114,3 +114,13 @@ Interleaving tests; holdout design; metric selection (CTR, dwell time, long-term
 ## 26 — Production Architecture
 Two-stage pipeline (retrieval → ranking); feature stores; real-time vs batch serving; monitoring drift.
 - https://eugeneyan.com/writing/system-design-for-recommendations-and-search/
+
+## 27 — Multi-Task Learning in RecSys
+Shared bottom + task-specific towers; MMoE (Mixture of Experts); PLE (Progressive Layered Extraction); YouTube multi-objective ranking; calibrating engagement vs satisfaction; loss weighting strategies.
+- https://arxiv.org/abs/1904.05862
+- https://dl.acm.org/doi/10.1145/3383313.3412236
+
+## 28 — LLM-Based Recommendations
+LLMRec; prompting LLMs for zero-shot recommendations; LLM as feature encoder for cold-start; instruction tuning on interaction history; trade-offs vs traditional two-tower at scale.
+- https://arxiv.org/abs/2307.15780
+- https://arxiv.org/abs/2305.07001

@@ -73,3 +73,13 @@ Shadow deployment; online A/B testing; implicit feedback signals (thumbs, retent
 ## 15 — Building a Custom Eval Suite
 Defining task-specific rubrics; creating golden datasets; bootstrapping from production logs; preventing eval set leakage; versioning and reproducibility.
 - https://www.anthropic.com/research/evaluating-ai-systems
+
+## 16 — Reasoning Model Evaluation
+Process reward models (PRM) vs outcome reward models (ORM); math proof step-level scoring; code execution as ground truth; pass@k for reasoning; chain-of-thought faithfulness; MATH, AIME benchmarks.
+- https://arxiv.org/abs/2305.20050
+- https://arxiv.org/abs/2501.12599
+
+## 17 — Agentic & Multi-Turn Evaluation
+Trajectory-level vs final-answer eval; SWE-bench (code agent); WebArena (browser agent); tool-use accuracy; multi-turn consistency; AgentBench; hallucination compounding across turns.
+- https://arxiv.org/abs/2310.03744
+- https://arxiv.org/abs/2307.13854

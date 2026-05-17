@@ -105,3 +105,13 @@ Direct and indirect injection; tool abuse; sandboxed execution; output filtering
 ## 23 — Cost & Latency Optimization
 Minimize tool calls; cache repeated lookups; choose smaller models for simple steps; batching.
 - https://arxiv.org/abs/2305.08130
+
+## 24 — Model Context Protocol (MCP)
+Anthropic's open standard for exposing tools/resources to LLMs; MCP servers (local + remote); MCP clients; resources, tools, and prompts primitives; replacing bespoke integrations; growing ecosystem.
+- https://modelcontextprotocol.io/introduction
+- https://docs.anthropic.com/en/docs/build-with-claude/mcp
+
+## 25 — Computer Use & GUI Agents
+Anthropic computer use API; screenshot + action (click/type/scroll) loop; Playwright-based browser agents; SWE-bench for code agent evaluation; real-world automation use cases; safety constraints.
+- https://docs.anthropic.com/en/docs/build-with-claude/computer-use
+- https://arxiv.org/abs/2310.06770

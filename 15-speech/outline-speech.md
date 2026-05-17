@@ -74,3 +74,13 @@ Online decoding; chunked inference; CTC with partial hypothesis; latency vs accu
 librosa (analysis); soundfile (I/O); torchaudio (transforms, datasets); HuggingFace transformers (ASR/TTS pipelines); pyannote; Coqui TTS.
 - https://pytorch.org/audio/stable/index.html
 - https://huggingface.co/docs/transformers/index
+
+## 16 — Audio Foundation Models
+SeamlessM4T (Meta): speech-to-speech, speech-to-text in 100+ languages; AudioPaLM; Whisper large-v3-turbo; zero-shot cross-lingual transfer; evaluate on CoVoST-2 and FLEURS benchmarks.
+- https://arxiv.org/abs/2308.11596
+- https://huggingface.co/openai/whisper-large-v3-turbo
+
+## 17 — Voice Agent Architecture
+Full pipeline: VAD (Voice Activity Detection) → ASR → LLM → TTS; latency budget per stage; streaming ASR + streaming TTS for low-latency response; WebSocket / WebRTC transport; interrupt handling; LiveKit, Daily.co SDKs.
+- https://docs.livekit.io/agents/
+- https://github.com/pipecat-ai/pipecat

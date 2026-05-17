@@ -104,3 +104,14 @@ UMAP / t-SNE for embedding space exploration; cluster analysis; Nomic Atlas and 
 HNSW, IVF-PQ, Flat; FAISS, hnswlib, ScaNN; recall-latency trade-offs; choosing index type.
 - https://faiss.ai/
 - https://github.com/nmslib/hnswlib
+
+## 23 — Code Embeddings
+CodeBERT; UniXcoder; StarCoder embeddings; semantic code search; code similarity for deduplication; use in Copilot-style retrieval and code review tools.
+- https://arxiv.org/abs/2002.08155
+- https://huggingface.co/microsoft/codebert-base
+
+## 24 — Embedding APIs: OpenAI, Cohere, Voyage AI
+text-embedding-3-small/large; Cohere embed-v3 (multilingual); Voyage AI rerank-2; cost/quality/latency trade-offs; when to use API vs self-hosted; batching and rate limits.
+- https://platform.openai.com/docs/guides/embeddings
+- https://docs.cohere.com/docs/embed-2
+- https://docs.voyageai.com/docs/embeddings

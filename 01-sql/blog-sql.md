@@ -209,7 +209,69 @@ ORDER BY total DESC;                -- step 9: sort final result
 | web     | 950   |
 | mobile  | 645   |
 
-The most common bugs come from violating this order: using a SELECT alias in a WHERE clause (illegal — SELECT hasn't run yet), or filtering on a window function result in WHERE instead of a subquery.
+**Common mistakes caused by violating this order:**
+
+**❌ Mistake 1 — using a SELECT alias in WHERE** (SELECT runs at step 7, WHERE at step 2)
+
+```sql
+-- ❌ ERROR: column "total" does not exist
+SELECT channel, SUM(amount) AS total
+FROM orders
+WHERE total > 400;         -- "total" alias doesn't exist yet at step 2
+
+-- ✅ Fix 1: repeat the expression in WHERE
+WHERE SUM(amount) > 400    -- still wrong — can't aggregate in WHERE
+
+-- ✅ Fix 2: use HAVING (runs after GROUP BY)
+SELECT channel, SUM(amount) AS total
+FROM orders
+GROUP BY channel
+HAVING SUM(amount) > 400;
+
+-- ✅ Fix 3: wrap in a subquery or CTE
+WITH agg AS (
+  SELECT channel, SUM(amount) AS total FROM orders GROUP BY channel
+)
+SELECT channel, total FROM agg WHERE total > 400;
+```
+
+**❌ Mistake 2 — filtering a window function result in WHERE**
+
+```sql
+-- ❌ ERROR: window functions are not allowed in WHERE
+SELECT name, department, salary,
+       RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rnk
+FROM employees
+WHERE rnk <= 2;    -- "rnk" is computed at step 5 (WINDOW), WHERE is step 2
+
+-- ✅ Fix: wrap in a subquery, or use QUALIFY (Snowflake only)
+SELECT * FROM (
+  SELECT name, department, salary,
+         RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rnk
+  FROM employees
+) t WHERE rnk <= 2;
+
+-- ✅ Snowflake shortcut
+SELECT name, department, salary,
+       RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rnk
+FROM employees
+QUALIFY rnk <= 2;
+```
+
+**❌ Mistake 3 — ORDER BY in a subquery doesn't guarantee outer order**
+
+```sql
+-- ❌ Silently unreliable: the outer query may reorder the rows
+SELECT * FROM (
+  SELECT customer_id, amount FROM orders ORDER BY amount DESC
+) sub
+LIMIT 3;
+
+-- ✅ Fix: always ORDER BY in the outermost query
+SELECT customer_id, amount FROM orders ORDER BY amount DESC LIMIT 3;
+```
+
+> 🎯 **Interview prep**: These three mistakes are the most frequently tested execution-order questions. The core rule: aliases defined in SELECT are only visible in ORDER BY (step 9). Aggregates belong in HAVING (step 4), not WHERE (step 2). Window function results need a subquery wrapper — or QUALIFY in Snowflake — to filter.
 
 ### 2.2 Snowflake Execution Engine
 
@@ -687,6 +749,50 @@ FROM daily_revenue;
 
 > 🏭 **Production note**: `ROWS BETWEEN` counts physical rows. `RANGE BETWEEN` groups rows with identical ORDER BY values into the same logical frame. For time-series work, `ROWS BETWEEN` is almost always more predictable.
 
+**❌ Common mistake — RANGE with tied ORDER BY values gives duplicate running totals**
+
+The default frame when `ORDER BY` is present is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. `RANGE` treats all rows with the same `ORDER BY` value as one logical group. So when Bob and Carol both earn 90000, their frame already includes *both* of them — Bob absorbs Carol's salary before she even appears in the list.
+
+**Input — Engineering employees, sorted by salary ASC (Bob and Carol tie):**
+
+| name  | salary |
+|-------|--------|
+| Grace | 75000  |
+| Bob   | 90000  |
+| Carol | 90000  |
+| Alice | 100000 |
+
+```sql
+SELECT name, salary,
+  SUM(salary) OVER (
+    PARTITION BY department ORDER BY salary
+    -- ❌ default = RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS running_range,
+
+  SUM(salary) OVER (
+    PARTITION BY department ORDER BY salary
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW   -- ✅ explicit
+  ) AS running_rows
+FROM employees
+WHERE department = 'Engineering'
+ORDER BY salary;
+```
+
+**Result:**
+
+| name  | salary | running_range      | running_rows |
+|-------|--------|--------------------|--------------|
+| Grace | 75000  | 75000              | 75000        |
+| Bob   | 90000  | **255000** ❌      | 165000  ✓    |
+| Carol | 90000  | **255000** ❌      | 255000  ✓    |
+| Alice | 100000 | 355000             | 355000       |
+
+With `RANGE`: Bob already shows 255000 (= 75000 + 90000 + 90000) — the frame jumped ahead and included Carol. Both Bob and Carol show the same total, making it look like a duplicate. With `ROWS`: each row advances one at a time regardless of ties.
+
+**Rule:** always write `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` explicitly whenever ties are possible in the ORDER BY column.
+
+> 🎯 **Interview prep**: "Why are two rows showing the same cumulative total?" The answer is always `RANGE` vs `ROWS`. Interviewers put a deliberate tie in the test data to expose this.
+
 ### 5.4 LAG, LEAD, FIRST_VALUE, LAST_VALUE
 
 **Input — `user_events`** (showing user 101's events):
@@ -728,25 +834,68 @@ ORDER BY event_ts;
 
 > 🎯 **Interview prep**: "Why does LAG return NULL for the first row?" — There is no previous row. Handle with `COALESCE(LAG(col) OVER (...), 0)` or filter out NULLs downstream. Forgetting this causes off-by-one errors in growth rate calculations.
 
-**Resources**
-- [12 Real Window Function Interview Questions](https://medium.com/@aicoders/master-sql-window-functions-and-ctes-12-real-data-engineering-interview-questions-with-code-9b42f37c1db1) — FAANG-sourced problems with full solutions
-- [Snowflake Analytic Functions](https://docs.snowflake.com/en/sql-reference/functions-analytic) — complete reference
+**❌ Common mistake 1 — LAG with wrong ORDER BY direction returns future values, not past**
 
-### 5.5 Ordering Mistakes That Give Silently Wrong Results
+`LAG` returns the row that comes *before the current row in window order*. If you sort descending (newest date first), LAG's "before" is a later calendar date — you accidentally fetch next month's revenue instead of last month's.
 
-These three bugs are extremely common. The queries run without errors — the engine is happy — but the numbers are wrong. Each one has tripped experienced engineers.
+```sql
+WITH monthly AS (
+  SELECT DATE_TRUNC('month', order_date) AS month, SUM(amount) AS rev
+  FROM orders GROUP BY 1
+)
+SELECT month, rev,
+  LAG(rev) OVER (ORDER BY month DESC) AS wrong_prev,   -- ❌ DESC: "prev" = future month
+  LAG(rev) OVER (ORDER BY month ASC)  AS correct_prev  -- ✅ ASC:  "prev" = past month
+FROM monthly
+ORDER BY month DESC;
+```
+
+**Result:**
+
+| month       | rev  | wrong_prev      | correct_prev |
+|-------------|------|-----------------|--------------|
+| 2024-03-01  | 895  | NULL *(lucky ✓)*| 1000  ✓      |
+| 2024-02-01  | 1000 | 895   ❌        | 400   ✓      |
+| 2024-01-01  | 400  | 1000  ❌        | NULL  ✓      |
+
+`wrong_prev` for January returns 1000 (February's revenue — a *future* month). March accidentally gets NULL, which looks right, but only because there is no row after it in descending order.
+
+The practical version of this bug — you sort output newest-first for readability, and accidentally carry that `DESC` into the window:
+
+```sql
+-- ❌ MoM growth computed backwards — numbers look plausible but are wrong
+SELECT month, rev,
+  ROUND(100.0 * (rev - LAG(rev) OVER (ORDER BY month DESC))
+        / NULLIF(LAG(rev) OVER (ORDER BY month DESC), 0), 1) AS wrong_growth,
+
+-- ✅ Window ORDER BY ASC for logic; outer ORDER BY DESC for display
+  ROUND(100.0 * (rev - LAG(rev) OVER (ORDER BY month ASC))
+        / NULLIF(LAG(rev) OVER (ORDER BY month ASC), 0), 1)  AS correct_growth
+FROM monthly
+ORDER BY month DESC;
+```
+
+**Result:**
+
+| month       | rev  | wrong_growth | correct_growth |
+|-------------|------|--------------|----------------|
+| 2024-03-01  | 895  | -10.5  ❌    | -10.5  ✓       |
+| 2024-02-01  | 1000 | 150.0  ❌    | 150.0  ✓       |
+| 2024-01-01  | 400  | NULL         | NULL   ✓       |
+
+The numbers happen to be identical here — which is exactly what makes this bug dangerous. They differ as soon as the time series is non-monotone or has gaps.
+
+**Rule:** always define window `ORDER BY` to match the *logical* sequence (ASC for time series). Control display order with the outermost `ORDER BY` separately.
 
 ---
 
-#### Bug 1 — `LAST_VALUE` with the Default Frame
+**❌ Common mistake 2 — LAST_VALUE with the default frame returns the current row, not the partition's last**
 
-**What you want:** "What is the highest salary in each department?"  
-**What you write:** `LAST_VALUE(salary) OVER (PARTITION BY department ORDER BY salary)`  
-**What you get:** mostly the *current row's salary*, not the department maximum.
+`LAST_VALUE(salary) OVER (PARTITION BY department ORDER BY salary)` looks like it should return the highest salary in the department. It almost never does.
 
-The reason: every window function with `ORDER BY` but no explicit frame defaults to `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. So `LAST_VALUE` only ever sees rows up to the current one — and the last of those is the current row itself.
+The reason: the default frame is `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. `LAST_VALUE` sees only rows up to the current row, so the "last" value is always the current row's own value.
 
-**Input — Engineering employees sorted by salary ASC:**
+**Input — Engineering employees, sorted by salary ASC:**
 
 | name  | salary |
 |-------|--------|
@@ -756,63 +905,18 @@ The reason: every window function with `ORDER BY` but no explicit frame defaults
 | Alice | 100000 |
 
 ```sql
--- ❌ WRONG — default frame stops at current row
-SELECT name, department, salary,
-  LAST_VALUE(salary) OVER (
-    PARTITION BY department ORDER BY salary   -- no frame specified
-  ) AS wrong_max_salary,
-
--- ✅ CORRECT — extend frame to the end of the partition
-  LAST_VALUE(salary) OVER (
-    PARTITION BY department ORDER BY salary
-    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-  ) AS correct_max_salary,
-
--- ✅ SIMPLER — just use MAX() as a window function instead
-  MAX(salary) OVER (PARTITION BY department) AS max_via_max
-FROM employees
-WHERE department = 'Engineering'
-ORDER BY salary;
-```
-
-**Result:**
-
-| name  | salary | wrong_max_salary | correct_max_salary | max_via_max |
-|-------|--------|------------------|--------------------|-------------|
-| Grace | 75000  | 75000  ❌        | 100000  ✓          | 100000  ✓   |
-| Bob   | 90000  | 90000  ❌        | 100000  ✓          | 100000  ✓   |
-| Carol | 90000  | 90000  ❌        | 100000  ✓          | 100000  ✓   |
-| Alice | 100000 | 100000 ✓ (lucky) | 100000  ✓          | 100000  ✓   |
-
-`wrong_max_salary` is only correct for the last row (Alice) because her frame happens to include all rows. Everyone else gets their own salary back, not the department max.
-
-**Fix:** either specify `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`, or just use `MAX()` as a window function — it doesn't have a default frame problem.
-
-> 🎯 **Interview prep**: "Why does `LAST_VALUE` return unexpected results?" This is asked directly at data engineering interviews. The answer: default frame. `FIRST_VALUE` is immune to this bug (its frame always includes the first row), but `LAST_VALUE` silently clips at the current row.
-
----
-
-#### Bug 2 — `RANGE` vs `ROWS` Gives Different Running Totals When There Are Ties
-
-**What you want:** a running cumulative salary as you go down the list.  
-**What you write:** `SUM(salary) OVER (PARTITION BY department ORDER BY salary)` — no frame.  
-**What you get:** all tied rows share the *combined* total, not an individual running sum.
-
-The reason: the default frame when `ORDER BY` is present is `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. `RANGE` treats all rows with the same `ORDER BY` value as a single logical group — so both Bob and Carol (both earning 90000) see the same frame that already includes *both* of them.
-
-**Input — Engineering employees sorted by salary ASC (Bob and Carol tie at 90000):**
-
-```sql
 SELECT name, salary,
-  SUM(salary) OVER (
+  LAST_VALUE(salary) OVER (
     PARTITION BY department ORDER BY salary
-    -- default frame = RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-  ) AS running_range,   -- ❌ ties share the same total
+    -- ❌ default frame: UNBOUNDED PRECEDING to CURRENT ROW
+  ) AS wrong_max,
 
-  SUM(salary) OVER (
+  LAST_VALUE(salary) OVER (
     PARTITION BY department ORDER BY salary
-    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-  ) AS running_rows     -- ✅ strict row-by-row
+    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  -- ✅ full partition
+  ) AS correct_max,
+
+  MAX(salary) OVER (PARTITION BY department) AS max_simpler   -- ✅ no frame issue
 FROM employees
 WHERE department = 'Engineering'
 ORDER BY salary;
@@ -820,115 +924,22 @@ ORDER BY salary;
 
 **Result:**
 
-| name  | salary | running_range | running_rows |
-|-------|--------|---------------|--------------|
-| Grace | 75000  | 75000         | 75000        |
-| Bob   | 90000  | **255000** ❌ | 165000  ✓    |
-| Carol | 90000  | **255000** ❌ | 255000  ✓    |
-| Alice | 100000 | 355000        | 355000       |
+| name  | salary | wrong_max          | correct_max | max_simpler |
+|-------|--------|--------------------|-------------|-------------|
+| Grace | 75000  | 75000  ❌          | 100000  ✓   | 100000  ✓   |
+| Bob   | 90000  | 90000  ❌          | 100000  ✓   | 100000  ✓   |
+| Carol | 90000  | 90000  ❌          | 100000  ✓   | 100000  ✓   |
+| Alice | 100000 | 100000 ✓ *(lucky)* | 100000  ✓   | 100000  ✓   |
 
-With `RANGE`: Bob and Carol both show 255000 — that's `75000 + 90000 + 90000`, because `RANGE` includes *all* rows whose salary equals 90000 before it even gets to the "current row". Bob appears to have already absorbed Carol's salary.
+`wrong_max` is correct only for Alice because her frame happens to include all rows. Everyone else just gets their own salary.
 
-With `ROWS`: Bob gets 165000 (Grace + Bob), Carol gets 255000 (Grace + Bob + Carol). Each row advances one at a time regardless of ties.
+**Rule:** `FIRST_VALUE` is immune to this bug (its default frame always includes the first row). `LAST_VALUE` needs an explicit `UNBOUNDED FOLLOWING` frame — or just use `MAX()` as a window function, which has no default frame issue.
 
-**Rule of thumb:** for any running total, always write `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` explicitly. Never rely on the `RANGE` default when ties are possible.
+> 🎯 **Interview prep**: "Why does `LAST_VALUE` return the wrong result?" — default frame. This is a top-10 window function interview question. Examiners test it by putting the most interesting value at the *end* of the partition so the wrong answer looks wrong immediately.
 
-> 🎯 **Interview prep**: "Why are two rows showing the same cumulative sum?" This stumps most candidates. The answer is always RANGE vs ROWS. Examiners love to put a tie in the test data specifically to expose this.
-
----
-
-#### Bug 3 — `LAG` with Wrong ORDER BY Direction Swaps Past and Future
-
-**What you want:** "What was revenue the previous month?"  
-**What you write:** `LAG(rev) OVER (ORDER BY month DESC)` — descending because the most recent month should come first in the report.  
-**What you get:** the *next* month's revenue (a future value), not the previous month.
-
-`LAG` means "the row before me in window order." If `ORDER BY month DESC`, the row before `2024-03-01` in that ordering is `2024-02-01` — which is actually a *later* date in calendar terms. You have asked for the future, not the past.
-
-**Input — `orders` aggregated by month:**
-
-| month       | rev  |
-|-------------|------|
-| 2024-01-01  | 400  |
-| 2024-02-01  | 1000 |
-| 2024-03-01  | 895  |
-
-```sql
-WITH monthly AS (
-  SELECT DATE_TRUNC('month', order_date) AS month, SUM(amount) AS rev
-  FROM orders GROUP BY 1
-)
-SELECT month, rev,
-  -- ❌ WRONG: ORDER BY DESC — LAG now returns the *next* calendar month
-  LAG(rev) OVER (ORDER BY month DESC) AS wrong_prev,
-
-  -- ✅ CORRECT: ORDER BY ASC — LAG returns the actual previous month
-  LAG(rev) OVER (ORDER BY month ASC)  AS correct_prev
-FROM monthly
-ORDER BY month;
-```
-
-**Result:**
-
-| month       | rev  | wrong_prev | correct_prev |
-|-------------|------|------------|--------------|
-| 2024-01-01  | 400  | 1000  ❌   | NULL  ✓      |
-| 2024-02-01  | 1000 | 895   ❌   | 400   ✓      |
-| 2024-03-01  | 895  | NULL  ✓    | 1000  ✓      |
-
-With `ORDER BY DESC`: January (the earliest date) sits last in window order, so `LAG` gives it February's revenue — a future month. March (the latest) sits first, so it has no preceding row and gets NULL correctly — but only by coincidence.
-
-With `ORDER BY ASC`: January correctly gets NULL (no prior month), February gets 400, March gets 1000.
-
-**The practical version of this bug** — you sort your output `ORDER BY month DESC` (newest first for the report) but also define your window with `ORDER BY month DESC`:
-
-```sql
--- ❌ This looks reasonable but the MoM growth is backwards
-SELECT month, rev,
-  ROUND(100.0 * (rev - LAG(rev) OVER (ORDER BY month DESC))
-        / NULLIF(LAG(rev) OVER (ORDER BY month DESC), 0), 1) AS pct_growth
-FROM monthly
-ORDER BY month DESC;
-```
-
-**Wrong result:**
-
-| month       | rev  | pct_growth       |
-|-------------|------|------------------|
-| 2024-03-01  | 895  | -10.5  ❌ (using Feb as "prev", which is actually future) |
-| 2024-02-01  | 1000 | 150.0  ❌ |
-| 2024-01-01  | 400  | NULL   |
-
-Coincidentally the numbers look plausible here — but they are computed backwards. The fix: always define your window `ORDER BY month ASC`, then control report display order separately with the outer `ORDER BY`.
-
-```sql
--- ✅ Window ORDER BY ASC; output ORDER BY DESC — separated concerns
-SELECT month, rev,
-  ROUND(100.0 * (rev - LAG(rev) OVER (ORDER BY month ASC))
-        / NULLIF(LAG(rev) OVER (ORDER BY month ASC), 0), 1) AS pct_growth
-FROM monthly
-ORDER BY month DESC;   -- output order only, doesn't affect window
-```
-
-**Correct result:**
-
-| month       | rev  | pct_growth |
-|-------------|------|------------|
-| 2024-03-01  | 895  | -10.5  ✓   |
-| 2024-02-01  | 1000 | 150.0  ✓   |
-| 2024-01-01  | 400  | NULL   ✓   |
-
-> 🎯 **Interview prep**: A favourite trick question is to hand a candidate a query with `ORDER BY month DESC` inside the window and ask "what does this return?" The key insight: window `ORDER BY` defines the row sequence for the function — it is completely independent of the output `ORDER BY`. Always define window order to match the *logical* sequence (past → future for time series), then sort output separately.
-
----
-
-**Quick reference — the three bugs:**
-
-| Bug | Symptom | Root cause | Fix |
-|---|---|---|---|
-| `LAST_VALUE` wrong | Returns current row's value, not partition's last | Default frame clips at current row | Add `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`, or use `MAX()` |
-| Running total duplicates for ties | Two rows show the same cumulative total | `RANGE` default includes all tied peers | Always write `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` explicitly |
-| LAG returns future value | `LAG` gives next period, not previous | Window `ORDER BY` direction reversed | Window `ORDER BY` must be ASC for time series; separate from output `ORDER BY` |
+**Resources**
+- [12 Real Window Function Interview Questions](https://medium.com/@aicoders/master-sql-window-functions-and-ctes-12-real-data-engineering-interview-questions-with-code-9b42f37c1db1) — FAANG-sourced problems with full solutions
+- [Snowflake Analytic Functions](https://docs.snowflake.com/en/sql-reference/functions-analytic) — complete reference
 
 ---
 

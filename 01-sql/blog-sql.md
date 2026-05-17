@@ -28,6 +28,113 @@
 
 ---
 
+## Sample Tables Used in This Blog
+
+Every query in this blog runs against one of these tables. Refer back here whenever you want to trace through a result yourself.
+
+**`employees`** — used for ranking, aggregation, hierarchy problems
+| id | name  | department  | salary  | manager_id |
+|----|-------|-------------|---------|------------|
+| 1  | Alice | Engineering | 100000  | NULL       |
+| 2  | Bob   | Engineering | 90000   | 1          |
+| 3  | Carol | Engineering | 90000   | 1          |
+| 4  | Dave  | Marketing   | 80000   | NULL       |
+| 5  | Eve   | Marketing   | 70000   | 4          |
+| 6  | Frank | Marketing   | 70000   | 4          |
+| 7  | Grace | Engineering | 75000   | 2          |
+
+**`customers`** — used for JOIN examples
+| id  | name  | email            | status   |
+|-----|-------|------------------|----------|
+| 101 | Alice | alice@co.com     | active   |
+| 102 | Bob   | bob@co.com       | active   |
+| 103 | Carol | carol@co.com     | inactive |
+| 104 | Dave  | dave@co.com      | active   |
+| 105 | Eve   | eve@co.com       | active   |
+
+**`orders`** — used for aggregation, JOIN, analytical patterns, ML features
+| order_id | customer_id | order_date  | amount | channel | status    | region   |
+|----------|-------------|-------------|--------|---------|-----------|----------|
+| 1        | 101         | 2024-01-05  | 250    | web     | completed | us-east  |
+| 2        | 102         | 2024-01-10  | 150    | mobile  | completed | us-west  |
+| 3        | 101         | 2024-02-03  | 300    | web     | completed | us-east  |
+| 4        | 103         | 2024-02-15  | 500    | web     | refunded  | us-east  |
+| 5        | 102         | 2024-02-20  | 200    | email   | completed | us-west  |
+| 6        | 104         | 2024-03-01  | 175    | mobile  | completed | us-east  |
+| 7        | 101         | 2024-03-08  | 400    | web     | completed | us-east  |
+| 8        | 103         | 2024-03-12  | 320    | mobile  | completed | us-west  |
+
+**`daily_revenue`** — used for window function frame examples
+| order_date  | revenue |
+|-------------|---------|
+| 2024-01-01  | 200     |
+| 2024-01-02  | 150     |
+| 2024-01-03  | 300     |
+| 2024-01-04  | 100     |
+| 2024-01-05  | 250     |
+| 2024-01-06  | 180     |
+| 2024-01-07  | 320     |
+
+**`user_events`** — used for funnel, sessionization, LAG/LEAD
+| user_id | event_type   | event_ts                |
+|---------|--------------|-------------------------|
+| 101     | login        | 2024-01-01 09:00:00     |
+| 101     | product_view | 2024-01-01 09:05:00     |
+| 101     | add_to_cart  | 2024-01-01 09:10:00     |
+| 101     | purchase     | 2024-01-01 09:15:00     |
+| 101     | login        | 2024-01-01 14:00:00     |
+| 101     | product_view | 2024-01-01 14:05:00     |
+| 102     | login        | 2024-01-01 10:00:00     |
+| 102     | product_view | 2024-01-01 10:05:00     |
+| 102     | add_to_cart  | 2024-01-01 10:12:00     |
+| 102     | purchase     | 2024-01-01 10:20:00     |
+| 103     | login        | 2024-01-02 09:00:00     |
+| 103     | product_view | 2024-01-02 09:10:00     |
+| 104     | login        | 2024-01-02 11:00:00     |
+| 104     | product_view | 2024-01-02 11:05:00     |
+| 104     | add_to_cart  | 2024-01-02 11:15:00     |
+
+**`clickstream`** — used for sessionization
+| user_id | event_ts                | event_type |
+|---------|-------------------------|------------|
+| 101     | 2024-01-01 09:00:00     | login      |
+| 101     | 2024-01-01 09:05:00     | page_view  |
+| 101     | 2024-01-01 09:10:00     | click      |
+| 101     | 2024-01-01 09:55:00     | page_view  |
+| 101     | 2024-01-01 10:00:00     | click      |
+| 102     | 2024-01-01 10:00:00     | login      |
+| 102     | 2024-01-01 10:10:00     | page_view  |
+| 102     | 2024-01-01 11:30:00     | login      |
+
+**`logins`** — used for streak problem
+| user_id | login_ts                |
+|---------|-------------------------|
+| 101     | 2024-01-01 08:00:00     |
+| 101     | 2024-01-01 20:00:00     |
+| 101     | 2024-01-02 09:00:00     |
+| 101     | 2024-01-03 10:00:00     |
+| 101     | 2024-01-05 11:00:00     |
+| 102     | 2024-01-01 07:00:00     |
+| 102     | 2024-01-02 08:00:00     |
+| 102     | 2024-01-04 09:00:00     |
+
+**`users`** + **`events`** — used for cohort analysis
+| user_id | signup_date |       | user_id | event_date  |
+|---------|-------------|       |---------|-------------|
+| 101     | 2024-01-05  |       | 101     | 2024-01-08  |
+| 102     | 2024-01-12  |       | 101     | 2024-02-05  |
+| 103     | 2024-01-20  |       | 101     | 2024-03-08  |
+| 104     | 2024-02-03  |       | 102     | 2024-01-15  |
+| 105     | 2024-02-10  |       | 102     | 2024-02-20  |
+| 106     | 2024-02-15  |       | 103     | 2024-01-22  |
+|         |             |       | 104     | 2024-02-07  |
+|         |             |       | 104     | 2024-03-01  |
+|         |             |       | 105     | 2024-02-12  |
+|         |             |       | 105     | 2024-03-05  |
+|         |             |       | 106     | 2024-02-18  |
+
+---
+
 ## 1. Why SQL Still Dominates Data Science
 
 Fifteen years after "SQL is dead" headlines, SQL is more central to data science than ever. Python consumes data that SQL has already cleaned, aggregated, and shaped. Feature stores, ML pipelines, and experiment tracking tables all sit in SQL engines. The reason is architectural: the data is in the database, and moving it out to Python just to do a GROUP BY is expensive and fragile.
@@ -58,6 +165,49 @@ Understanding the logical execution order of SQL prevents a whole class of bugs 
 9. ORDER BY           — sort (aliases from SELECT are now visible)
 10. LIMIT / OFFSET    — paginate
 ```
+
+**Why this matters — a concrete example.**
+
+Using the `orders` table, suppose you want departments with total spend > 400, broken down by channel. Watch what happens at each step:
+
+```sql
+SELECT channel, SUM(amount) AS total
+FROM orders
+WHERE status = 'completed'          -- step 2: removes order_id=4 (refunded)
+GROUP BY channel                    -- step 3: group remaining 7 rows
+HAVING SUM(amount) > 400            -- step 4: filter groups by aggregate
+ORDER BY total DESC;                -- step 9: sort final result
+```
+
+**Step 2 — after WHERE** (status = 'completed', removes order 4):
+| order_id | channel | amount |
+|----------|---------|--------|
+| 1        | web     | 250    |
+| 2        | mobile  | 150    |
+| 3        | web     | 300    |
+| 5        | email   | 200    |
+| 6        | mobile  | 175    |
+| 7        | web     | 400    |
+| 8        | mobile  | 320    |
+
+**Step 3 — after GROUP BY channel:**
+| channel | SUM(amount) |
+|---------|-------------|
+| web     | 950         |
+| mobile  | 645         |
+| email   | 200         |
+
+**Step 4 — after HAVING SUM(amount) > 400** (removes email):
+| channel | SUM(amount) |
+|---------|-------------|
+| web     | 950         |
+| mobile  | 645         |
+
+**Final result (after ORDER BY):**
+| channel | total |
+|---------|-------|
+| web     | 950   |
+| mobile  | 645   |
 
 The most common bugs come from violating this order: using a SELECT alias in a WHERE clause (illegal — SELECT hasn't run yet), or filtering on a window function result in WHERE instead of a subquery.
 
@@ -91,49 +241,182 @@ SQL Text
 
 JOINs are where data scientists lose hours to subtle bugs. The syntax is easy; the semantics are not. The most common mistake is treating a LEFT JOIN like an INNER JOIN — adding a WHERE filter on the right-table column silently converts it back to an inner join.
 
-### 3.1 JOIN Types
+### 3.1 INNER JOIN
+
+Returns only rows that match in **both** tables. Customer 105 (Eve) has no orders — she disappears.
+
+**Input — `customers` (left) and `orders` (right):**
+
+| customers.id | customers.name | orders.order_id | orders.amount |
+|---|---|---|---|
+| 101 | Alice | — | — |
+| 102 | Bob | — | — |
+| 103 | Carol | — | — |
+| 104 | Dave | — | — |
+| 105 | Eve | *(no match)* | *(no match)* |
 
 ```sql
--- INNER JOIN: only rows where condition matches in BOTH tables
-SELECT o.order_id, c.name
-FROM orders o
-INNER JOIN customers c ON o.customer_id = c.id;
+SELECT c.name, COUNT(o.order_id) AS order_count, SUM(o.amount) AS total_spend
+FROM customers c
+INNER JOIN orders o ON c.id = o.customer_id
+GROUP BY c.name
+ORDER BY total_spend DESC;
+```
 
--- LEFT JOIN: all rows from left, NULLs for non-matching right rows
+**Result:**
+| name  | order_count | total_spend |
+|-------|-------------|-------------|
+| Alice | 3           | 950         |
+| Carol | 2           | 820         |
+| Bob   | 2           | 350         |
+| Dave  | 1           | 175         |
+
+Eve is excluded because she has no matching rows in `orders`.
+
+### 3.2 LEFT JOIN
+
+Returns **all rows from the left table**, NULLs where no match exists on the right. Eve now appears with 0 orders.
+
+```sql
 SELECT c.name, COUNT(o.order_id) AS order_count
 FROM customers c
 LEFT JOIN orders o ON c.id = o.customer_id
-GROUP BY c.name;                  -- includes customers with 0 orders
-
--- FULL OUTER JOIN: all rows from both, NULLs where no match
-SELECT a.id, b.id
-FROM table_a a
-FULL OUTER JOIN table_b b ON a.id = b.id;
-
--- CROSS JOIN: cartesian product — every row paired with every row
--- Use carefully: N×M rows. Useful for generating date × product combinations.
-SELECT d.date, p.product_id
-FROM date_spine d
-CROSS JOIN products p;
-
--- SELF JOIN: join a table to itself — org charts, consecutive events
-SELECT e.name, m.name AS manager
-FROM employees e
-LEFT JOIN employees m ON e.manager_id = m.id;
+GROUP BY c.name
+ORDER BY order_count DESC;
 ```
 
-### 3.2 Non-Equi Joins
+**Result:**
+| name  | order_count |
+|-------|-------------|
+| Alice | 3           |
+| Bob   | 2           |
+| Carol | 2           |
+| Dave  | 1           |
+| Eve   | 0           |
 
-Non-equi joins use comparison operators instead of equality. They generate large intermediate results and are expensive — but some problems require them.
+`COUNT(o.order_id)` returns 0 for Eve because `o.order_id` is NULL when there is no match — `COUNT` ignores NULLs.
+
+> 🎯 **Interview prep**: "You have a LEFT JOIN and your result has fewer rows than the left table. What happened?" — A WHERE clause on the right-table column (`WHERE o.status = 'completed'`) converted it to an INNER JOIN. Move that filter into the ON clause instead: `ON c.id = o.customer_id AND o.status = 'completed'`.
+
+**The left-join-to-inner-join trap:**
 
 ```sql
--- Find all salary ranges an employee falls into
-SELECT e.name, e.salary, r.grade
-FROM employees e
-JOIN salary_ranges r ON e.salary BETWEEN r.min_sal AND r.max_sal;
+-- ❌ This silently becomes an INNER JOIN — filters out Eve
+SELECT c.name, o.order_id
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id
+WHERE o.status = 'completed';     -- NULL != 'completed', so Eve is dropped
+
+-- ✅ Keep the filter in ON to preserve unmatched left rows
+SELECT c.name, o.order_id
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id AND o.status = 'completed';
 ```
 
-**Snowflake ASOF JOIN**: Snowflake has a dedicated ASOF join for time-series lookups that is far more efficient than a range join or a correlated subquery ([Greybeam, 2024](https://greybeam.medium.com/snowflake-query-optimization-7-tips-for-faster-queries-4701337e595b)):
+**Result of the ✅ version:**
+| name  | order_id |
+|-------|----------|
+| Alice | 1        |
+| Alice | 3        |
+| Alice | 7        |
+| Bob   | 2        |
+| Bob   | 5        |
+| Carol | NULL     |
+| Dave  | 6        |
+| Eve   | NULL     |
+
+Carol and Eve appear with NULL order_id because their only orders have status 'refunded' or they have no orders at all.
+
+### 3.3 FULL OUTER JOIN
+
+Returns all rows from both tables, NULLs where no match on either side. Useful for data reconciliation.
+
+**Input — two small tables:**
+
+`web_users`:
+| user_id |
+|---------|
+| 101     |
+| 102     |
+| 105     |
+
+`mobile_users`:
+| user_id |
+|---------|
+| 101     |
+| 103     |
+| 106     |
+
+```sql
+SELECT w.user_id AS web_id, m.user_id AS mobile_id
+FROM web_users w
+FULL OUTER JOIN mobile_users m ON w.user_id = m.user_id;
+```
+
+**Result:**
+| web_id | mobile_id |
+|--------|-----------|
+| 101    | 101       |
+| 102    | NULL      |
+| 105    | NULL      |
+| NULL   | 103       |
+| NULL   | 106       |
+
+Rows with NULL on the left = users only in mobile. Rows with NULL on the right = users only on web.
+
+### 3.4 CROSS JOIN
+
+Cartesian product: every row paired with every row. Used to generate all combinations (e.g., date spine × product).
+
+**Input:**
+
+`date_spine` (3 rows): 2024-01-01, 2024-01-02, 2024-01-03  
+`products` (2 rows): phone, tablet
+
+```sql
+SELECT d.date, p.product
+FROM date_spine d
+CROSS JOIN products p
+ORDER BY d.date, p.product;
+```
+
+**Result (3 × 2 = 6 rows):**
+| date        | product |
+|-------------|---------|
+| 2024-01-01  | phone   |
+| 2024-01-01  | tablet  |
+| 2024-01-02  | phone   |
+| 2024-01-02  | tablet  |
+| 2024-01-03  | phone   |
+| 2024-01-03  | tablet  |
+
+### 3.5 SELF JOIN
+
+A table joined to itself. Classic use case: org charts.
+
+```sql
+SELECT e.name AS employee, m.name AS manager
+FROM employees e
+LEFT JOIN employees m ON e.manager_id = m.id
+ORDER BY e.id;
+```
+
+**Result:**
+| employee | manager |
+|----------|---------|
+| Alice    | NULL    |
+| Bob      | Alice   |
+| Carol    | Alice   |
+| Dave     | NULL    |
+| Eve      | Dave    |
+| Frank    | Dave    |
+| Grace    | Bob     |
+
+Alice and Dave are roots — they have no manager.
+
+### 3.6 Non-Equi & ASOF JOIN
+
+Non-equi joins use comparison operators. **Snowflake ASOF JOIN** handles time-series lookups efficiently:
 
 ```sql
 -- Get the most recent exchange rate at or before each transaction
@@ -143,8 +426,6 @@ ASOF JOIN fx_rates r
   MATCH_CONDITION (t.txn_time >= r.rate_time)
   ON t.currency = r.currency;
 ```
-
-> 🎯 **Interview prep**: "You have a LEFT JOIN and your result has fewer rows than the left table. What happened?" — Answer: a WHERE clause on the right table's column converted it to an INNER JOIN. Move that filter into the ON clause or use `WHERE right_col IS NULL` for anti-join patterns.
 
 > 🏭 **Production note**: Disjunctive join conditions (using OR) force a Cartesian product in Snowflake. One team reduced query time from 4m 36s to 6.7s (40× speedup) by rewriting `ON a.id = b.id OR a.alt_id = b.id` as two UNION ALL'd equi-joins.
 
@@ -160,90 +441,127 @@ Every complex SQL query can be written three ways: nested subqueries, CTEs, or a
 
 ### 4.1 Subqueries
 
-Subqueries come in three flavors. A **scalar subquery** returns a single value and can appear anywhere an expression is valid:
+**Scalar subquery** — returns a single value. Example: each order's deviation from the average amount.
 
 ```sql
-SELECT name, salary,
-       salary - (SELECT AVG(salary) FROM employees) AS diff_from_avg
-FROM employees;
+SELECT order_id, amount,
+       ROUND(amount - (SELECT AVG(amount) FROM orders), 2) AS diff_from_avg
+FROM orders
+ORDER BY diff_from_avg DESC;
 ```
 
-A **correlated subquery** references the outer query — it runs once per outer row, making it O(N) expensive:
+**Result** (avg = 286.25):
+| order_id | amount | diff_from_avg |
+|----------|--------|---------------|
+| 4        | 500    | 213.75        |
+| 7        | 400    | 113.75        |
+| 3        | 300    | 13.75         |
+| 8        | 320    | 33.75         |
+| 1        | 250    | -36.25        |
+| 5        | 200    | -86.25        |
+| 6        | 175    | -111.25       |
+| 2        | 150    | -136.25       |
+
+**Uncorrelated subquery in FROM** (derived table) — runs once, then joined:
 
 ```sql
--- For each employee, count how many others earn more (expensive for large tables)
-SELECT name, salary,
-       (SELECT COUNT(*) FROM employees e2
-        WHERE e2.salary > e1.salary) AS rank
-FROM employees e1;
-```
-
-An **uncorrelated subquery in FROM** (derived table) runs once:
-
-```sql
-SELECT dept, avg_salary
+SELECT channel, channel_total
 FROM (
-  SELECT department AS dept, AVG(salary) AS avg_salary
-  FROM employees
-  GROUP BY department
-) dept_stats
-WHERE avg_salary > 80000;
+  SELECT channel, SUM(amount) AS channel_total
+  FROM orders
+  GROUP BY channel
+) channel_stats
+WHERE channel_total > 400;
 ```
+
+**Result:**
+| channel | channel_total |
+|---------|---------------|
+| web     | 1450          |
+| mobile  | 645           |
 
 ### 4.2 CTEs — Common Table Expressions
 
-CTEs replace nested subqueries with named, reusable building blocks. They don't change performance in most databases (a CTE is inlined by the optimizer), but they dramatically improve readability — and readability is a real production concern when six engineers will debug this query at 2am.
+CTEs replace nested subqueries with named building blocks. They dramatically improve readability without changing semantics (the optimizer inlines them in Snowflake and BigQuery).
+
+**Example: month-over-month revenue using a two-step CTE.**
 
 ```sql
 WITH
-  -- Step 1: get monthly revenue per user
   monthly_rev AS (
-    SELECT user_id,
-           DATE_TRUNC('month', order_date) AS month,
+    SELECT DATE_TRUNC('month', order_date) AS month,
            SUM(amount)                      AS revenue
     FROM orders
-    GROUP BY 1, 2
+    GROUP BY 1
   ),
-  -- Step 2: compute month-over-month growth
   mom_growth AS (
-    SELECT user_id, month, revenue,
-           LAG(revenue) OVER (PARTITION BY user_id ORDER BY month) AS prev_revenue
+    SELECT month, revenue,
+           LAG(revenue) OVER (ORDER BY month) AS prev_revenue
     FROM monthly_rev
   )
-SELECT user_id, month,
-       ROUND(100.0 * (revenue - prev_revenue) / NULLIF(prev_revenue, 0), 2) AS pct_growth
+SELECT month,
+       revenue,
+       prev_revenue,
+       ROUND(100.0 * (revenue - prev_revenue) / NULLIF(prev_revenue, 0), 1) AS pct_growth
 FROM mom_growth
-WHERE prev_revenue IS NOT NULL;
+ORDER BY month;
 ```
 
-> 🎯 **Interview prep**: Interviewers ask "when would you use a CTE over a subquery?" The answer: always, for readability. The follow-up is "does a CTE always improve performance?" — No. In PostgreSQL, CTEs are optimization fences by default (pre-v12), meaning the optimizer can't push predicates through them. In Snowflake and BigQuery, CTEs are inlined and optimized normally.
+**Intermediate — `monthly_rev`:**
+| month       | revenue |
+|-------------|---------|
+| 2024-01-01  | 400     |
+| 2024-02-01  | 1000    |
+| 2024-03-01  | 895     |
+
+**Final result:**
+| month       | revenue | prev_revenue | pct_growth |
+|-------------|---------|--------------|------------|
+| 2024-01-01  | 400     | NULL         | NULL       |
+| 2024-02-01  | 1000    | 400          | 150.0      |
+| 2024-03-01  | 895     | 1000         | -10.5      |
+
+Revenue jumped 150% Jan→Feb, then dropped 10.5% Feb→Mar.
+
+> 🎯 **Interview prep**: "Does a CTE always improve performance?" — No. In PostgreSQL (pre-v12), CTEs are optimization fences — the optimizer cannot push predicates through them. In Snowflake and BigQuery, CTEs are inlined and optimized normally.
 
 ### 4.3 Recursive CTEs
 
-Recursive CTEs solve hierarchical problems — org charts, bill-of-materials, graph traversal — that cannot be expressed in flat SQL. The structure is always the same: an **anchor member** (base case) UNION ALL'd with a **recursive member** that references the CTE itself.
+Recursive CTEs solve hierarchical problems — org charts, bill-of-materials, graph traversal. Structure: **anchor member** UNION ALL'd with a **recursive member** that references the CTE itself.
 
 ```sql
--- Org chart: find all reports under a given manager
 WITH RECURSIVE org_tree AS (
-  -- Anchor: start with the manager
-  SELECT id, name, manager_id, 0 AS depth
+  -- Anchor: root nodes (no manager)
+  SELECT id, name, manager_id, 0 AS depth, name AS path
   FROM employees
-  WHERE id = 42                    -- root node
+  WHERE manager_id IS NULL
 
   UNION ALL
 
-  -- Recursive: find direct reports of current level
-  SELECT e.id, e.name, e.manager_id, t.depth + 1
+  -- Recursive: direct reports of current level
+  SELECT e.id, e.name, e.manager_id, t.depth + 1,
+         t.path || ' > ' || e.name
   FROM employees e
   INNER JOIN org_tree t ON e.manager_id = t.id
-  WHERE t.depth < 10               -- cycle guard: stop after 10 levels
+  WHERE t.depth < 10    -- cycle guard
 )
-SELECT id, name, depth
+SELECT id, name, depth, path
 FROM org_tree
-ORDER BY depth, name;
+ORDER BY path;
 ```
 
-> 🏭 **Production note**: Always include a depth limit or a visited-node check in recursive CTEs. A bad foreign key or a circular reference in the data will cause infinite recursion and crash the query. Snowflake has a `MAX_RECURSION` parameter (default 100) as a safety net, but the depth guard in SQL is the right defense.
+**Result:**
+| id | name  | depth | path                    |
+|----|-------|-------|-------------------------|
+| 1  | Alice | 0     | Alice                   |
+| 2  | Bob   | 1     | Alice > Bob             |
+| 7  | Grace | 2     | Alice > Bob > Grace     |
+| 3  | Carol | 1     | Alice > Carol           |
+| 4  | Dave  | 0     | Dave                    |
+| 5  | Eve   | 1     | Dave > Eve              |
+| 6  | Frank | 1     | Dave > Frank            |
+
+> 🏭 **Production note**: Always include a depth limit (`WHERE t.depth < 10`). A circular FK in the data causes infinite recursion. Snowflake has a `MAX_RECURSION` parameter (default 100) as a safety net, but the SQL guard is the right defense.
 
 **Resources**
 - [PostgreSQL WITH clause docs](https://www.postgresql.org/docs/current/queries-with.html) — full recursive CTE specification
@@ -253,11 +571,9 @@ ORDER BY depth, name;
 
 ## 5. Window Functions: The Data Scientist's Superpower
 
-Window functions are the single biggest skill gap between intermediate and advanced SQL users. They solve problems that would otherwise require self-joins, correlated subqueries, or round-trips to Python — and they do it without collapsing rows the way GROUP BY does. Understanding them deeply will get you through the hardest interview questions and unlock analytical patterns that are otherwise painful to write.
+Window functions are the single biggest skill gap between intermediate and advanced SQL users. They solve problems that would otherwise require self-joins, correlated subqueries, or round-trips to Python — and they do it without collapsing rows the way GROUP BY does.
 
 ### 5.1 The OVER Clause Anatomy
-
-Every window function follows the same structure:
 
 ```
 function_name([expression]) OVER (
@@ -267,11 +583,19 @@ function_name([expression]) OVER (
 )
 ```
 
-PARTITION BY and ORDER BY are both optional. Without PARTITION BY, the entire result set is one window. Without ORDER BY, the frame defaults to all rows in the partition.
-
 ### 5.2 Ranking Functions
 
-Ranking functions assign a position to each row within its partition. The three main ones differ only in how they handle ties:
+**Input — `employees` table, showing Engineering department sorted by salary DESC:**
+
+| id | name  | department  | salary  |
+|----|-------|-------------|---------|
+| 1  | Alice | Engineering | 100000  |
+| 2  | Bob   | Engineering | 90000   |
+| 3  | Carol | Engineering | 90000   |
+| 7  | Grace | Engineering | 75000   |
+| 4  | Dave  | Marketing   | 80000   |
+| 5  | Eve   | Marketing   | 70000   |
+| 6  | Frank | Marketing   | 70000   |
 
 ```sql
 SELECT name, department, salary,
@@ -279,162 +603,193 @@ SELECT name, department, salary,
   RANK()       OVER (PARTITION BY department ORDER BY salary DESC) AS rnk,
   DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dense_rnk,
   NTILE(4)     OVER (PARTITION BY department ORDER BY salary DESC) AS quartile
-FROM employees;
+FROM employees
+ORDER BY department, salary DESC;
 ```
 
-Given salaries [100, 90, 90, 80] in a department:
+**Result:**
+| name  | department  | salary | row_num | rnk | dense_rnk | quartile |
+|-------|-------------|--------|---------|-----|-----------|----------|
+| Alice | Engineering | 100000 | 1       | 1   | 1         | 1        |
+| Bob   | Engineering | 90000  | 2       | 2   | 2         | 2        |
+| Carol | Engineering | 90000  | 3       | 2   | 2         | 3        |
+| Grace | Engineering | 75000  | 4       | 4   | 3         | 4        |
+| Dave  | Marketing   | 80000  | 1       | 1   | 1         | 1        |
+| Eve   | Marketing   | 70000  | 2       | 2   | 2         | 2        |
+| Frank | Marketing   | 70000  | 3       | 2   | 2         | 3        |
 
-| salary | ROW_NUMBER | RANK | DENSE_RANK |
-|--------|-----------|------|------------|
-| 100    | 1         | 1    | 1          |
-| 90     | 2         | 2    | 2          |
-| 90     | 3         | 2    | 2          |
-| 80     | 4         | 4    | 3          |
+Key differences for the Bob/Carol tie (both 90000):
+- `ROW_NUMBER`: arbitrary 2 and 3 — no ties allowed
+- `RANK`: both get 2, then jumps to 4 (skips 3)
+- `DENSE_RANK`: both get 2, next rank is 3 (no gap)
 
-**The classic interview pattern** — top-N per group:
+**Top-N per group — the classic interview pattern:**
 
 ```sql
--- Top 3 earners per department (handles ties with DENSE_RANK)
-WITH ranked AS (
-  SELECT name, department, salary,
-         DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dr
-  FROM employees
-)
 SELECT name, department, salary
-FROM ranked
-WHERE dr <= 3;
+FROM employees
+QUALIFY DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) <= 2;
 ```
 
-In Snowflake, QUALIFY eliminates the subquery entirely (see Section 14.1).
+**Result (top 2 salaries per department):**
+| name  | department  | salary |
+|-------|-------------|--------|
+| Alice | Engineering | 100000 |
+| Bob   | Engineering | 90000  |
+| Carol | Engineering | 90000  |
+| Dave  | Marketing   | 80000  |
+| Eve   | Marketing   | 70000  |
+| Frank | Marketing   | 70000  |
+
+Both Bob and Carol are returned because they share rank 2. If you used `RANK() <= 2` or `DENSE_RANK() <= 2`, both ties appear. If you want exactly 2 rows per department regardless of ties, use `ROW_NUMBER() <= 2`.
 
 ### 5.3 Frame Clauses: Running Totals & Moving Averages
 
-The frame clause defines which rows the aggregate function sees. This is where most people get confused.
+**Input — `daily_revenue`:**
 
-```
-ROWS BETWEEN <start> AND <end>
-
-start/end options:
-  UNBOUNDED PRECEDING   — from the first row in the partition
-  N PRECEDING           — N rows before the current row
-  CURRENT ROW           — the current row
-  N FOLLOWING           — N rows after the current row
-  UNBOUNDED FOLLOWING   — to the last row in the partition
-```
+| order_date  | revenue |
+|-------------|---------|
+| 2024-01-01  | 200     |
+| 2024-01-02  | 150     |
+| 2024-01-03  | 300     |
+| 2024-01-04  | 100     |
+| 2024-01-05  | 250     |
+| 2024-01-06  | 180     |
+| 2024-01-07  | 320     |
 
 ```sql
 SELECT
   order_date,
   revenue,
-
-  -- Cumulative sum (all rows from start through current)
   SUM(revenue) OVER (
     ORDER BY order_date
     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
   ) AS cumulative_revenue,
-
-  -- 7-day moving average (current row + 6 preceding)
-  AVG(revenue) OVER (
+  ROUND(AVG(revenue) OVER (
     ORDER BY order_date
     ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-  ) AS rolling_7d_avg,
-
-  -- Running total that resets per month
-  SUM(revenue) OVER (
-    PARTITION BY DATE_TRUNC('month', order_date)
-    ORDER BY order_date
-    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-  ) AS monthly_cumulative
+  ), 1) AS rolling_7d_avg
 FROM daily_revenue;
 ```
 
-**ROWS vs RANGE**: `ROWS BETWEEN` counts physical rows. `RANGE BETWEEN` groups rows with identical ORDER BY values into the same logical frame. For time-series work, `ROWS BETWEEN` almost always behaves more predictably.
+**Result:**
+| order_date  | revenue | cumulative_revenue | rolling_7d_avg |
+|-------------|---------|-------------------|----------------|
+| 2024-01-01  | 200     | 200               | 200.0          |
+| 2024-01-02  | 150     | 350               | 175.0          |
+| 2024-01-03  | 300     | 650               | 216.7          |
+| 2024-01-04  | 100     | 750               | 187.5          |
+| 2024-01-05  | 250     | 1000              | 200.0          |
+| 2024-01-06  | 180     | 1180              | 196.7          |
+| 2024-01-07  | 320     | 1500              | 214.3          |
 
-> 🏭 **Production note**: Window functions with large frames over unbounded partitions can spill to disk in Snowflake, just like sorts. If you're computing cumulative sums over 100M rows, materialize an intermediate table rather than stacking five window functions in a single SELECT.
+`rolling_7d_avg` on Jan 7 = (200+150+300+100+250+180+320)/7 = 1500/7 ≈ 214.3
+
+> 🏭 **Production note**: `ROWS BETWEEN` counts physical rows. `RANGE BETWEEN` groups rows with identical ORDER BY values into the same logical frame. For time-series work, `ROWS BETWEEN` is almost always more predictable.
 
 ### 5.4 LAG, LEAD, FIRST_VALUE, LAST_VALUE
 
-These functions give you access to other rows in the window without a self-join:
+**Input — `user_events`** (showing user 101's events):
+
+| user_id | event_type   | event_ts                |
+|---------|--------------|-------------------------|
+| 101     | login        | 2024-01-01 09:00:00     |
+| 101     | product_view | 2024-01-01 09:05:00     |
+| 101     | add_to_cart  | 2024-01-01 09:10:00     |
+| 101     | purchase     | 2024-01-01 09:15:00     |
 
 ```sql
 SELECT
   user_id,
-  event_date,
+  event_ts,
   event_type,
-
-  -- Previous event for this user
-  LAG(event_type, 1)  OVER (PARTITION BY user_id ORDER BY event_date) AS prev_event,
-
-  -- Next event for this user
-  LEAD(event_type, 1) OVER (PARTITION BY user_id ORDER BY event_date) AS next_event,
-
-  -- First event the user ever performed
+  LAG(event_type, 1)  OVER (PARTITION BY user_id ORDER BY event_ts) AS prev_event,
+  LEAD(event_type, 1) OVER (PARTITION BY user_id ORDER BY event_ts) AS next_event,
   FIRST_VALUE(event_type) OVER (
-    PARTITION BY user_id ORDER BY event_date
+    PARTITION BY user_id ORDER BY event_ts
     ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
   ) AS first_ever_event,
-
-  -- Days since last purchase
-  DATEDIFF('day',
-    LAG(event_date) OVER (PARTITION BY user_id ORDER BY event_date),
-    event_date
-  ) AS days_since_last_event
-
-FROM user_events;
+  DATEDIFF('minute',
+    LAG(event_ts) OVER (PARTITION BY user_id ORDER BY event_ts),
+    event_ts
+  ) AS mins_since_last
+FROM user_events
+WHERE user_id = 101
+ORDER BY event_ts;
 ```
 
-**Period-over-period comparison** (the most common use of LAG):
+**Result:**
+| user_id | event_ts     | event_type   | prev_event   | next_event   | first_ever_event | mins_since_last |
+|---------|--------------|--------------|--------------|--------------|------------------|-----------------|
+| 101     | 09:00:00     | login        | NULL         | product_view | login            | NULL            |
+| 101     | 09:05:00     | product_view | login        | add_to_cart  | login            | 5               |
+| 101     | 09:10:00     | add_to_cart  | product_view | purchase     | login            | 5               |
+| 101     | 09:15:00     | purchase     | add_to_cart  | NULL         | login            | 5               |
 
-```sql
-WITH monthly AS (
-  SELECT DATE_TRUNC('month', order_date) AS month, SUM(revenue) AS rev
-  FROM orders GROUP BY 1
-)
-SELECT month, rev,
-       LAG(rev) OVER (ORDER BY month)                          AS prev_month_rev,
-       ROUND(100.0 * (rev - LAG(rev) OVER (ORDER BY month))
-             / NULLIF(LAG(rev) OVER (ORDER BY month), 0), 1)  AS pct_change
-FROM monthly;
-```
-
-> 🎯 **Interview prep**: "Why does LAG return NULL for the first row?" — Because there is no previous row. Always handle with `COALESCE(LAG(col) OVER (...), 0)` or filter out NULLs downstream. Forgetting this causes off-by-one errors in growth rate calculations.
+> 🎯 **Interview prep**: "Why does LAG return NULL for the first row?" — There is no previous row. Handle with `COALESCE(LAG(col) OVER (...), 0)` or filter out NULLs downstream. Forgetting this causes off-by-one errors in growth rate calculations.
 
 **Resources**
 - [12 Real Window Function Interview Questions](https://medium.com/@aicoders/master-sql-window-functions-and-ctes-12-real-data-engineering-interview-questions-with-code-9b42f37c1db1) — FAANG-sourced problems with full solutions
-- [Snowflake Analytic Functions](https://docs.snowflake.com/en/sql-reference/functions-analytic) — complete reference including approximate analytics (HyperLogLog, t-Digest)
-- [pipeline2insights: Advanced SQL for Interviews](https://pipeline2insights.substack.com/p/week-332-advanced-sql-concepts-for) — structured three-step problem-solving approach
+- [Snowflake Analytic Functions](https://docs.snowflake.com/en/sql-reference/functions-analytic) — complete reference
 
 ---
 
 ## 6. Set Operations
 
-Set operations combine results from multiple SELECT statements. They're simple in concept but have performance traps.
+Set operations combine results from multiple SELECT statements.
+
+**Input for all examples:**
+
+`premium_users` (user_ids): 101, 102, 104  
+`active_last_30d` (user_ids): 101, 103, 104, 105  
+`churned_users` (user_ids): 103
 
 ```sql
--- UNION: combines and removes duplicates (expensive — requires sort/hash)
-SELECT user_id FROM web_users
-UNION
-SELECT user_id FROM mobile_users;
-
--- UNION ALL: combines without deduplication (always prefer unless you need dedup)
-SELECT user_id, 'web' AS source FROM web_users
+-- UNION ALL: all users from both, with source label (no dedup)
+SELECT user_id, 'premium' AS src FROM premium_users
 UNION ALL
-SELECT user_id, 'mobile' AS source FROM mobile_users;
+SELECT user_id, 'active'  AS src FROM active_last_30d;
+```
 
--- INTERSECT: rows present in BOTH (removes duplicates)
+**Result (7 rows — no dedup):**
+| user_id | src     |
+|---------|---------|
+| 101     | premium |
+| 102     | premium |
+| 104     | premium |
+| 101     | active  |
+| 103     | active  |
+| 104     | active  |
+| 105     | active  |
+
+```sql
+-- INTERSECT: users in BOTH premium AND active
 SELECT user_id FROM premium_users
 INTERSECT
 SELECT user_id FROM active_last_30d;
+```
 
--- EXCEPT: rows in first but NOT in second (anti-join alternative)
-SELECT user_id FROM all_users
+**Result:**
+| user_id |
+|---------|
+| 101     |
+| 104     |
+
+```sql
+-- EXCEPT: active users who are NOT churned (anti-join pattern)
+SELECT user_id FROM active_last_30d
 EXCEPT
 SELECT user_id FROM churned_users;
 ```
 
-**Performance rule**: `UNION ALL` is always faster than `UNION` because it skips sorting. Use `UNION` only when duplicate elimination is semantically required.
+**Result:**
+| user_id |
+|---------|
+| 101     |
+| 104     |
+| 105     |
 
-> 🎯 **Interview prep**: "What's the difference between UNION and UNION ALL?" is a basic question. The follow-up that trips people: "When would EXCEPT be worse than a LEFT JOIN anti-pattern?" Answer: EXCEPT materializes both sides; a `LEFT JOIN ... WHERE right_id IS NULL` can be more selective when the right side is large.
+> 🎯 **Interview prep**: `UNION ALL` is always faster than `UNION` because it skips the sort+dedup step. Use `UNION` only when duplicate elimination is semantically required.
 
 **Resources**
 - [Mode SQL Set Operations Tutorial](https://mode.com/sql-tutorial/sql-set-operations/) — visual explanation with examples
@@ -443,45 +798,66 @@ SELECT user_id FROM churned_users;
 
 ## 7. NULL Handling & CASE Expressions
 
-NULLs are the most dangerous values in SQL because they propagate silently. `NULL + 1 = NULL`. `NULL = NULL` is FALSE (not TRUE). `COUNT(col)` skips NULLs but `COUNT(*)` doesn't. Understanding this prevents hours of debugging.
+NULLs are the most dangerous values in SQL. `NULL + 1 = NULL`. `NULL = NULL` is FALSE. `COUNT(col)` skips NULLs but `COUNT(*)` doesn't.
 
 ### 7.1 NULL Functions
 
+**Input — a small `survey_responses` table:**
+
+| user_id | score | email        |
+|---------|-------|--------------|
+| 101     | 8     | a@co.com     |
+| 102     | NULL  | b@co.com     |
+| 103     | 5     | NULL         |
+| 104     | NULL  | NULL         |
+
 ```sql
--- COALESCE: returns first non-NULL value in the list
-SELECT COALESCE(phone, email, 'no_contact') AS contact FROM users;
-
--- NULLIF: returns NULL if two values are equal (prevents division by zero)
-SELECT revenue / NULLIF(costs, 0) AS margin FROM financials;
-
--- IS NULL / IS NOT NULL: use these, never = NULL
-SELECT * FROM orders WHERE shipped_date IS NULL;
-
--- NULLs in aggregations: COUNT(col) ignores NULLs
-SELECT AVG(score)         AS avg_score_excl_nulls,   -- ignores NULL scores
-       AVG(COALESCE(score, 0)) AS avg_score_incl_nulls   -- treats NULL as 0
+SELECT
+  user_id,
+  COALESCE(score, 0)                    AS score_no_null,
+  COALESCE(email, 'no_email')           AS contact,
+  COUNT(score)            OVER ()       AS non_null_count,   -- 2
+  COUNT(*)                OVER ()       AS total_count,      -- 4
+  AVG(score)              OVER ()       AS avg_excl_nulls,   -- (8+5)/2=6.5
+  AVG(COALESCE(score, 0)) OVER ()       AS avg_incl_nulls    -- (8+0+5+0)/4=3.25
 FROM survey_responses;
 ```
 
-### 7.2 CASE Expressions
+**Result:**
+| user_id | score_no_null | contact    | non_null_count | total_count | avg_excl_nulls | avg_incl_nulls |
+|---------|--------------|------------|----------------|-------------|----------------|----------------|
+| 101     | 8            | a@co.com   | 2              | 4           | 6.5            | 3.25           |
+| 102     | 0            | b@co.com   | 2              | 4           | 6.5            | 3.25           |
+| 103     | 5            | no_email   | 2              | 4           | 6.5            | 3.25           |
+| 104     | 0            | no_email   | 2              | 4           | 6.5            | 3.25           |
 
-CASE is the SQL equivalent of if/elif/else. Its most powerful form is **conditional aggregation** — pivoting or computing multiple metrics in a single pass:
+### 7.2 CASE Expressions — Conditional Aggregation
+
+Conditional aggregation replaces multiple self-joins with a single scan. **Input — `orders`:**
 
 ```sql
--- Conditional aggregation: compute multiple metrics in one scan
 SELECT
-  DATE_TRUNC('month', order_date) AS month,
-  COUNT(*)                                              AS total_orders,
-  COUNT(CASE WHEN channel = 'web'    THEN 1 END)       AS web_orders,
-  COUNT(CASE WHEN channel = 'mobile' THEN 1 END)       AS mobile_orders,
-  SUM(CASE WHEN channel = 'web'    THEN revenue ELSE 0 END) AS web_revenue,
-  SUM(CASE WHEN status = 'refunded' THEN amount ELSE 0 END) AS refund_amount
+  DATE_TRUNC('month', order_date)                              AS month,
+  COUNT(*)                                                     AS total_orders,
+  COUNT(CASE WHEN channel = 'web'    THEN 1 END)               AS web_orders,
+  COUNT(CASE WHEN channel = 'mobile' THEN 1 END)               AS mobile_orders,
+  SUM(CASE WHEN channel = 'web'    THEN amount ELSE 0 END)     AS web_revenue,
+  SUM(CASE WHEN status = 'refunded' THEN amount ELSE 0 END)    AS refund_amount
 FROM orders
 GROUP BY 1
 ORDER BY 1;
 ```
 
-> 🏭 **Production note**: Conditional aggregation replaces multiple self-joins that each do a full table scan. Replacing three self-joins with one CASE-in-aggregate query is one of the most common query rewrites in data engineering.
+**Result:**
+| month       | total_orders | web_orders | mobile_orders | web_revenue | refund_amount |
+|-------------|--------------|------------|---------------|-------------|---------------|
+| 2024-01-01  | 2            | 1          | 1             | 250         | 0             |
+| 2024-02-01  | 3            | 2          | 0             | 800         | 500           |
+| 2024-03-01  | 3            | 1          | 2             | 400         | 0             |
+
+January: 1 web order (250) + 1 mobile (150). February: order 4 was refunded (500), hence refund_amount=500.
+
+> 🏭 **Production note**: Conditional aggregation replaces three self-joins that each do a full table scan. This is one of the most common query rewrites in data engineering.
 
 **Resources**
 - [PostgreSQL Conditional Expressions](https://www.postgresql.org/docs/current/functions-conditional.html) — CASE, COALESCE, NULLIF, GREATEST, LEAST
@@ -494,83 +870,95 @@ These functions are database-specific enough that knowing the Snowflake variants
 
 ### 8.1 Date/Time (Snowflake dialect)
 
+**Input — selected rows from `orders`:**
+
+| order_id | order_date  |
+|----------|-------------|
+| 1        | 2024-01-05  |
+| 4        | 2024-02-15  |
+| 7        | 2024-03-08  |
+
 ```sql
--- Truncate to period boundary
-DATE_TRUNC('month', '2024-03-15'::date)       -- → 2024-03-01
-DATE_TRUNC('week', event_ts)                  -- → Monday of that week
-
--- Extract components
-EXTRACT(year  FROM order_date)                -- → 2024
-EXTRACT(dow   FROM order_date)                -- → 0=Sun ... 6=Sat
-EXTRACT(epoch FROM current_timestamp())       -- → Unix timestamp (seconds)
-
--- Arithmetic
-DATEADD(day, 7, order_date)                   -- add 7 days
-DATEDIFF(day, start_date, end_date)           -- → integer days between
-DATEDIFF(month, '2023-01-01', '2024-06-01')  -- → 17
-
--- Current values
-CURRENT_DATE()      -- today's date (no time)
-CURRENT_TIMESTAMP() -- full timestamp with timezone
-CONVERT_TIMEZONE('America/New_York', event_ts)  -- timezone conversion
-
--- Time zone casting (critical for global products)
-event_ts::TIMESTAMP_NTZ      -- strip timezone
-event_ts::TIMESTAMP_TZ       -- keep timezone info
-event_ts AT TIME ZONE 'UTC'  -- convert to UTC
+SELECT
+  order_id,
+  order_date,
+  DATE_TRUNC('month', order_date)              AS month_start,    -- first day of month
+  EXTRACT(dow FROM order_date)                 AS day_of_week,    -- 0=Sun…6=Sat
+  DATEADD(day, 30, order_date)                 AS due_date,
+  DATEDIFF('day', order_date, CURRENT_DATE())  AS days_ago
+FROM orders
+WHERE order_id IN (1, 4, 7);
 ```
+
+**Result** (assuming today = 2026-05-17):
+| order_id | order_date  | month_start | day_of_week | due_date    | days_ago |
+|----------|-------------|-------------|-------------|-------------|----------|
+| 1        | 2024-01-05  | 2024-01-01  | 5 (Fri)     | 2024-02-04  | 863      |
+| 4        | 2024-02-15  | 2024-02-01  | 4 (Thu)     | 2024-03-16  | 822      |
+| 7        | 2024-03-08  | 2024-03-01  | 5 (Fri)     | 2024-04-07  | 800      |
 
 ### 8.2 String Functions
 
+**Input — a `contacts` table:**
+
+| id | raw_phone      | email                 |
+|----|----------------|-----------------------|
+| 1  | (415) 555-1234 | Alice@Example.COM     |
+| 2  | 650.555.9876   | bob@example.com       |
+
 ```sql
--- Cleaning and extraction
-TRIM(BOTH ' ' FROM name)                   -- remove leading/trailing spaces
-UPPER(email), LOWER(email)                 -- normalize case
-SUBSTRING(text, 1, 100)                   -- first 100 chars
-SPLIT_PART(email, '@', 2)                 -- extract domain
-REGEXP_REPLACE(phone, '[^0-9]', '')       -- keep only digits
-REGEXP_SUBSTR(url, 'utm_source=([^&]+)')  -- extract query param
-
--- Snowflake ILIKE (case-insensitive LIKE)
-SELECT * FROM events WHERE source ILIKE '%google%';
-
--- Concatenation
-CONCAT(first_name, ' ', last_name)
-first_name || ' ' || last_name            -- ANSI syntax
+SELECT
+  id,
+  REGEXP_REPLACE(raw_phone, '[^0-9]', '')  AS digits_only,
+  LOWER(email)                              AS normalized_email,
+  SPLIT_PART(email, '@', 2)                AS domain
+FROM contacts;
 ```
+
+**Result:**
+| id | digits_only | normalized_email      | domain      |
+|----|-------------|-----------------------|-------------|
+| 1  | 4155551234  | alice@example.com     | Example.COM |
+| 2  | 6505559876  | bob@example.com       | example.com |
 
 > 🏭 **Production note**: In Snowflake, REGEXP functions use PCRE syntax, not POSIX. Patterns that work in PostgreSQL may need rewriting. Always test regex patterns against a sample before deploying to production transformations.
 
 **Resources**
-- [Snowflake Date/Time Functions](https://docs.snowflake.com/en/sql-reference/functions-date-time) — complete reference including DATEADD, DATEDIFF, DATE_TRUNC
-- [Snowflake String Functions](https://docs.snowflake.com/en/sql-reference/functions-string) — full regex support and string manipulation
+- [Snowflake Date/Time Functions](https://docs.snowflake.com/en/sql-reference/functions-date-time) — complete reference
+- [Snowflake String Functions](https://docs.snowflake.com/en/sql-reference/functions-string) — full regex support
 
 ---
 
 ## 9. Semi-structured Data: JSON, Arrays & Snowflake VARIANT
 
-Modern data pipelines ingest raw JSON from APIs, webhooks, and event streams. Both PostgreSQL and Snowflake have first-class support, but their approaches differ significantly.
+Modern data pipelines ingest raw JSON from APIs, webhooks, and event streams.
 
 ### 9.1 PostgreSQL JSON/JSONB
 
-```sql
--- -> returns JSON, ->> returns text
-SELECT
-  data -> 'user' ->> 'email'           AS email,    -- nested access
-  data -> 'items' -> 0 ->> 'product'   AS first_product,  -- array index
-  jsonb_array_length(data -> 'items')  AS item_count
-FROM events
-WHERE data @> '{"event_type": "purchase"}';  -- JSONB containment
+**Input — `events` table with a JSONB `data` column:**
 
--- Expand JSON array to rows
-SELECT id, item
-FROM events,
-     jsonb_array_elements(data -> 'items') AS item;
+| id | data |
+|----|------|
+| 1  | `{"user_id": 101, "event_type": "purchase", "items": [{"sku": "A1", "qty": 2}, {"sku": "B3", "qty": 1}]}` |
+
+```sql
+SELECT
+  id,
+  data -> 'user_id'           AS user_id_json,      -- JSON type
+  data ->> 'event_type'       AS event_type,         -- text type
+  data -> 'items' -> 0 ->> 'sku' AS first_sku,
+  jsonb_array_length(data -> 'items') AS item_count
+FROM events WHERE id = 1;
 ```
+
+**Result:**
+| id | user_id_json | event_type | first_sku | item_count |
+|----|-------------|------------|-----------|------------|
+| 1  | 101          | purchase   | A1        | 2          |
 
 ### 9.2 Snowflake VARIANT & FLATTEN
 
-Snowflake stores JSON natively in a **VARIANT** column using colon notation for traversal ([Snowflake docs](https://docs.snowflake.com/en/user-guide/querying-semistructured)):
+Snowflake stores JSON natively in a **VARIANT** column using colon notation ([Snowflake docs](https://docs.snowflake.com/en/user-guide/querying-semistructured)):
 
 ```sql
 -- Colon syntax for field access; cast with ::
@@ -579,43 +967,35 @@ SELECT
   src:purchase.total_amount::NUMBER  AS amount,
   src:purchase.items[0].sku::STRING  AS first_sku
 FROM raw_events;
-
--- FLATTEN: explode an array into rows
--- Output columns: SEQ, KEY, PATH, INDEX, VALUE, THIS
-SELECT
-  e.src:user_id::STRING          AS user_id,
-  f.index                        AS item_position,
-  f.value:sku::STRING            AS sku,
-  f.value:quantity::INTEGER      AS quantity,
-  f.value:price::FLOAT           AS price
-FROM raw_events e,
-     LATERAL FLATTEN(INPUT => e.src:purchase.items) f;
 ```
 
-**Chaining FLATTEN for deeply nested structures**:
+**FLATTEN — explode an array into rows:**
+
+**Input** (single VARIANT row with array):
+```json
+{ "user_id": 101, "items": [{"sku":"A1","qty":2}, {"sku":"B3","qty":1}] }
+```
 
 ```sql
--- Two levels: contacts → each contact → business addresses
 SELECT
-  p.id,
-  f.value:type::STRING    AS contact_type,
-  f1.value::STRING        AS business_addr
-FROM persons p,
-  LATERAL FLATTEN(INPUT => p.profile, PATH => 'contacts') f,
-  LATERAL FLATTEN(INPUT => f.value:business) f1;
+  e.src:user_id::STRING  AS user_id,
+  f.index                AS item_position,
+  f.value:sku::STRING    AS sku,
+  f.value:qty::INTEGER   AS qty
+FROM raw_events e,
+LATERAL FLATTEN(INPUT => e.src:items) f;
 ```
 
-The FLATTEN output columns you need to know:
-- `VALUE` — the element being exploded
-- `INDEX` — position in the array (NULL for objects)
-- `KEY` — the object key (NULL for arrays)
-- `PATH` — full dot-path to the element
+**Result:**
+| user_id | item_position | sku | qty |
+|---------|---------------|-----|-----|
+| 101     | 0             | A1  | 2   |
+| 101     | 1             | B3  | 1   |
 
-> 🎯 **Interview prep**: "How would you count the number of items in a nested JSON array in Snowflake?" — Use `ARRAY_SIZE(src:items)` for a scalar result, or `LATERAL FLATTEN` to aggregate per-element. Knowing both options shows depth.
+> 🎯 **Interview prep**: "How would you count the number of items in a nested JSON array in Snowflake?" — Use `ARRAY_SIZE(src:items)` for a scalar result, or `LATERAL FLATTEN` to aggregate per-element.
 
 **Resources**
-- [Snowflake Semi-structured Data docs](https://docs.snowflake.com/en/user-guide/querying-semistructured) — VARIANT, FLATTEN, PARSE_JSON, GET_PATH
-- [PostgreSQL JSON Functions](https://www.postgresql.org/docs/current/functions-json.html) — full JSONB operator reference
+- [Snowflake Semi-structured Data docs](https://docs.snowflake.com/en/user-guide/querying-semistructured) — VARIANT, FLATTEN, PARSE_JSON
 
 ---
 
@@ -650,7 +1030,7 @@ EXPLAIN shows what the optimizer *plans*. EXPLAIN ANALYZE *executes* and shows w
 
 ```sql
 EXPLAIN ANALYZE
-SELECT * FROM orders WHERE customer_id = 42 AND order_date > '2024-01-01';
+SELECT * FROM orders WHERE customer_id = 101 AND order_date > '2024-01-01';
 ```
 
 Key nodes to recognize:
@@ -662,7 +1042,7 @@ Key nodes to recognize:
 > 🎯 **Interview prep**: "Your query is slow. How do you diagnose it?" — Answer: EXPLAIN ANALYZE to find the bottleneck node. Look for Seq Scan on large tables, high estimated vs actual row counts (stale statistics), and sort nodes that could be eliminated with an index.
 
 **Resources**
-- [Use The Index, Luke](https://use-the-index-luke.com/) — the definitive book on SQL indexing, free online
+- [Use The Index, Luke](https://use-the-index-luke.com/) — definitive book on SQL indexing, free online
 - [PostgreSQL EXPLAIN](https://www.postgresql.org/docs/current/using-explain.html) — official guide to reading query plans
 
 ---
@@ -706,31 +1086,22 @@ WHERE event_date BETWEEN '2024-01-01' AND '2024-03-31'
 WHERE TO_CHAR(event_date, 'YYYY-MM') = '2024-01'
 ```
 
-**Warehouse cache** — keep related workloads on the same warehouse:
-
-Snowflake caches query results for 24 hours. Identical queries (same SQL + same underlying data) return instantly from cache at zero credit cost. If you run multiple dashboards on the same warehouse, warm cache serves subsequent queries for free.
-
 **Clustering keys** — for very large tables (TB+) with selective filter patterns:
 
 ```sql
--- Add a clustering key on the most-filtered column
 ALTER TABLE events CLUSTER BY (event_date, user_region);
-
--- Check how well-clustered your table is
 SELECT SYSTEM$CLUSTERING_INFORMATION('events', '(event_date, user_region)');
 ```
 
-> 🏭 **Production note**: Clustering consumes credits to maintain and increases storage costs due to Time Travel retention delays. The break-even point is typically tables >1TB that are queried frequently with the same filter pattern. Don't cluster small or infrequently-queried tables.
+> 🏭 **Production note**: Clustering consumes credits to maintain. The break-even point is typically tables >1TB queried frequently with the same filter pattern.
 
 **Resources**
 - [Snowflake Query Optimization: 7 Tips](https://greybeam.medium.com/snowflake-query-optimization-7-tips-for-faster-queries-4701337e595b) — production-tested optimizations with timing benchmarks
-- [Snowflake Clustering Keys docs](https://docs.snowflake.com/en/user-guide/tables-clustering-keys) — when and how to cluster
+- [Snowflake Clustering Keys docs](https://docs.snowflake.com/en/user-guide/tables-clustering-keys)
 
 ---
 
 ## 12. Views & Materialized Views
-
-Views are SQL's abstraction mechanism. They trade maintenance overhead for query simplicity and encapsulation.
 
 ```sql
 -- Regular view: reruns the query every time it's accessed
@@ -740,21 +1111,7 @@ FROM sessions
 WHERE event_ts >= DATEADD(day, -30, CURRENT_DATE())
 GROUP BY user_id;
 
--- Materialized view (PostgreSQL): stores the result physically
-CREATE MATERIALIZED VIEW daily_revenue_summary AS
-SELECT DATE_TRUNC('day', order_date) AS day, SUM(amount) AS revenue
-FROM orders GROUP BY 1;
-
--- Refresh manually
-REFRESH MATERIALIZED VIEW daily_revenue_summary;
-
--- Concurrent refresh (doesn't lock reads)
-REFRESH MATERIALIZED VIEW CONCURRENTLY daily_revenue_summary;
-```
-
-**Snowflake Dynamic Tables** — Snowflake's answer to materialized views, with automatic incremental refresh:
-
-```sql
+-- Snowflake Dynamic Table — automatic incremental refresh
 CREATE OR REPLACE DYNAMIC TABLE user_features
   TARGET_LAG = '1 hour'
   WAREHOUSE = compute_wh
@@ -765,141 +1122,220 @@ AS
   GROUP BY user_id;
 ```
 
-> 🎯 **Interview prep**: "When would you use a materialized view vs a regular view?" — Regular views add no storage cost but can be slow if the underlying query is expensive. Materialized views trade storage + staleness for query speed. Use materialized when the view is queried far more often than the underlying data changes.
+> 🎯 **Interview prep**: "When would you use a materialized view vs a regular view?" — Regular views add no storage cost but can be slow if the underlying query is expensive. Materialized views trade storage + staleness for query speed.
 
 **Resources**
-- [Snowflake Dynamic Tables](https://docs.snowflake.com/en/user-guide/dynamic-tables-intro) — incremental materialization
-- [PostgreSQL Materialized Views](https://www.postgresql.org/docs/current/sql-creatematerializedview.html) — full syntax and refresh options
+- [Snowflake Dynamic Tables](https://docs.snowflake.com/en/user-guide/dynamic-tables-intro)
+- [PostgreSQL Materialized Views](https://www.postgresql.org/docs/current/sql-creatematerializedview.html)
 
 ---
 
 ## 13. Analytical Patterns
 
-These are the four patterns that appear in every data science take-home and analytics engineering role. Each one has a canonical SQL structure worth memorizing.
+These four patterns appear in every data science take-home and analytics engineering role.
 
 ### 13.1 Cohort Analysis
 
-Cohort analysis measures retention: what fraction of users who started in period X are still active in period X+N? The SQL pattern has two steps: assign cohort, then count active users per cohort × period pair.
+Cohort analysis answers: "What fraction of users who signed up in month X are still active in month X+N?"
+
+**Input — `users` and `events` tables** (see Sample Tables section above).
+
+**Step 1 — assign cohort month:**
 
 ```sql
-WITH
-  -- Step 1: assign each user to their signup cohort
-  cohorts AS (
-    SELECT user_id,
-           DATE_TRUNC('month', signup_date) AS cohort_month
-    FROM users
-  ),
-  -- Step 2: get all activity with cohort label
-  activity AS (
-    SELECT e.user_id,
-           c.cohort_month,
-           DATE_TRUNC('month', e.event_date) AS activity_month,
-           DATEDIFF('month', c.cohort_month,
-                    DATE_TRUNC('month', e.event_date)) AS months_since_signup
-    FROM events e
-    JOIN cohorts c ON e.user_id = c.user_id
-  )
--- Step 3: count distinct users per cohort × period, normalize to %
-SELECT
-  cohort_month,
-  months_since_signup,
-  COUNT(DISTINCT user_id)                    AS active_users,
-  FIRST_VALUE(COUNT(DISTINCT user_id)) OVER (
-    PARTITION BY cohort_month ORDER BY months_since_signup
-    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-  )                                          AS cohort_size,
-  ROUND(100.0 * COUNT(DISTINCT user_id) /
-    FIRST_VALUE(COUNT(DISTINCT user_id)) OVER (
-      PARTITION BY cohort_month ORDER BY months_since_signup
-      ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-    ), 1)                                    AS retention_pct
+WITH cohorts AS (
+  SELECT user_id,
+         DATE_TRUNC('month', signup_date) AS cohort_month
+  FROM users
+)
+SELECT * FROM cohorts ORDER BY user_id;
+```
+
+**Intermediate result:**
+| user_id | cohort_month |
+|---------|--------------|
+| 101     | 2024-01-01   |
+| 102     | 2024-01-01   |
+| 103     | 2024-01-01   |
+| 104     | 2024-02-01   |
+| 105     | 2024-02-01   |
+| 106     | 2024-02-01   |
+
+**Step 2 — join events and compute months since signup:**
+
+```sql
+WITH cohorts AS (
+  SELECT user_id, DATE_TRUNC('month', signup_date) AS cohort_month
+  FROM users
+),
+activity AS (
+  SELECT e.user_id,
+         c.cohort_month,
+         DATE_TRUNC('month', e.event_date)       AS activity_month,
+         DATEDIFF('month', c.cohort_month,
+                  DATE_TRUNC('month', e.event_date)) AS months_since_signup
+  FROM events e
+  JOIN cohorts c ON e.user_id = c.user_id
+)
+SELECT cohort_month, months_since_signup,
+       COUNT(DISTINCT user_id)                                          AS active_users,
+       FIRST_VALUE(COUNT(DISTINCT user_id)) OVER (
+         PARTITION BY cohort_month ORDER BY months_since_signup
+         ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+       )                                                                AS cohort_size,
+       ROUND(100.0 * COUNT(DISTINCT user_id) /
+         FIRST_VALUE(COUNT(DISTINCT user_id)) OVER (
+           PARTITION BY cohort_month ORDER BY months_since_signup
+           ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+         ), 1)                                                           AS retention_pct
 FROM activity
 GROUP BY cohort_month, months_since_signup
 ORDER BY cohort_month, months_since_signup;
 ```
 
-> 🏭 **Production note**: Cohort tables grow as O(cohorts × max_age). For a product with 24 months of history and monthly cohorts, you get 24×24=576 cells. This is small. But if you're doing daily cohorts over 2 years, you're at 730×730=533K cells. Pre-aggregate to monthly cohorts for dashboards.
+**Final result:**
+| cohort_month | months_since_signup | active_users | cohort_size | retention_pct |
+|--------------|---------------------|--------------|-------------|---------------|
+| 2024-01-01   | 0                   | 3            | 3           | 100.0         |
+| 2024-01-01   | 1                   | 2            | 3           | 66.7          |
+| 2024-01-01   | 2                   | 1            | 3           | 33.3          |
+| 2024-02-01   | 0                   | 3            | 3           | 100.0         |
+| 2024-02-01   | 1                   | 2            | 3           | 66.7          |
+
+Reading: The January cohort (users 101, 102, 103) retained 100% at month 0, 67% at month 1 (only 101 and 102 came back in February), and 33% at month 2 (only 101 came back in March).
+
+> 🏭 **Production note**: Cohort tables grow as O(cohorts × max_age). Daily cohorts over 2 years = 730×730 = 533K cells. Pre-aggregate to monthly cohorts for dashboards.
 
 **Resources**
-- [Cohort Retention SQL Templates for Snowflake & BigQuery](https://stellans.io/cohort-retention-sql-templates-snowflake-bigquery/) — ready-to-use production templates
+- [Cohort Retention SQL Templates for Snowflake & BigQuery](https://stellans.io/cohort-retention-sql-templates-snowflake-bigquery/)
 
 ### 13.2 Funnel Analysis
 
-A funnel measures how many users complete each step in a sequence: viewed product → added to cart → purchased. The SQL challenge is counting users who completed each step in order, not just each step independently.
+A funnel measures how many users complete each step in a sequence: product_view → add_to_cart → purchase.
 
-**Standard approach — conditional aggregation** (works everywhere):
+**Input — `user_events`** (see Sample Tables above). Summary by user:
+
+| user_id | has product_view? | has add_to_cart? | has purchase? | step score |
+|---------|-------------------|------------------|---------------|------------|
+| 101     | ✓                 | ✓                | ✓             | 3          |
+| 102     | ✓                 | ✓                | ✓             | 3          |
+| 103     | ✓                 | ✗                | ✗             | 1          |
+| 104     | ✓                 | ✓                | ✗             | 2          |
 
 ```sql
 SELECT
-  COUNT(DISTINCT CASE WHEN step >= 1 THEN user_id END) AS step1_view,
+  COUNT(DISTINCT CASE WHEN step >= 1 THEN user_id END) AS step1_product_view,
   COUNT(DISTINCT CASE WHEN step >= 2 THEN user_id END) AS step2_add_to_cart,
   COUNT(DISTINCT CASE WHEN step >= 3 THEN user_id END) AS step3_purchase
 FROM (
   SELECT user_id,
-    MAX(CASE WHEN event = 'product_view'    THEN 1 ELSE 0 END) +
-    MAX(CASE WHEN event = 'add_to_cart'     THEN 1 ELSE 0 END) +
-    MAX(CASE WHEN event = 'purchase'        THEN 1 ELSE 0 END) AS step
-  FROM funnel_events
-  WHERE event_date >= '2024-01-01'
+    MAX(CASE WHEN event_type = 'product_view' THEN 1 ELSE 0 END) +
+    MAX(CASE WHEN event_type = 'add_to_cart'  THEN 1 ELSE 0 END) +
+    MAX(CASE WHEN event_type = 'purchase'     THEN 1 ELSE 0 END) AS step
+  FROM user_events
   GROUP BY user_id
-) funnel_steps;
+) funnel;
 ```
+
+**Result:**
+| step1_product_view | step2_add_to_cart | step3_purchase |
+|--------------------|-------------------|----------------|
+| 4                  | 3                 | 2              |
+
+50% of users who viewed a product completed a purchase. 1 user (103) dropped off before adding to cart.
+
+**Conversion rates:**
+- View → Add to cart: 3/4 = 75%
+- Add to cart → Purchase: 2/3 = 67%
+- Overall: 2/4 = 50%
 
 **Snowflake approach — MATCH_RECOGNIZE** ([Hoffa, 2024](https://medium.com/data-science/funnel-analytics-with-sql-match-recognize-on-snowflake-8bd576d9b7b1)):
 
-`MATCH_RECOGNIZE` identifies sequential event patterns declaratively, like regex for rows:
-
 ```sql
-SELECT *
-FROM funnel_events
+SELECT user_id, COUNT(*) AS funnel_completions
+FROM user_events
 MATCH_RECOGNIZE (
   PARTITION BY user_id
   ORDER BY event_ts
-  MEASURES
-    CLASSIFIER() AS matched_step,
-    COUNT(*) AS steps_to_complete
+  MEASURES COUNT(*) AS steps_to_complete
   ONE ROW PER MATCH
-  PATTERN (viewed (added | anything)* purchased)
+  PATTERN (viewed (anything)* carted (anything)* purchased)
   DEFINE
-    viewed    AS event = 'product_view',
-    purchased AS event = 'purchase',
-    added     AS event = 'add_to_cart',
+    viewed    AS event_type = 'product_view',
+    purchased AS event_type = 'purchase',
+    carted    AS event_type = 'add_to_cart',
     anything  AS TRUE
-);
+)
+GROUP BY user_id;
 ```
 
-This finds users who viewed then eventually purchased, counting any events in between.
+**Result:**
+| user_id | funnel_completions |
+|---------|--------------------|
+| 101     | 1                  |
+| 102     | 1                  |
 
-> 🏭 **Production note**: `MATCH_RECOGNIZE` is Snowflake-specific (also Oracle). The conditional aggregation pattern is portable across BigQuery, Redshift, and PostgreSQL. When building multi-cloud data products, stick with conditional aggregation.
+> 🏭 **Production note**: `MATCH_RECOGNIZE` is Snowflake/Oracle-specific. The conditional aggregation pattern is portable across BigQuery, Redshift, and PostgreSQL.
 
 **Resources**
-- [Funnel Analytics with MATCH_RECOGNIZE](https://medium.com/data-science/funnel-analytics-with-sql-match-recognize-on-snowflake-8bd576d9b7b1) — worked e-commerce example with Google Analytics data
-- [Fivetran Funnel Analysis Guide](https://www.fivetran.com/blog/funnel-analysis) — conversion metric patterns in SQL
+- [Funnel Analytics with MATCH_RECOGNIZE](https://medium.com/data-science/funnel-analytics-with-sql-match-recognize-on-snowflake-8bd576d9b7b1)
 
 ### 13.3 Sessionization
 
-Sessionization groups a user's events into discrete sessions separated by inactivity gaps. It's the core of clickstream analysis and user journey modeling.
+Sessionization groups a user's events into discrete sessions separated by inactivity gaps (commonly 30 minutes).
 
-**Standard pattern — LAG + CASE**:
+**Input — `clickstream`:**
+
+| user_id | event_ts                | event_type |
+|---------|-------------------------|------------|
+| 101     | 2024-01-01 09:00:00     | login      |
+| 101     | 2024-01-01 09:05:00     | page_view  |
+| 101     | 2024-01-01 09:10:00     | click      |
+| 101     | **2024-01-01 09:55:00** | page_view  |  ← 45 min gap → new session
+| 101     | 2024-01-01 10:00:00     | click      |
+| 102     | 2024-01-01 10:00:00     | login      |
+| 102     | 2024-01-01 10:10:00     | page_view  |
+| 102     | **2024-01-01 11:30:00** | login      |  ← 80 min gap → new session
+
+**Step 1 — compute gap and flag session starts:**
 
 ```sql
 WITH with_gaps AS (
   SELECT
-    user_id,
-    event_ts,
-    event_type,
+    user_id, event_ts, event_type,
     DATEDIFF('minute',
       LAG(event_ts) OVER (PARTITION BY user_id ORDER BY event_ts),
       event_ts
-    ) AS minutes_since_last_event
+    ) AS mins_since_last
   FROM clickstream
-),
+)
+SELECT *,
+  CASE WHEN mins_since_last > 30
+            OR mins_since_last IS NULL   -- first event
+       THEN 1 ELSE 0
+  END AS is_new_session
+FROM with_gaps
+ORDER BY user_id, event_ts;
+```
+
+**Intermediate result:**
+| user_id | event_ts     | event_type | mins_since_last | is_new_session |
+|---------|--------------|------------|-----------------|----------------|
+| 101     | 09:00:00     | login      | NULL            | 1              |
+| 101     | 09:05:00     | page_view  | 5               | 0              |
+| 101     | 09:10:00     | click      | 5               | 0              |
+| 101     | 09:55:00     | page_view  | 45              | 1              |
+| 101     | 10:00:00     | click      | 5               | 0              |
+| 102     | 10:00:00     | login      | NULL            | 1              |
+| 102     | 10:10:00     | page_view  | 10              | 0              |
+| 102     | 11:30:00     | login      | 80              | 1              |
+
+**Step 2 — cumulative sum of `is_new_session` = session ID:**
+
+```sql
+WITH with_gaps AS (...),  -- same as above
 session_starts AS (
-  SELECT *,
-    CASE WHEN minutes_since_last_event > 30
-              OR minutes_since_last_event IS NULL  -- first event
-         THEN 1 ELSE 0
-    END AS is_new_session
+  SELECT *, CASE WHEN mins_since_last > 30 OR mins_since_last IS NULL THEN 1 ELSE 0 END AS is_new_session
   FROM with_gaps
 )
 SELECT
@@ -908,19 +1344,31 @@ SELECT
     PARTITION BY user_id ORDER BY event_ts
     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
   ) AS session_id
-FROM session_starts;
+FROM session_starts
+ORDER BY user_id, event_ts;
 ```
 
-**Snowflake shortcut — CONDITIONAL_TRUE_EVENT** ([QOSF, 2024](https://qosf.com/sessionization.html)):
+**Final result:**
+| user_id | event_ts     | event_type | session_id |
+|---------|--------------|------------|------------|
+| 101     | 09:00:00     | login      | 1          |
+| 101     | 09:05:00     | page_view  | 1          |
+| 101     | 09:10:00     | click      | 1          |
+| 101     | 09:55:00     | page_view  | 2          |
+| 101     | 10:00:00     | click      | 2          |
+| 102     | 10:00:00     | login      | 1          |
+| 102     | 10:10:00     | page_view  | 1          |
+| 102     | 11:30:00     | login      | 2          |
+
+User 101 has 2 sessions (session 1: 09:00–09:10, session 2: 09:55–10:00). User 102 has 2 sessions (session 1: 10:00–10:10, session 2: 11:30).
+
+> 🎯 **Interview prep**: The gaps-and-islands pattern is the #1 most-asked advanced SQL problem. The canonical solution: (1) flag rows where the gap exceeds threshold, (2) take cumulative sum of those flags. That sum is the session/island ID.
+
+**Snowflake shortcut — CONDITIONAL_TRUE_EVENT:**
 
 ```sql
 SELECT
-  user_id,
-  event_ts,
-  DATEDIFF('minute',
-    LAG(event_ts) OVER (PARTITION BY user_id ORDER BY event_ts),
-    event_ts
-  ) AS minutes_since_last,
+  user_id, event_ts,
   CONDITIONAL_TRUE_EVENT(
     DATEDIFF('minute',
       LAG(event_ts) OVER (PARTITION BY user_id ORDER BY event_ts),
@@ -930,50 +1378,40 @@ SELECT
 FROM clickstream;
 ```
 
-`CONDITIONAL_TRUE_EVENT` increments a counter each time the condition is true — a Snowflake-native way to assign monotonically increasing session IDs in a single expression.
-
-> 🎯 **Interview prep**: The gaps-and-islands pattern is the #1 most-asked advanced SQL problem. The canonical solution is: (1) flag rows where the gap exceeds the threshold, (2) take a cumulative sum of those flags. That cumulative sum is the session ID.
+`CONDITIONAL_TRUE_EVENT` increments a counter each time the condition is true — same result as above in a single expression.
 
 ### 13.4 Pivoting & Unpivoting
 
-**CASE-based pivot** (works everywhere):
+**Input — `orders` by channel per month:**
 
 ```sql
 SELECT
-  user_id,
-  SUM(CASE WHEN channel = 'email'  THEN revenue END) AS email_revenue,
-  SUM(CASE WHEN channel = 'sms'    THEN revenue END) AS sms_revenue,
-  SUM(CASE WHEN channel = 'push'   THEN revenue END) AS push_revenue
-FROM channel_revenue
-GROUP BY user_id;
+  DATE_TRUNC('month', order_date)                              AS month,
+  SUM(CASE WHEN channel = 'web'    THEN amount END)            AS web_revenue,
+  SUM(CASE WHEN channel = 'mobile' THEN amount END)            AS mobile_revenue,
+  SUM(CASE WHEN channel = 'email'  THEN amount END)            AS email_revenue
+FROM orders
+GROUP BY 1
+ORDER BY 1;
 ```
 
-**Snowflake PIVOT / UNPIVOT**:
+**Result:**
+| month       | web_revenue | mobile_revenue | email_revenue |
+|-------------|-------------|----------------|---------------|
+| 2024-01-01  | 250         | 150            | NULL          |
+| 2024-02-01  | 800         | NULL           | 200           |
+| 2024-03-01  | 400         | 495            | NULL          |
 
-```sql
--- PIVOT: rows to columns
-SELECT * FROM channel_revenue
-PIVOT (SUM(revenue) FOR channel IN ('email', 'sms', 'push'))
-AS p (user_id, email_revenue, sms_revenue, push_revenue);
-
--- UNPIVOT: columns to rows (normalize wide tables)
-SELECT user_id, channel, revenue
-FROM wide_revenue_table
-UNPIVOT (revenue FOR channel IN (email_revenue, sms_revenue, push_revenue));
-```
+NULL = no orders in that channel for that month. Use `COALESCE(..., 0)` if you need 0 instead.
 
 **Resources**
-- [Snowflake PIVOT docs](https://docs.snowflake.com/en/sql-reference/constructs/pivot) — including dynamic PIVOT with ANY VALUE
+- [Snowflake PIVOT docs](https://docs.snowflake.com/en/sql-reference/constructs/pivot)
 
 ---
 
 ## 14. Snowflake Power Features
 
-Snowflake extends standard SQL with several constructs that are genuinely useful for data science work. These are the features worth learning specifically.
-
 ### 14.1 QUALIFY — Filter Window Function Results Without a Subquery
-
-Standard SQL requires wrapping a window function in a subquery to filter on its result. Snowflake's `QUALIFY` clause eliminates this ([Snowflake docs](https://docs.snowflake.com/en/sql-reference/constructs/qualify)):
 
 ```sql
 -- ❌ Standard SQL: requires a subquery
@@ -986,76 +1424,51 @@ SELECT * FROM (
 SELECT *
 FROM employees
 QUALIFY ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) = 1;
-
--- Works with any window function
-SELECT user_id, event_ts, event_type
-FROM events
-QUALIFY DENSE_RANK() OVER (PARTITION BY user_id ORDER BY event_ts DESC) <= 3;
 ```
 
-QUALIFY runs after WINDOW in the logical order, before DISTINCT. You can use window functions defined in SELECT or define them directly in QUALIFY.
+**Result (top earner per department):**
+| id | name  | department  | salary |
+|----|-------|-------------|--------|
+| 1  | Alice | Engineering | 100000 |
+| 4  | Dave  | Marketing   | 80000  |
 
-### 14.2 VARIANT, FLATTEN & Semi-Structured Data
+### 14.2 VARIANT & FLATTEN
 
-Covered in Section 9.2. Key addition: Snowflake's `OBJECT_CONSTRUCT` and `ARRAY_CONSTRUCT` let you *build* semi-structured data in SQL, useful for creating API payloads:
+Covered in Section 9.2. Additional: `OBJECT_CONSTRUCT` and `ARRAY_CONSTRUCT` build semi-structured data in SQL:
 
 ```sql
 SELECT OBJECT_CONSTRUCT(
   'user_id',   user_id,
-  'features',  ARRAY_CONSTRUCT(age, tenure_days, avg_purchase),
+  'features',  ARRAY_CONSTRUCT(amount, customer_id),
   'as_of',     CURRENT_DATE()
 ) AS feature_payload
-FROM user_feature_table;
+FROM orders WHERE order_id = 1;
 ```
 
-### 14.3 Time Travel — Query Historical Data
+**Result:**
+| feature_payload |
+|---|
+| `{"user_id": 1, "features": [250, 101], "as_of": "2026-05-17"}` |
 
-Snowflake Time Travel lets you query any table as it existed at a past point in time ([Snowflake docs](https://docs.snowflake.com/en/user-guide/data-time-travel)):
+### 14.3 Time Travel — Query Historical Data
 
 ```sql
 -- Query table as it was 1 hour ago
 SELECT * FROM orders AT (OFFSET => -3600);
-
--- Query as of a specific timestamp
-SELECT * FROM orders AT (TIMESTAMP => '2024-03-01 09:00:00'::TIMESTAMP_TZ);
-
--- Query before a specific statement ran (use query ID from query history)
-SELECT * FROM orders BEFORE (STATEMENT => '8e5d0ca9-005e-44e6-b858-a8f5b37c5726');
 
 -- Restore accidentally deleted data
 INSERT INTO orders SELECT * FROM orders BEFORE (STATEMENT => '<delete_query_id>');
 
 -- Clone table at historical point for safe experimentation
 CREATE TABLE orders_snapshot CLONE orders AT (TIMESTAMP => '2024-01-01'::TIMESTAMP);
-
--- UNDROP: restore a dropped table (within retention period)
-DROP TABLE orders;
-UNDROP TABLE orders;
-```
-
-Retention defaults to 1 day (Standard Edition) and can be set up to 90 days on Enterprise:
-
-```sql
-ALTER TABLE critical_table SET DATA_RETENTION_TIME_IN_DAYS = 14;
 ```
 
 > 🏭 **Production note**: Time Travel storage is billed at the same rate as active storage. A table with 30-day retention that receives heavy DML can accrue 30× its logical size in historical versions. Monitor with `SNOWFLAKE.ACCOUNT_USAGE.TABLE_STORAGE_METRICS`. The sweet spot for most analytics tables is 7–14 days.
 
-### 14.4 Clustering Keys & Micro-Partition Pruning
-
-Discussed in Section 11.2. The diagnostic command:
-
-```sql
--- Returns clustering depth, average overlap, and a quality score
-SELECT SYSTEM$CLUSTERING_INFORMATION('orders', '(order_date, region)');
-```
-
-Output includes a `clustering_ratio` — values near 1.0 mean excellent clustering; near 0 means heavily mixed partitions that need reclustering.
-
 **Resources**
-- [Snowflake QUALIFY docs](https://docs.snowflake.com/en/sql-reference/constructs/qualify) — complete syntax and examples
-- [Snowflake Time Travel guide](https://docs.snowflake.com/en/user-guide/data-time-travel) — retention, AT/BEFORE, UNDROP
-- [Snowflake Clustering Keys](https://docs.snowflake.com/en/user-guide/tables-clustering-keys) — when to cluster, choosing columns, cost
+- [Snowflake QUALIFY docs](https://docs.snowflake.com/en/sql-reference/constructs/qualify)
+- [Snowflake Time Travel guide](https://docs.snowflake.com/en/user-guide/data-time-travel)
+- [Snowflake Clustering Keys](https://docs.snowflake.com/en/user-guide/tables-clustering-keys)
 
 ---
 
@@ -1079,7 +1492,7 @@ result = con.execute("""
   LIMIT 100
 """).df()
 
-# Query a Pandas DataFrame as a table
+# Query a Pandas DataFrame as a SQL table
 df = pd.read_csv('orders.csv')
 top_customers = con.execute("""
   SELECT customer_id, SUM(amount) AS ltv
@@ -1087,123 +1500,106 @@ top_customers = con.execute("""
   GROUP BY customer_id
   HAVING SUM(amount) > 1000
 """).df()
-
-# ASOF join for time-series — native in DuckDB
-con.execute("""
-  SELECT t.user_id, t.event_ts, p.price
-  FROM events t
-  ASOF JOIN prices p ON t.product_id = p.product_id
-  AND t.event_ts >= p.valid_from
-""")
 ```
-
-DuckDB also supports `PIVOT`, window functions, recursive CTEs, and JSON operations with the same syntax as most cloud warehouses.
 
 > 🏭 **Production note**: DuckDB is the right tool for notebooks and local feature engineering. Use Snowflake for shared, governed production data. A common pattern: prototype features in DuckDB on a sampled Parquet export, then port the SQL to Snowflake for production.
 
 **Resources**
-- [DuckDB Python API](https://duckdb.org/docs/api/python/overview.html) — full documentation for in-process analytics
-- [DuckDB vs Pandas vs Polars benchmark](https://duckdb.org/2021/05/14/sql-on-pandas.html) — performance on in-memory operations
+- [DuckDB Python API](https://duckdb.org/docs/api/python/overview.html)
+- [DuckDB vs Pandas vs Polars benchmark](https://duckdb.org/2021/05/14/sql-on-pandas.html)
 
 ---
 
 ## 16. SQL for ML Workflows
 
-SQL is where ML feature engineering happens at scale. The patterns below bridge SQL and Python ML pipelines.
+SQL is where ML feature engineering happens at scale.
 
 ### 16.1 Feature Engineering in SQL
 
+**Input — `orders` table.** Building RFM (Recency, Frequency, Monetary) features per customer:
+
 ```sql
--- Time-based features: recency, frequency, monetary (RFM)
 WITH rfm AS (
   SELECT
     customer_id,
-    DATEDIFF('day', MAX(order_date), CURRENT_DATE())  AS recency_days,
+    DATEDIFF('day', MAX(order_date), '2024-04-01')   AS recency_days,
     COUNT(DISTINCT order_id)                           AS frequency,
     SUM(amount)                                        AS monetary_value,
     AVG(amount)                                        AS avg_order_value,
-    STDDEV(amount)                                     AS order_value_stddev,
-    -- Lag features
-    SUM(amount) FILTER (WHERE order_date >= DATEADD(day, -30, CURRENT_DATE()))
-                                                       AS revenue_last_30d,
-    SUM(amount) FILTER (WHERE order_date >= DATEADD(day, -90, CURRENT_DATE()))
-                                                       AS revenue_last_90d
+    SUM(CASE WHEN order_date >= '2024-02-01'
+             THEN amount ELSE 0 END)                   AS revenue_last_60d,
+    SUM(CASE WHEN order_date >= '2024-01-01'
+             THEN amount ELSE 0 END)                   AS revenue_last_90d
   FROM orders
   GROUP BY customer_id
 )
-SELECT *, ROUND(revenue_last_30d / NULLIF(revenue_last_90d, 0), 3) AS rev_30_90_ratio
-FROM rfm;
+SELECT *, ROUND(revenue_last_60d / NULLIF(revenue_last_90d, 0), 3) AS rev_60_90_ratio
+FROM rfm
+ORDER BY monetary_value DESC;
 ```
+
+**Result:**
+| customer_id | recency_days | frequency | monetary_value | avg_order_value | revenue_last_60d | revenue_last_90d | rev_60_90_ratio |
+|-------------|-------------|-----------|----------------|-----------------|------------------|------------------|-----------------|
+| 101         | 24          | 3         | 950            | 316.7           | 700              | 950              | 0.737           |
+| 103         | 20          | 2         | 820            | 410.0           | 820              | 820              | 1.000           |
+| 102         | 41          | 2         | 350            | 175.0           | 200              | 350              | 0.571           |
+| 104         | 31          | 1         | 175            | 175.0           | 175              | 175              | 1.000           |
 
 ### 16.2 Train/Test Split in SQL
 
 ```sql
--- Deterministic random split using MOD on a hash
 SELECT *,
-  CASE WHEN MOD(HASH(user_id), 10) < 8 THEN 'train'
-       WHEN MOD(HASH(user_id), 10) < 9 THEN 'val'
+  CASE WHEN MOD(HASH(customer_id), 10) < 8 THEN 'train'
+       WHEN MOD(HASH(customer_id), 10) < 9 THEN 'val'
        ELSE 'test'
   END AS split
-FROM features;
+FROM rfm_features;
 ```
 
-The key: `HASH(user_id)` is deterministic — the same user always gets the same split, even if you rerun the query.
+**Result** (HASH is deterministic — same customer always gets same split):
+| customer_id | monetary_value | split |
+|-------------|----------------|-------|
+| 101         | 950            | train |
+| 102         | 350            | train |
+| 103         | 820            | val   |
+| 104         | 175            | train |
 
 ### 16.3 Label Generation
 
 ```sql
--- Binary label: churned in next 30 days
-WITH user_last_activity AS (
-  SELECT user_id, MAX(event_date) AS last_event
-  FROM events GROUP BY user_id
-),
-labels AS (
-  SELECT u.user_id,
-    CASE WHEN last_event < DATEADD(day, -30, CURRENT_DATE())
-         THEN 1 ELSE 0
-    END AS churned
-  FROM users u
-  JOIN user_last_activity a ON u.user_id = a.user_id
+-- Binary churn label: no activity in last 30 days
+WITH last_activity AS (
+  SELECT customer_id, MAX(order_date) AS last_order
+  FROM orders GROUP BY customer_id
 )
-SELECT f.*, l.churned
-FROM features f
-JOIN labels l ON f.user_id = l.user_id;
+SELECT f.*, 
+  CASE WHEN l.last_order < '2024-03-01' THEN 1 ELSE 0 END AS churned
+FROM rfm_features f
+JOIN last_activity l ON f.customer_id = l.customer_id;
 ```
 
-### 16.4 Connecting SQL to Python
+**Result:**
+| customer_id | monetary_value | churned |
+|-------------|----------------|---------|
+| 101         | 950            | 0       |
+| 102         | 350            | 0       |
+| 103         | 820            | 0       |
+| 104         | 175            | 0       |
 
-```python
-import pandas as pd
-import sqlalchemy
+(All customers have recent activity in our small sample. In production, some would be churned = 1.)
 
-# SQLAlchemy connection to Snowflake
-engine = sqlalchemy.create_engine(
-    "snowflake://user:password@account/db/schema?warehouse=wh"
-)
-
-# Pull features for training
-df = pd.read_sql("""
-  SELECT * FROM user_features
-  WHERE split = 'train' AND feature_date = '2024-01-01'
-""", engine)
-
-# Write predictions back to Snowflake
-predictions_df.to_sql('model_predictions', engine, if_exists='append', index=False)
-```
-
-> 🎯 **Interview prep**: "How would you prevent data leakage when building a feature in SQL?" — The core answer: use only data available *before* the label timestamp. The implementation: always join features to a `feature_as_of_date` and filter events to `event_date < feature_as_of_date`.
+> 🎯 **Interview prep**: "How would you prevent data leakage when building a feature in SQL?" — Use only data available *before* the label timestamp. Implementation: join features to a `feature_as_of_date` and filter events to `event_date < feature_as_of_date`.
 
 **Resources**
 - [SQLAlchemy docs](https://docs.sqlalchemy.org/en/20/core/connections.html) — production-grade SQL connection pooling from Python
-- [Pandas SQL comparison](https://pandas.pydata.org/docs/getting_started/comparison/comparison_with_sql.html) — maps every pandas operation to SQL
+- [Pandas SQL comparison](https://pandas.pydata.org/docs/getting_started/comparison/comparison_with_sql.html)
 
 ---
 
 ## 17. Comparison Tables
 
 ### 17.1 JOIN Types
-
-*Use this table to quickly pick the right join type for your analytical scenario.*
 
 | JOIN Type | Returns | When to use | When NOT to use | Watch out for |
 |---|---|---|---|---|
@@ -1216,43 +1612,46 @@ predictions_df.to_sql('model_predictions', engine, if_exists='append', index=Fal
 
 ### 17.2 Window Function vs GROUP BY
 
-*The key question: do you want row-level detail preserved, or collapsed aggregates?*
-
-| Approach | How it works | Returns | When to use | When NOT to use | Example |
-|---|---|---|---|---|---|
-| GROUP BY + aggregate | Collapses rows into groups | One row per group | Summary statistics, reporting totals | When you need per-row detail alongside the aggregate | `SUM(revenue) GROUP BY month` |
-| Window function | Computes aggregate over a window without collapsing | One row per input row | Per-row context (rank, running total, vs. group avg) | When you just need a summary — GROUP BY is simpler | `SUM(rev) OVER (PARTITION BY month)` |
-| Window + GROUP BY | Filter with HAVING, then rank results | Grouped rows with window metadata | Ranked groups, percentiles within groups | Complex nested logic — use a CTE instead | `RANK() OVER ... QUALIFY rank <= 3` |
+| Approach | How it works | Returns | When to use | Example |
+|---|---|---|---|---|
+| GROUP BY + aggregate | Collapses rows into groups | One row per group | Summary statistics, reporting totals | `SUM(revenue) GROUP BY month` |
+| Window function | Computes aggregate over a window without collapsing | One row per input row | Per-row context (rank, running total, vs. group avg) | `SUM(rev) OVER (PARTITION BY month)` |
+| Window + QUALIFY | Filter window results | Subset of rows | Top-N per group | `QUALIFY RANK() OVER (...) <= 3` |
 
 ### 17.3 Snowflake vs Standard SQL Dialect
 
-*Key syntax differences when porting queries between systems.*
-
-| Feature | Standard SQL (PostgreSQL) | Snowflake | BigQuery |
+| Feature | PostgreSQL | Snowflake | BigQuery |
 |---|---|---|---|
 | Filter window results | Subquery required | `QUALIFY` clause | Subquery required |
 | Semi-structured access | `data->>'field'` (JSONB) | `col:field::TYPE` | `JSON_VALUE(col, '$.field')` |
-| Array explode | `jsonb_array_elements()` | `LATERAL FLATTEN(INPUT => col)` | `UNNEST()` or `JSON_ARRAY_ELEMENTS` |
-| Case-insensitive LIKE | `ILIKE` (PG extension) | `ILIKE` (native) | Not available — use `LOWER(col) LIKE` |
+| Array explode | `jsonb_array_elements()` | `LATERAL FLATTEN(INPUT => col)` | `UNNEST()` |
+| Case-insensitive LIKE | `ILIKE` | `ILIKE` (native) | `LOWER(col) LIKE` |
 | Time zone conversion | `AT TIME ZONE 'zone'` | `CONVERT_TIMEZONE('zone', col)` | `DATETIME(col, 'timezone')` |
-| Regex functions | `regexp_matches()`, `~` | `REGEXP_SUBSTR()`, `RLIKE` | `REGEXP_EXTRACT()` |
 | Historical queries | N/A | `AT (TIMESTAMP => ...)` | N/A |
 | Sessionization | LAG + cumulative SUM | `CONDITIONAL_TRUE_EVENT()` | LAG + cumulative SUM |
-| Table sampling | `TABLESAMPLE SYSTEM(n)` | `SAMPLE (n ROWS)` or `SAMPLE (n PERCENT)` | `TABLESAMPLE SYSTEM(n PERCENT)` |
-| Inline pivot | `CROSSTAB()` (via tablefunc) | Native `PIVOT` / `UNPIVOT` | Native `PIVOT` |
+| Inline pivot | `CROSSTAB()` (tablefunc) | Native `PIVOT` / `UNPIVOT` | Native `PIVOT` |
 
 ---
 
 ## 18. Interview Prep: 10 Worked Problems
 
-These are the patterns that appear most frequently at companies like Meta, Google, Uber, and Airbnb ([MindfulTechie, 2024](https://medium.com/@aicoders/master-sql-window-functions-and-ctes-12-real-data-engineering-interview-questions-with-code-9b42f37c1db1); [pipeline2insights, 2024](https://pipeline2insights.substack.com/p/week-332-advanced-sql-concepts-for)).
+Each problem shows the input, query, and exact output. These are the patterns that appear most frequently at Meta, Google, Uber, and Airbnb ([MindfulTechie, 2024](https://medium.com/@aicoders/master-sql-window-functions-and-ctes-12-real-data-engineering-interview-questions-with-code-9b42f37c1db1); [pipeline2insights, 2024](https://pipeline2insights.substack.com/p/week-332-advanced-sql-concepts-for)).
 
 ---
 
-**Q1 — Second highest salary (without using LIMIT/OFFSET)**
+### Q1 — Second Highest Salary (without LIMIT/OFFSET)
+
+**Input — `employees`:**
+
+| id | name  | salary |
+|----|-------|--------|
+| 1  | Alice | 100000 |
+| 2  | Bob   | 90000  |
+| 3  | Carol | 90000  |
+| 4  | Dave  | 80000  |
+| 5  | Eve   | 70000  |
 
 ```sql
--- Using DENSE_RANK avoids gaps when multiple people share the top salary
 SELECT salary
 FROM (
   SELECT salary,
@@ -1261,26 +1660,49 @@ FROM (
 ) t
 WHERE dr = 2;
 ```
-*Why DENSE_RANK over RANK: if three people earn the max salary, RANK gives them all rank 1 and skips to rank 4. DENSE_RANK gives rank 1 and moves to rank 2 correctly.*
+
+**Result:**
+| salary |
+|--------|
+| 90000  |
+
+*Why DENSE_RANK over RANK: if three people share the max salary, RANK gives them all rank 1 and skips to rank 4. DENSE_RANK gives rank 1 and moves to rank 2 correctly. The second highest distinct salary is 90000 (Bob and Carol).*
 
 ---
 
-**Q2 — Top 3 earners per department**
+### Q2 — Top 2 Earners per Department
+
+**Input — `employees`** (all 7 rows).
 
 ```sql
 SELECT name, department, salary
 FROM employees
-QUALIFY DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) <= 3;
--- Replace QUALIFY with a subquery WHERE clause for non-Snowflake systems
+QUALIFY DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) <= 2
+ORDER BY department, salary DESC;
 ```
+
+**Result:**
+| name  | department  | salary |
+|-------|-------------|--------|
+| Alice | Engineering | 100000 |
+| Bob   | Engineering | 90000  |
+| Carol | Engineering | 90000  |
+| Dave  | Marketing   | 80000  |
+| Eve   | Marketing   | 70000  |
+| Frank | Marketing   | 70000  |
+
+Both Bob and Carol are returned because they share rank 2. Grace (75000) is excluded — she is rank 3 in Engineering.
 
 ---
 
-**Q3 — Month-over-month revenue growth**
+### Q3 — Month-over-Month Revenue Growth
+
+**Input — `orders`** → aggregated by month.
 
 ```sql
 WITH monthly AS (
-  SELECT DATE_TRUNC('month', order_date) AS month, SUM(revenue) AS rev
+  SELECT DATE_TRUNC('month', order_date) AS month,
+         SUM(amount) AS rev
   FROM orders GROUP BY 1
 )
 SELECT month, rev,
@@ -1291,23 +1713,67 @@ SELECT month, rev,
 FROM monthly
 ORDER BY month;
 ```
-*Edge case: NULLIF prevents division by zero when prev_rev = 0. The first row returns NULL — filter it out or COALESCE to 0 depending on the use case.*
+
+**Result:**
+| month       | rev  | prev_rev | pct_growth |
+|-------------|------|----------|------------|
+| 2024-01-01  | 400  | NULL     | NULL       |
+| 2024-02-01  | 1000 | 400      | 150.0      |
+| 2024-03-01  | 895  | 1000     | -10.5      |
+
+January has no previous month (NULL). February grew 150% (400→1000). March declined 10.5% (1000→895).
+
+*Edge case: `NULLIF(prev_rev, 0)` prevents division by zero. The first row returns NULL — filter it or `COALESCE` to 0 depending on the use case.*
 
 ---
 
-**Q4 — Consecutive login streaks (3+ days)**
+### Q4 — Consecutive Login Streaks (3+ Days)
 
-The "gaps and islands" trick: subtract a sequential row number from the date. For consecutive dates, the result is constant (the same "island ID"):
+**Input — `logins`:**
+
+| user_id | login_ts                |
+|---------|-------------------------|
+| 101     | 2024-01-01 08:00:00     |
+| 101     | 2024-01-01 20:00:00     |
+| 101     | 2024-01-02 09:00:00     |
+| 101     | 2024-01-03 10:00:00     |
+| 101     | 2024-01-05 11:00:00     |
+| 102     | 2024-01-01 07:00:00     |
+| 102     | 2024-01-02 08:00:00     |
+| 102     | 2024-01-04 09:00:00     |
+
+**Step 1 — deduplicate to one row per (user, date):**
+
+| user_id | login_date  |
+|---------|-------------|
+| 101     | 2024-01-01  |
+| 101     | 2024-01-02  |
+| 101     | 2024-01-03  |
+| 101     | 2024-01-05  |
+| 102     | 2024-01-01  |
+| 102     | 2024-01-02  |
+| 102     | 2024-01-04  |
+
+**The gaps-and-islands trick** — subtracting the row number from the date gives the same constant for consecutive dates:
+
+| user_id | login_date  | row_num | date - row_num (grp) |
+|---------|-------------|---------|----------------------|
+| 101     | 2024-01-01  | 1       | 2023-12-31           |
+| 101     | 2024-01-02  | 2       | 2023-12-31           |
+| 101     | 2024-01-03  | 3       | 2023-12-31           |
+| 101     | 2024-01-05  | 4       | 2024-01-01  ← gap!   |
+| 102     | 2024-01-01  | 1       | 2023-12-31           |
+| 102     | 2024-01-02  | 2       | 2023-12-31           |
+| 102     | 2024-01-04  | 3       | 2024-01-01  ← gap!   |
 
 ```sql
 WITH daily_logins AS (
   SELECT user_id, DATE(login_ts) AS login_date
-  FROM logins GROUP BY 1, 2  -- deduplicate multiple logins per day
+  FROM logins GROUP BY 1, 2
 ),
 with_groups AS (
   SELECT user_id, login_date,
-    login_date - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date)::int
-      AS grp  -- same value for consecutive dates
+    login_date - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date)::int AS grp
   FROM daily_logins
 ),
 streaks AS (
@@ -1321,14 +1787,21 @@ streaks AS (
 SELECT * FROM streaks WHERE streak_length >= 3;
 ```
 
+**Result:**
+| user_id | grp         | streak_start | streak_end  | streak_length |
+|---------|-------------|--------------|-------------|---------------|
+| 101     | 2023-12-31  | 2024-01-01   | 2024-01-03  | 3             |
+
+Only user 101 has a streak ≥ 3 consecutive days (Jan 1–3). User 102 only has 2 consecutive days (Jan 1–2) before the gap on Jan 3.
+
 ---
 
-**Q5 — Identify users who logged in on 3+ consecutive days in the last 30 days**
+### Q5 — Users with 3+ Consecutive Logins in the Last 30 Days
 
 ```sql
 WITH recent AS (
   SELECT DISTINCT user_id, DATE(login_ts) AS d
-  FROM logins WHERE login_ts >= CURRENT_DATE() - 30
+  FROM logins WHERE login_ts >= '2024-01-01'
 ),
 grouped AS (
   SELECT user_id, d,
@@ -1336,39 +1809,86 @@ grouped AS (
   FROM recent
 )
 SELECT DISTINCT user_id
-FROM grouped GROUP BY user_id, grp HAVING COUNT(*) >= 3;
+FROM grouped
+GROUP BY user_id, grp
+HAVING COUNT(*) >= 3;
 ```
+
+**Result:**
+| user_id |
+|---------|
+| 101     |
 
 ---
 
-**Q6 — Running 7-day average revenue per region**
+### Q6 — Running 7-Day Average Revenue per Region
+
+**Input — `orders`** grouped to daily regional revenue:
+
+| region   | order_date  | daily_revenue |
+|----------|-------------|---------------|
+| us-east  | 2024-01-05  | 250           |
+| us-west  | 2024-01-10  | 150           |
+| us-east  | 2024-02-03  | 300           |
+| us-east  | 2024-02-15  | 500           |
+| us-west  | 2024-02-20  | 200           |
+| us-east  | 2024-03-01  | 175           |
+| us-east  | 2024-03-08  | 400           |
+| us-west  | 2024-03-12  | 320           |
 
 ```sql
 SELECT region, order_date, daily_revenue,
-  AVG(daily_revenue) OVER (
+  ROUND(AVG(daily_revenue) OVER (
     PARTITION BY region
     ORDER BY order_date
     ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-  ) AS rolling_7d_avg
+  ), 1) AS rolling_7d_avg
 FROM (
   SELECT region, DATE(order_date) AS order_date, SUM(amount) AS daily_revenue
   FROM orders GROUP BY 1, 2
-) daily;
+) daily
+ORDER BY region, order_date;
 ```
+
+**Result:**
+| region   | order_date  | daily_revenue | rolling_7d_avg |
+|----------|-------------|---------------|----------------|
+| us-east  | 2024-01-05  | 250           | 250.0          |
+| us-east  | 2024-02-03  | 300           | 275.0          |
+| us-east  | 2024-02-15  | 500           | 350.0          |
+| us-east  | 2024-03-01  | 175           | 306.3          |
+| us-east  | 2024-03-08  | 400           | 325.0          |
+| us-west  | 2024-01-10  | 150           | 150.0          |
+| us-west  | 2024-02-20  | 200           | 175.0          |
+| us-west  | 2024-03-12  | 320           | 223.3          |
 
 ---
 
-**Q7 — Find the first time a user made a purchase after a free trial**
+### Q7 — First Purchase After Free Trial
+
+**Input — `user_events`** (using event_type to track trial_end and purchase events):
+
+For this problem, assume:
+- event_type `trial_end` marks when the trial ended
+- event_type `purchase` marks paid purchases
+
+| user_id | event_type  | event_ts                |
+|---------|-------------|-------------------------|
+| 101     | trial_end   | 2024-01-01 08:00:00     |
+| 101     | purchase    | 2024-01-01 09:15:00     |
+| 102     | trial_end   | 2024-01-01 09:30:00     |
+| 102     | purchase    | 2024-01-01 10:20:00     |
+| 103     | trial_end   | 2024-01-02 08:00:00     |
 
 ```sql
 WITH trial_ends AS (
   SELECT user_id, MAX(event_ts) AS trial_end
-  FROM events WHERE event_type = 'trial_end'
+  FROM user_events WHERE event_type = 'trial_end'
   GROUP BY user_id
 ),
 first_purchase AS (
   SELECT e.user_id, MIN(e.event_ts) AS first_purchase_ts
-  FROM events e
+  FROM user_events e
   JOIN trial_ends t ON e.user_id = t.user_id
   WHERE e.event_type = 'purchase' AND e.event_ts > t.trial_end
   GROUP BY e.user_id
@@ -1376,19 +1896,30 @@ first_purchase AS (
 SELECT t.user_id,
        t.trial_end,
        p.first_purchase_ts,
-       DATEDIFF('day', t.trial_end, p.first_purchase_ts) AS days_to_convert
+       DATEDIFF('minute', t.trial_end, p.first_purchase_ts) AS mins_to_convert
 FROM trial_ends t
 LEFT JOIN first_purchase p ON t.user_id = p.user_id;
 ```
 
+**Result:**
+| user_id | trial_end            | first_purchase_ts    | mins_to_convert |
+|---------|----------------------|----------------------|-----------------|
+| 101     | 2024-01-01 08:00:00  | 2024-01-01 09:15:00  | 75              |
+| 102     | 2024-01-01 09:30:00  | 2024-01-01 10:20:00  | 50              |
+| 103     | 2024-01-02 08:00:00  | NULL                 | NULL            |
+
+User 103 ended their trial but never purchased — LEFT JOIN preserves them with NULL.
+
 ---
 
-**Q8 — Employee hierarchy with depth (recursive CTE)**
+### Q8 — Employee Hierarchy with Depth (Recursive CTE)
+
+**Input — `employees`** (all 7 rows including manager_id).
 
 ```sql
 WITH RECURSIVE hierarchy AS (
   SELECT id, name, manager_id, 0 AS depth, name AS path
-  FROM employees WHERE manager_id IS NULL  -- root nodes
+  FROM employees WHERE manager_id IS NULL
 
   UNION ALL
 
@@ -1401,44 +1932,88 @@ WITH RECURSIVE hierarchy AS (
 SELECT id, name, depth, path FROM hierarchy ORDER BY path;
 ```
 
+**Result:**
+| id | name  | depth | path                    |
+|----|-------|-------|-------------------------|
+| 1  | Alice | 0     | Alice                   |
+| 2  | Bob   | 1     | Alice > Bob             |
+| 7  | Grace | 2     | Alice > Bob > Grace     |
+| 3  | Carol | 1     | Alice > Carol           |
+| 4  | Dave  | 0     | Dave                    |
+| 5  | Eve   | 1     | Dave > Eve              |
+| 6  | Frank | 1     | Dave > Frank            |
+
+Alice and Dave are root managers (depth=0). Grace is 2 levels deep — she reports to Bob who reports to Alice.
+
 ---
 
-**Q9 — Median salary per department (without MEDIAN function)**
+### Q9 — Median Salary per Department
+
+**Input — `employees`**.
 
 ```sql
--- Portable version using percentile window functions
 SELECT DISTINCT department,
   PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary)
     OVER (PARTITION BY department) AS median_salary
-FROM employees;
+FROM employees
+ORDER BY department;
 ```
 
-*PERCENTILE_CONT interpolates between values for even-sized groups. PERCENTILE_DISC returns the nearest actual value. Both are available in Snowflake and PostgreSQL.*
+**Result:**
+| department  | median_salary |
+|-------------|---------------|
+| Engineering | 90000         |
+| Marketing   | 70000         |
+
+Engineering salaries: [75000, 90000, 90000, 100000] → median = (90000+90000)/2 = 90000.  
+Marketing salaries: [70000, 70000, 80000] → median = 70000.
+
+*`PERCENTILE_CONT` interpolates between values for even-sized groups. `PERCENTILE_DISC` returns the nearest actual value. Both are available in Snowflake and PostgreSQL.*
 
 ---
 
-**Q10 — Attribution: last-touch channel before purchase**
+### Q10 — Attribution: Last-Touch Channel Before Purchase
+
+**Input — `user_events`** (using channel as event_type for simplicity):
+
+| user_id | event_type    | event_ts                |
+|---------|---------------|-------------------------|
+| 101     | email_click   | 2024-01-01 08:30:00     |
+| 101     | paid_search   | 2024-01-01 08:55:00     |
+| 101     | purchase      | 2024-01-01 09:15:00     |
+| 102     | organic       | 2024-01-01 09:45:00     |
+| 102     | paid_search   | 2024-01-01 10:05:00     |
+| 102     | purchase      | 2024-01-01 10:20:00     |
 
 ```sql
 WITH purchase_events AS (
   SELECT user_id, event_ts AS purchase_ts
-  FROM events WHERE event_type = 'purchase'
+  FROM user_events WHERE event_type = 'purchase'
 ),
 last_touch AS (
-  SELECT e.user_id, e.event_ts, e.channel,
+  SELECT e.user_id, e.event_ts, e.event_type AS channel,
     ROW_NUMBER() OVER (
       PARTITION BY e.user_id, p.purchase_ts
       ORDER BY e.event_ts DESC
     ) AS rn
-  FROM events e
+  FROM user_events e
   JOIN purchase_events p ON e.user_id = p.user_id
-  WHERE e.event_type = 'channel_touch'
+  WHERE e.event_type NOT IN ('purchase')
     AND e.event_ts < p.purchase_ts
 )
 SELECT user_id, channel, COUNT(*) AS attributed_purchases
 FROM last_touch WHERE rn = 1
-GROUP BY user_id, channel;
+GROUP BY user_id, channel
+ORDER BY user_id;
 ```
+
+**Result:**
+| user_id | channel     | attributed_purchases |
+|---------|-------------|----------------------|
+| 101     | paid_search | 1                    |
+| 102     | paid_search | 1                    |
+
+Both users' last touchpoint before purchasing was `paid_search`. Email (user 101) and organic (user 102) touched first but don't get last-touch credit.
 
 > 🎯 **Interview prep**: For all of these, the interviewer also wants to hear you handle edge cases: NULLs, ties, users with no data on one side of a join, empty result sets. Stating these aloud before coding shows production experience.
 
@@ -1457,10 +2032,10 @@ GROUP BY user_id, channel;
 - PostgreSQL (2024). *WITH Queries (Common Table Expressions).* https://www.postgresql.org/docs/current/queries-with.html
 
 ### Medium Articles
-- Pradhan, A. (2024). *Anatomy of a Snowflake Query: A Deep Dive into the Execution Engine.* https://medium.com/snowflake/anatomy-of-a-snowflake-query-a-deep-dive-into-the-execution-engine-ca9061022c47
+- Pradhan, A. (2024). *Anatomy of a Snowflake Query.* https://medium.com/snowflake/anatomy-of-a-snowflake-query-a-deep-dive-into-the-execution-engine-ca9061022c47
 - Hoffa, F. (2024). *Funnel analytics with SQL: MATCH_RECOGNIZE() on Snowflake.* https://medium.com/data-science/funnel-analytics-with-sql-match-recognize-on-snowflake-8bd576d9b7b1
-- Greybeam. (2024). *Snowflake Query Optimization: 7 Tips for Faster Queries.* https://greybeam.medium.com/snowflake-query-optimization-7-tips-for-faster-queries-4701337e595b
-- MindfulTechie. (2024). *Master SQL Window Functions and CTEs: 12 Real Data Engineering Interview Questions.* https://medium.com/@aicoders/master-sql-window-functions-and-ctes-12-real-data-engineering-interview-questions-with-code-9b42f37c1db1
+- Greybeam. (2024). *Snowflake Query Optimization: 7 Tips.* https://greybeam.medium.com/snowflake-query-optimization-7-tips-for-faster-queries-4701337e595b
+- MindfulTechie. (2024). *Master SQL Window Functions and CTEs.* https://medium.com/@aicoders/master-sql-window-functions-and-ctes-12-real-data-engineering-interview-questions-with-code-9b42f37c1db1
 - Surani, M. (2025). *Advanced SQL for Data Engineering 2025.* https://mayursurani.medium.com/advanced-sql-for-data-engineering-2025-master-window-functions-ctes-explain-plans-materialized-f729a29cb120
 
 ### Substack
@@ -1468,8 +2043,8 @@ GROUP BY user_id, channel;
 
 ### Technical Guides
 - QOSF. (2024). *Sessionization using CONDITIONAL_TRUE_EVENT in Snowflake.* https://qosf.com/sessionization.html
-- Stellans.io. (2024). *Cohort Retention SQL Templates: Snowflake & BigQuery.* https://stellans.io/cohort-retention-sql-templates-snowflake-bigquery/
-- Winand, M. *Use The Index, Luke: A Guide to Database Performance for Developers.* https://use-the-index-luke.com/
+- Stellans.io. (2024). *Cohort Retention SQL Templates.* https://stellans.io/cohort-retention-sql-templates-snowflake-bigquery/
+- Winand, M. *Use The Index, Luke.* https://use-the-index-luke.com/
 
 ### Practice Platforms
 - Mode Analytics SQL Tutorial — https://mode.com/sql-tutorial/

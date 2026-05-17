@@ -1,141 +1,167 @@
 # 02 — Statistics
 
-Exhaustive learning path covering probability, inference, experimentation, and causal reasoning for data scientists.
+Production-first study outline for statistics in machine learning, experimentation, and recommender systems.
 
 ---
 
-## 01 — Probability Fundamentals
-Events, sample space, conditional probability, independence, law of total probability, Bayes' theorem.
-- https://seeing-theory.brown.edu/
-- https://www.probabilitycourse.com/
+## Format Used In This Outline
+- `Concept`: what you need to understand.
+- `Where it is used`: ML, data science, A/B testing, or recommender-system usage.
+- `Production example`: the kind of business problem where it shows up.
+- `A/B angle`: how the same idea appears in experimentation.
 
-## 02 — Combinatorics & Counting
-Permutations, combinations, multinomial; birthday problem; inclusion-exclusion principle.
-- https://brilliant.org/courses/probability/
+## 01 — Descriptive Statistics
+- `Concept`: mean, median, mode, variance, standard deviation, percentiles, IQR, skewness, kurtosis.
+- `Where it is used`: feature profiling, anomaly checks, drift detection, dashboarding.
+- `Production example`: before training a credit-risk model, compare mean income, median income, and 95th percentile income to see whether a few extreme users will distort scaling or model behavior.
+- `A/B angle`: compare average order value, but also median order value when the metric has heavy tails.
 
-## 03 — Discrete Probability Distributions
-Bernoulli, Binomial, Poisson, Geometric, Hypergeometric, Negative Binomial; PMF, CDF, E[X], Var[X].
-- https://docs.scipy.org/doc/scipy/reference/stats.html
+## 02 — Probability Basics
+- `Concept`: events, conditional probability, independence, Bayes' theorem.
+- `Where it is used`: probabilistic models, classifier outputs, Bayesian reasoning, recommender ranking.
+- `Production example`: probability that a user clicks a recommendation given they opened the app in the evening and saw the widget.
+- `A/B angle`: probability of conversion conditioned on treatment vs control.
 
-## 04 — Continuous Probability Distributions
-Normal, Uniform, Exponential, Gamma, Beta, Log-normal, Student-t, Chi-squared, F; PDF, CDF, quantile functions.
-- https://docs.scipy.org/doc/scipy/reference/stats.html
-- https://seeing-theory.brown.edu/probability-distributions/index.html
+## 03 — Common Distributions
+- `Concept`: Bernoulli, Binomial, Poisson, Normal, Log-normal, Exponential, Beta, Gamma.
+- `Where it is used`: label generation, count modeling, Bayesian priors, confidence intervals.
+- `Production example`: purchases per day often look count-like, so Poisson intuition is useful; conversion-rate priors in Bayesian A/B testing are often Beta.
+- `A/B angle`: user converts or not is Bernoulli; total conversions in a cohort are Binomial.
 
-## 05 — Descriptive Statistics
-Mean, median, mode, variance, std, IQR, skewness, kurtosis; outlier detection (z-score, Tukey fences); pandas describe().
-- https://numpy.org/doc/stable/reference/routines.statistics.html
+## 04 — Sampling, CLT, and Standard Error
+- `Concept`: sample vs population, sampling variability, central limit theorem, standard error.
+- `Where it is used`: uncertainty estimation, experiment readouts, model metric confidence bands.
+- `Production example`: your model's precision is 0.62 on a validation sample, but the standard error tells you how noisy that estimate is.
+- `A/B angle`: the difference between two observed conversion rates needs a standard error before you call it a win.
 
-## 06 — Central Limit Theorem
-Sampling distribution of the mean; CLT simulation; standard error; why CLT underpins frequentist inference.
-- https://seeing-theory.brown.edu/frequentist-inference/index.html
+## 05 — Confidence Intervals
+- `Concept`: interval estimate around a mean, proportion, lift, or model metric.
+- `Where it is used`: experiment readouts, offline model comparison, calibration review.
+- `Production example`: report ROC-AUC as `0.78 +/- uncertainty` instead of just `0.78`.
+- `A/B angle`: if treatment lift confidence interval crosses zero, the launch decision is weak.
 
-## 07 — Confidence Intervals
-CI construction via CLT; t-distribution for small samples; interpretation pitfall; Wilson interval for proportions.
-- https://www.statsmodels.org/stable/stats.html
+## 06 — Hypothesis Testing
+- `Concept`: null hypothesis, alternative, p-value, Type I error, Type II error.
+- `Where it is used`: A/B testing, feature screening, statistical validation.
+- `Production example`: test whether a new fraud model reduces false positives without hurting recall.
+- `A/B angle`: this is the base language of fixed-horizon online experiments.
 
-## 08 — Hypothesis Testing Framework
-Null/alternative hypothesis; p-value; Type I (α) and Type II (β) errors; one-tailed vs two-tailed; steps.
-- https://www.statsmodels.org/stable/stats.html
-- https://www.khanacademy.org/math/statistics-probability/significance-tests-one-sample
+## 07 — t-Tests, z-Tests, and Non-Parametric Tests
+- `Concept`: one-sample, two-sample, paired tests; Mann-Whitney and Wilcoxon when assumptions break.
+- `Where it is used`: metric comparison, model benchmarking, experiment readouts.
+- `Production example`: compare average latency before and after a model-serving change.
+- `A/B angle`: paired tests are useful when the same users or entities are observed before and after an intervention.
 
-## 09 — t-Tests
-One-sample, two-sample (Welch's), paired t-test; assumptions; when to use; scipy.stats.ttest_*.
-- https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html
+## 08 — Chi-Square and Categorical Statistics
+- `Concept`: contingency tables, chi-square test, expected counts, Cramer's V.
+- `Where it is used`: feature-target dependence checks, bias audits, recommender exposure analysis.
+- `Production example`: test whether product-category exposure differs by user segment more than chance would suggest.
+- `A/B angle`: check whether treatment assignment is independent of device type or geography.
 
-## 10 — Chi-Square Tests
-Goodness-of-fit; test of independence (contingency tables); Cramér's V effect size.
-- https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html
+## 09 — Correlation, Covariance, and Association
+- `Concept`: Pearson, Spearman, Kendall, covariance, partial correlation.
+- `Where it is used`: feature pruning, multicollinearity analysis, ranking diagnostics.
+- `Production example`: two demand features are both high-cardinality proxies for the same behavior; correlation pruning avoids unstable importances.
+- `A/B angle`: correlated guardrail metrics can move together even if only one matters causally.
 
-## 11 — ANOVA & Post-Hoc Tests
-One-way ANOVA; F-statistic; Tukey HSD post-hoc; Welch's ANOVA when variances differ.
-- https://www.statsmodels.org/stable/anova.html
+## 10 — Regression Statistics
+- `Concept`: OLS, coefficient interpretation, residuals, heteroscedasticity, p-values, confidence intervals.
+- `Where it is used`: interpretable baselines, causal adjustment, elasticity estimation.
+- `Production example`: estimate how price, discount, and seasonality relate to purchase probability before you jump to boosted trees.
+- `A/B angle`: CUPED-style variance reduction and covariate adjustment build on regression ideas.
 
-## 12 — Non-Parametric Tests
-Mann-Whitney U, Wilcoxon signed-rank, Kruskal-Wallis, Kolmogorov-Smirnov; when to abandon normality.
-- https://docs.scipy.org/doc/scipy/reference/stats.html
+## 11 — Logistic Regression Statistics
+- `Concept`: log-odds, maximum likelihood, odds ratio, calibration.
+- `Where it is used`: binary classification, scorecards, interpretable baselines.
+- `Production example`: churn propensity model where every coefficient can be explained to business stakeholders.
+- `A/B angle`: treatment effect can be modeled with treatment and interaction terms.
 
-## 13 — Effect Size
-Cohen's d, Cohen's h, η², Pearson's r as effect size; why significance ≠ importance.
-- https://en.wikipedia.org/wiki/Effect_size
+## 12 — Bayesian Statistics
+- `Concept`: prior, likelihood, posterior, conjugate priors, posterior predictive reasoning.
+- `Where it is used`: Bayesian A/B tests, hierarchical recommenders, uncertainty-aware decision systems.
+- `Production example`: low-traffic campaigns need shrinkage so noisy groups do not look falsely strong.
+- `A/B angle`: Beta-Binomial updating is a clean way to compare conversion rates continuously.
 
-## 14 — Power Analysis & Sample Size Calculation
-Statistical power (1-β); sample size for t-test and proportions test; power curves; statsmodels TTestPower.
-- https://www.statsmodels.org/stable/stats.html#power-and-sample-size-calculations
-- https://www.evanmiller.org/ab-testing/sample-size.html
+## 13 — Bootstrap and Permutation Testing
+- `Concept`: resampling for uncertainty and assumption-light testing.
+- `Where it is used`: confidence intervals for custom metrics, lift curves, recommender metrics like NDCG.
+- `Production example`: bootstrap the top-decile lift of a response model instead of pretending it is normally distributed.
+- `A/B angle`: permutation tests are useful when metric distributions are ugly or sample sizes are uneven.
 
-## 15 — A/B Testing End-to-End
-Randomization unit; SRM (sample ratio mismatch) checks; metric selection; duration; novelty effect; readout.
-- https://netflixtechblog.com/experimentation-is-a-major-focus-of-data-science-across-netflix-f67923f8e985
-- https://www.exp-platform.com/Documents/2014%20experimentersRulesOfThumb.pdf
+## 14 — Effect Size and Power
+- `Concept`: Cohen's d, uplift magnitude, minimum detectable effect, power analysis.
+- `Where it is used`: experiment planning and launch prioritization.
+- `Production example`: a 0.1% CTR gain may be statistically significant but economically meaningless.
+- `A/B angle`: decide experiment duration based on baseline rate, desired MDE, and traffic.
 
-## 16 — Sequential Testing & Peeking Problem
-Fixed-horizon vs sequential testing; alpha spending; always-valid p-values (mixture sequential probability ratio test).
-- https://www.evanmiller.org/sequential-ab-testing.html
+## 15 — Multiple Testing
+- `Concept`: Bonferroni, Holm, Benjamini-Hochberg, false discovery rate.
+- `Where it is used`: feature screening, many-slice analysis, many-metric experimentation.
+- `Production example`: if you compare 200 features to the target, some will look significant by luck.
+- `A/B angle`: if a product team checks ten variants and fifteen secondary metrics, correction matters.
 
-## 17 — Multiple Testing Correction
-FWER (Bonferroni, Holm-Bonferroni); FDR (Benjamini-Hochberg); Benjamini-Yekutieli for dependency.
-- https://www.statsmodels.org/stable/generated/statsmodels.stats.multitest.multipletests.html
+## 16 — Missing Data Statistics
+- `Concept`: MCAR, MAR, MNAR, missingness indicators, imputation bias.
+- `Where it is used`: feature engineering, data quality pipelines, fairness review.
+- `Production example`: income missingness itself may be predictive of churn or fraud.
+- `A/B angle`: telemetry loss can bias experiment readouts if missingness differs by treatment.
 
-## 18 — Bayesian Inference Basics
-Prior × likelihood ∝ posterior; conjugate priors; Beta-Binomial; credible intervals; MCMC overview.
-- https://www.bayesrulesbook.com/
-- https://docs.pymc.io/en/stable/learn.html
+## 17 — Outlier Statistics
+- `Concept`: z-score, robust z-score, IQR fences, winsorization, heavy tails.
+- `Where it is used`: preprocessing, anomaly handling, metric stabilization.
+- `Production example`: a few corporate customers with extreme spend can dominate average revenue models.
+- `A/B angle`: revenue metrics often need robust summaries because a few whales distort means.
 
-## 19 — Bayesian A/B Testing
-Model conversion rates with Beta; compute P(B > A) analytically or via sampling; expected loss.
-- https://www.evanmiller.org/bayesian-ab-testing.html
+## 18 — Calibration Statistics
+- `Concept`: reliability, expected vs observed probability, Brier score, calibration curves.
+- `Where it is used`: risk models, uplift models, recommendation/ranking scores.
+- `Production example`: if users scored 0.8 only convert 0.4 of the time, thresholding and business planning become unreliable.
+- `A/B angle`: calibrated predictions support better decision policies, not just better ranking.
 
-## 20 — Bootstrap & Permutation Tests
-Bootstrap confidence intervals for any statistic; permutation test as assumption-free hypothesis test.
-- https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html
+## 19 — Ranking and Recommender Statistics
+- `Concept`: CTR, CVR, watch time, NDCG, MAP, MRR, hit rate, coverage, novelty, diversity, calibration.
+- `Where it is used`: retrieval/ranking systems and recommendation quality evaluation.
+- `Production example`: a recommender can have high CTR but poor diversity, high popularity bias, and low long-term retention.
+- `A/B angle`: online experiments are needed because offline ranking metrics only partially predict real user value.
 
-## 21 — Correlation & Covariance
-Pearson, Spearman, Kendall tau; partial correlation; VIF for multicollinearity; correlation ≠ causation.
-- https://realpython.com/numpy-scipy-pandas-correlation-python/
+## 20 — Popularity Bias and Propensity in Recommenders
+- `Concept`: exposure bias, position bias, inverse propensity weighting, long-tail effects.
+- `Where it is used`: debiased training and evaluation for recommender systems.
+- `Production example`: items shown at the top get more clicks partly because of position, not because they are better.
+- `A/B angle`: experiment interpretation must separate ranking quality from UI placement changes.
 
-## 22 — Linear Regression (statsmodels)
-OLS; interpret coefficients; R², adjusted R²; residual diagnostics; heteroscedasticity (Breusch-Pagan).
-- https://www.statsmodels.org/stable/regression.html
-- https://www.statlearning.com/
+## 21 — Time Series Statistics for ML
+- `Concept`: trends, seasonality, rolling averages, lag structure, autocorrelation, leakage risk.
+- `Where it is used`: demand forecasting, fraud, engagement, response modeling.
+- `Production example`: monthly attendance or purchase history needs trailing-window features like 3-month mean, 6-month max, 30-day count.
+- `A/B angle`: pre-period covariates and post-period windows must be aligned carefully.
 
-## 23 — Regularization: Ridge & Lasso
-L2 (Ridge) shrinks; L1 (Lasso) zeroes out; cross-validate λ; path plot; sklearn RidgeCV/LassoCV.
-- https://scikit-learn.org/stable/modules/linear_model.html
+## 22 — Causal Inference Basics
+- `Concept`: correlation vs causation, confounding, treatment effect, selection bias.
+- `Where it is used`: policy evaluation, uplift modeling, recommender interventions.
+- `Production example`: users who receive coupons may already be high intent, so naive response comparisons overstate coupon impact.
+- `A/B angle`: randomization is the cleanest way to estimate causality.
 
-## 24 — Logistic Regression & Classification Metrics
-Log-odds; MLE; ROC-AUC; precision-recall curve; calibration; sklearn LogisticRegression.
-- https://www.statlearning.com/
+## 23 — Statistics You Should Connect Directly To ML Metrics
+- `Concept`: precision, recall, F1, ROC-AUC, PR-AUC, log loss, KS, Gini, Brier score.
+- `Where it is used`: model validation and business threshold setting.
+- `Production example`: fraud detection usually optimizes recall at a fixed review capacity, not plain accuracy.
+- `A/B angle`: the offline metric you optimize should align with the online metric you read out.
 
-## 25 — Time Series: Stationarity & ARIMA
-ADF test; differencing; ACF/PACF; ARIMA(p,d,q); seasonal SARIMA; statsmodels ARIMA.
-- https://otexts.com/fpp3/
-- https://www.statsmodels.org/stable/tsa.html
+## 24 — Example-Driven Practice Blocks
+- `Binary classification`: predict who will respond to a campaign; use proportions, lift, deciles, calibration, and cutoff selection.
+- `Regression`: forecast next-month spend; use residual statistics, outlier checks, and interval estimates.
+- `Recommender`: rank courses or products; use CTR, exposure bias, propensity weighting, NDCG, diversity, and online experiments.
+- `A/B test`: compare a new ranking model to old; use power, sample ratio mismatch checks, primary metric, guardrails, and practical significance.
 
-## 26 — Survival Analysis
-Kaplan-Meier estimator; log-rank test; Cox proportional hazards; censored data; lifelines library.
-- https://lifelines.readthedocs.io/en/latest/
-- https://en.wikipedia.org/wiki/Survival_analysis
+## 25 — Minimal Example Ideas To Add When Expanding This Outline
+- `Attendance example`: "What is the 3-month maximum number of seminars attended by a user?"
+- `Campaign example`: "Which decile of users should receive the offer if the call-center budget reaches only 20% of users?"
+- `Recommender example`: "Did the new ranking model increase CTR only for popular items, or also improve long-tail discovery?"
 
-## 27 — Causal Inference: Potential Outcomes
-Counterfactuals; ATE, ATT; confounding; selection bias; propensity scores; overlap assumption.
-- https://matheusfacure.github.io/python-causality-handbook/
-
-## 28 — Causal Inference: Methods
-Difference-in-differences; regression discontinuity; instrumental variables; matching; doubly robust estimators.
-- https://www.causalinferencebook.net/
-- https://matheusfacure.github.io/python-causality-handbook/
-
-## 29 — Information Theory for ML
-Entropy, joint entropy, conditional entropy; KL divergence and why it appears in VAEs, RL, and fine-tuning; mutual information; cross-entropy loss derivation; sklearn mutual_info_classif.
-- https://www.deeplearningbook.org/contents/prob.html
-- https://arxiv.org/abs/2106.09685
-
-## 30 — Missing Data Mechanisms (MCAR, MAR, MNAR)
-Missing completely at random vs informative missingness; listwise deletion pitfalls; multiple imputation (MICE); sklearn SimpleImputer vs IterativeImputer; missingness as a feature.
-- https://scikit-learn.org/stable/modules/impute.html
-
-## 31 — Gaussian Mixture Models & EM Algorithm
-Soft clustering; E-step / M-step derivation; log-likelihood optimization; BIC/AIC for k selection; sklearn GaussianMixture; use cases: user segmentation, density estimation, anomaly detection.
-- https://scikit-learn.org/stable/modules/mixture.html
-- https://arxiv.org/abs/1111.0352
+## Current References
+- Scikit-learn feature selection docs: https://scikit-learn.org/stable/modules/feature_selection.html
+- PyTorch distributed overview: https://docs.pytorch.org/tutorials/distributed.html
+- Google responsible AI fairness overview: https://developers.google.com/machine-learning/guides/intro-responsible-ai/fairness
+- AIF360 fairness metrics docs: https://aif360.readthedocs.io/en/stable/
+- Recent causal feature selection survey: https://arxiv.org/abs/2402.02696

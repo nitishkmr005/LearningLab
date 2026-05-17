@@ -1,166 +1,111 @@
-# 04 — Recommender Systems
+# 07 — Recommender Systems
 
-Exhaustive learning path from classic collaborative filtering to production two-stage neural recsys.
+Production-first study outline for recommendation systems, with explicit links to statistics, bias, ranking, and online evaluation.
 
 ---
 
-## 01 — Types of Recommender Systems
-Collaborative filtering, content-based, hybrid, knowledge-based, session-based; when to use each.
-- https://developers.google.com/machine-learning/recommendation
+## Format Used In This Outline
+- `Concept`: what to learn.
+- `Why it matters`: where it is used.
+- `Production example`: how it appears in a real recommender.
 
-## 02 — User-Based Collaborative Filtering
-User-user cosine similarity; k-NN neighborhood; weighted average of neighbor ratings; sparsity problems.
-- https://surprise.readthedocs.io/en/stable/getting_started.html
-- https://developers.google.com/machine-learning/recommendation/collaborative/basics
+## 01 — Problem Framing
+- `Concept`: retrieval vs ranking vs re-ranking; explicit vs implicit feedback; short-term vs long-term objective.
+- `Why it matters`: not all recommendation problems are "predict the next click".
+- `Production example`: course recommendation may optimize enrollment, watch time, completion, and satisfaction differently.
 
-## 03 — Item-Based Collaborative Filtering
-Item-item similarity; adjusted cosine similarity; more stable than user-based; Amazon's approach.
-- https://www.cs.umd.edu/~samir/498/Amazon-Recommendations.pdf
+## 02 — Statistics That Matter Most In Recommenders
+- `Concept`: CTR, CVR, dwell time, watch time, NDCG, coverage, novelty, calibration, popularity share.
+- `Why it matters`: recommendation is as much measurement as modeling.
+- `Production example`: a model can improve CTR but worsen coverage and long-tail discovery.
 
-## 04 — Matrix Factorization: SVD / FunkSVD
-Latent factor model; SGD training; user/item biases; regularization; Surprise SVD.
-- https://surprise.readthedocs.io/en/stable/matrix_factorization.html
-- https://arxiv.org/abs/0907.2648
+## 03 — Basic Probability In Recommendation
+- `Concept`: `P(click | user, item, context)`, `P(purchase | exposure)`, conditional probability and exposure bias.
+- `Why it matters`: the model only sees outcomes after exposure, which makes naive learning biased.
+- `Production example`: an unseen item has no clicks not because it is bad, but because it was never shown.
 
-## 05 — NMF (Non-Negative Matrix Factorization)
-Non-negative constraints → interpretable topics; sklearn NMF; parts-based decomposition.
-- https://scikit-learn.org/stable/modules/decomposition.html#nmf
+## 04 — Collaborative Filtering
+- `Concept`: user-user and item-item similarity, matrix factorization.
+- `Why it matters`: still strong baselines for many applications.
+- `Production example`: recommend similar courses based on co-enrollment or co-watch behavior.
 
-## 06 — ALS for Implicit Feedback
-Confidence weighting on clicks/plays/views; weighted regularized matrix factorization; implicit library.
-- http://yifanhu.net/PUB/cf.pdf
-- https://implicit.readthedocs.io/en/latest/
+## 05 — Implicit Feedback Statistics
+- `Concept`: clicks, views, plays, skips, add-to-cart, dwell time; confidence weighting.
+- `Why it matters`: most production recommenders do not have explicit star ratings.
+- `Production example`: a 5-second view and a 30-minute watch should not carry the same signal.
 
-## 07 — BPR (Bayesian Personalized Ranking)
-Pairwise training objective for implicit feedback; negative sampling; maximize observed > unobserved.
-- https://arxiv.org/abs/1205.2618
+## 06 — Two-Stage Architecture
+- `Concept`: candidate retrieval first, then ranking, then business-rule re-ranking.
+- `Why it matters`: this is the common production design.
+- `Production example`: retrieve 500 candidates with embeddings, rank top 50 with richer features, re-rank final 10 for diversity and policy rules.
 
-## 08 — Content-Based Filtering
-TF-IDF / embedding item features; user profile from history; cosine similarity; cold-start advantage.
-- https://developers.google.com/machine-learning/recommendation/content-based/basics
+## 07 — Feature Engineering For Ranking Models
+- `Concept`: user features, item features, user-item interaction features, freshness, popularity, context features.
+- `Why it matters`: even neural recommenders depend heavily on good features.
+- `Production example`: user's last 7-day category mix, item's 30-day CTR, user-item category affinity, hour-of-day.
 
-## 09 — Hybrid Recommenders & LightFM
-Weighted, switching, cascade hybrids; LightFM joint embedding of content + collab signals.
-- https://making.lyst.com/lightfm/docs/home.html
+## 08 — Popularity Bias and Exposure Bias
+- `Concept`: popular items receive more exposure, therefore more clicks, which reinforces popularity.
+- `Why it matters`: this can crowd out relevant niche items and make offline metrics misleading.
+- `Production example`: the home page keeps recommending already-popular items because historical logs are biased toward them.
 
-## 10 — Neural Collaborative Filtering (NCF)
-Generalize dot product with MLP; embed user/item IDs; train on implicit feedback; BCEloss.
-- https://arxiv.org/abs/1708.05031
+## 09 — Propensity and Debiasing
+- `Concept`: inverse propensity weighting, counterfactual evaluation, position bias correction.
+- `Why it matters`: raw logged clicks are not unbiased labels.
+- `Production example`: item rank position is a confounder, so CTR alone overstates quality of top slots.
 
-## 11 — Wide & Deep Learning
-Memorization (wide / linear) + generalization (deep DNN); feature crosses; Google Play RecSys.
-- https://arxiv.org/abs/1606.07792
+## 10 — A/B Testing For Recommenders
+- `Concept`: randomized experiments, guardrail metrics, long-term effects, novelty effects.
+- `Why it matters`: online testing is the final judge for recommendation quality.
+- `Production example`: a new ranking model improves CTR in week 1, but retention drops after week 3 because diversity collapsed.
 
-## 12 — DeepFM
-FM layer for second-order interactions + DNN for higher-order; no manual feature engineering.
-- https://arxiv.org/abs/1703.04247
+## 11 — Offline vs Online Metrics
+- `Concept`: NDCG and Recall@K are offline; CTR and conversion are online; they are related but not identical.
+- `Why it matters`: teams often overtrust offline wins.
+- `Production example`: a model with slightly worse offline NDCG may still win online if it improves freshness and relevance under real UI constraints.
 
-## 13 — Two-Tower Models (Dual Encoder)
-User tower + item tower; in-batch negatives; hard negative mining; ANN retrieval at serving time.
-- https://research.google/pubs/pub48840/
-- https://www.tensorflow.org/recommenders/examples/basic_retrieval
+## 12 — Calibration In Recommenders
+- `Concept`: predicted probabilities should match observed probabilities within score bands.
+- `Why it matters`: calibrated scores help budget allocation, triggering, and exploration policies.
+- `Production example`: if score band `0.7 to 0.8` only clicks at `0.3`, business planning based on expected lifts breaks.
 
-## 14 — Sequential Recommendations: SASRec
-Self-attention over ordered item history; causal masking; next-item prediction.
-- https://arxiv.org/abs/1808.09781
+## 13 — Diversity, Novelty, and Serendipity
+- `Concept`: beyond-accuracy metrics that improve user experience.
+- `Why it matters`: a good recommender should not feel repetitive and narrow.
+- `Production example`: mix highly relevant items with a controlled amount of exploration or long-tail content.
 
-## 15 — Sequential Recommendations: BERT4Rec
-Bidirectional transformer; cloze task (mask random items); fine-tune for next-item prediction.
-- https://arxiv.org/abs/1904.06690
+## 14 — Fairness In Recommenders
+- `Concept`: user fairness, provider fairness, exposure fairness, popularity fairness.
+- `Why it matters`: recommendation systems can systematically underexpose creators, products, or user groups.
+- `Production example`: a marketplace recommender overexposes already-large sellers and starves smaller sellers of impressions.
 
-## 16 — Graph Neural Networks for RecSys
-Most popular GNN recsys: LightGCN (simplified GCN — no feature transformation, only neighborhood aggregation; state-of-art on implicit feedback); NGCF (Neural Graph CF — adds non-linearity); PinSage (GraphSAGE + random-walk sampling, rich item features, Pinterest scale); user-item bipartite graph construction; multi-hop propagation; LightGCN + BPR loss is the default production GNN baseline; SotA: UltraGCN, SimGCL (contrastive augmentation).
-- https://arxiv.org/abs/2002.02126 (LightGCN)
-- https://arxiv.org/abs/1806.01973 (PinSage)
-- https://github.com/recommenders-team/recommenders
+## 15 — Sequential Recommendation
+- `Concept`: model order and recency of interactions.
+- `Why it matters`: next-item prediction often depends more on recent actions than on old global preference.
+- `Production example`: a user watching interview-prep content this week should see different recommendations than their historic preference profile alone suggests.
 
-## 17 — Knowledge Graph Embeddings for Recommendations
-Entity/relation embeddings (TransE, RotatE); propagate user preferences over KG paths; KGAT (Knowledge Graph Attention Network).
-- https://arxiv.org/abs/1905.08049
+## 16 — Bandits and Exploration
+- `Concept`: epsilon-greedy, UCB, Thompson sampling, contextual bandits.
+- `Why it matters`: recommenders need exploration to learn about new users, new items, and uncertain candidates.
+- `Production example`: reserve one slot for exploration so the system learns whether a cold-start item is actually attractive.
 
-## 18 — Bandit Algorithms: Exploration-Exploitation
-ε-greedy, UCB1, Thompson Sampling; contextual bandits; LinUCB; personalized exploration.
-- https://arxiv.org/abs/1904.10040
-- https://vowpalwabbit.org/
+## 17 — Recommended Statistical Review For Any Recommender Launch
+- `Check 1`: overall CTR and CVR.
+- `Check 2`: by-position metrics.
+- `Check 3`: by-user segment performance.
+- `Check 4`: popularity concentration and catalog coverage.
+- `Check 5`: calibration by score bucket.
+- `Check 6`: long-tail item exposure.
 
-## 19 — Candidate Retrieval with ANN (FAISS / ScaNN)
-IVF-PQ, HNSW for billion-scale ANN; latency vs recall trade-off; embedding refresh cadence.
-- https://faiss.ai/
-- https://github.com/google-research/google-research/tree/master/scann
+## 18 — Practical Build Order
+- `Step 1`: define business objective and counter-metric.
+- `Step 2`: choose base candidate generation method.
+- `Step 3`: build ranking features and time-aware splits.
+- `Step 4`: evaluate offline ranking metrics and calibration.
+- `Step 5`: check popularity bias, diversity, and fairness slices.
+- `Step 6`: run online A/B test with guardrails.
 
-## 20 — Re-Ranking Layer
-Pointwise (cross-entropy), pairwise (BPR, RankNet), listwise (ListNet, LambdaMART); business rule fusion.
-- https://arxiv.org/abs/1212.0702 (BPR)
-- https://en.wikipedia.org/wiki/Learning_to_rank
-
-## 21 — Evaluation Metrics: Accuracy
-Precision@K, Recall@K, NDCG@K (graded relevance, position-aware; most used in industry), MAP, MRR, Hit Rate@K; RMSE/MAE for explicit ratings; how to compute each formula; online vs offline gap; Jurity for computing NDCG and fairness metrics in one library.
-- https://eugeneyan.com/writing/evaluation-metrics-for-recommender-systems/
-- https://jurity.readthedocs.io/en/latest/
-
-## 22 — Cold Start Strategies
-New user: popularity/trending, onboarding quiz; new item: content-based, injection into explore slots.
-- https://dl.acm.org/doi/10.1145/3109859.3109862
-
-## 23 — Diversity, Novelty & Serendipity
-Intra-list diversity; maximal marginal relevance (MMR); novelty filtering; reducing popularity bias.
-- https://dl.acm.org/doi/10.1145/2792838.2800183
-
-## 24 — Debiasing: Popularity & Exposure Bias
-Inverse propensity scoring (IPS); unbiased LTR; position bias in click logs; counterfactual learning.
-- https://arxiv.org/abs/1602.05352
-
-## 25 — A/B Testing for Recommenders
-Interleaving tests; holdout design; metric selection (CTR, dwell time, long-term retention).
-- https://exp-platform.com/
-
-## 26 — Production Architecture
-Two-stage pipeline (retrieval → ranking); feature stores; real-time vs batch serving; monitoring drift.
-- https://eugeneyan.com/writing/system-design-for-recommendations-and-search/
-
-## 27 — Multi-Task Learning in RecSys
-Shared bottom + task-specific towers; MMoE (Mixture of Experts); PLE (Progressive Layered Extraction); YouTube multi-objective ranking; calibrating engagement vs satisfaction; loss weighting strategies.
-- https://arxiv.org/abs/1904.05862
-- https://dl.acm.org/doi/10.1145/3383313.3412236
-
-## 28 — LLM-Based Recommendations
-LLMRec; prompting LLMs for zero-shot recommendations; LLM as feature encoder for cold-start; instruction tuning on interaction history; trade-offs vs traditional two-tower at scale.
-- https://arxiv.org/abs/2307.15780
-- https://arxiv.org/abs/2305.07001
-
-## 29 — Contextual Bandits in Production
-LinGreedy (ε-greedy with linear reward model); LinUCB (upper confidence bound); Thompson Sampling; MABWiser — 9 learning policies (EpsilonGreedy, LinTS, LinUCB, UCB1, Thompson, Softmax) + 5 neighborhood policies (KNearest, LSH, Radius, TreeBandit, Clusters) for contextual variants; parallel MAB support; Simulator for policy comparison and HPO; Mab2Rec wraps MABWiser — train()/score() interface, benchmark() for algorithm comparison, outputs ranked DataFrames; offline evaluation via replay and IPS; Jurity for NDCG and fairness metrics on bandit outputs; when bandits outperform two-tower (sparse data, rapidly-changing catalog, cold-start); comparison: bandits vs RL vs A/B testing.
-- https://github.com/fidelity/mabwiser
-- https://fidelity.github.io/mabwiser/
-- https://github.com/fidelity/mab2rec
-- https://arxiv.org/abs/2012.01780
-
-## 30 — Dataset Preparation per Algorithm
-How input data format differs across algorithm families:
-- **CF / MF / ALS**: (user_id, item_id, rating/count) triples; explicit (star ratings) vs implicit (clicks, plays); confidence weighting for implicit; temporal holdout split; MovieLens, Amazon Reviews, LastFM datasets.
-- **Content-based**: item feature matrix (TF-IDF text, categorical OHE, numerical features); user profile built from history; no user features needed at train time.
-- **Two-tower / NCF**: (user, pos_item, neg_item) triples; in-batch negatives; hard negative mining from popular items; feature encoding for user/item side; MIND news, Criteo, Kuaishou datasets.
-- **Sequential (SASRec, BERT4Rec)**: ordered interaction sequences per user sorted by timestamp; sliding window augmentation for long sequences; filter users/items below min-interaction threshold; max sequence length cap.
-- **Bandits (MABWiser/Mab2Rec)**: (context_vector, arm/item_id, reward) rows where context = user feature vector; context-free variant needs only (arm, reward); reward typically binary (click/purchase); warm-start from historical logs.
-- **Graph (LightGCN, PinSage)**: user-item bipartite edge list; sparse adjacency matrix; degree-normalized Laplacian; PinSage needs rich item node features (images/text embeddings); LightGCN works with graph structure alone.
-- **Microsoft Recommenders repo**: reference implementations and dataset loaders for MovieLens, MIND, Amazon, Criteo.
-- https://github.com/recommenders-team/recommenders
-- https://github.com/fidelity/mab2rec
-
-## 31 — Inference & Serving Patterns
-How recommendations are actually generated at serving time differs fundamentally by model type:
-- **Two-tower**: offline batch — generate all item embeddings; store in FAISS/ScaNN; online — compute user embedding in real time, ANN lookup; embedding refresh cadence (hourly/daily).
-- **Matrix factorization / ALS**: precompute user+item factor matrices; lookup by user_id; batch rescore nightly; no real-time model serving.
-- **Re-ranking (LambdaMART / DNN ranker)**: low-latency pointwise scoring on candidate set from retrieval; feature joins from feature store at request time.
-- **Sequential (SASRec)**: online inference with last-N item history as input; cache attention KV for frequent users.
-- **Bandits (MABWiser/Mab2Rec)**: `.score()` at request time with current context vector; periodic `.train()` or warm-start updates; no GPU needed.
-- **LightGCN**: offline — propagate graph, compute user/item embeddings; serve like two-tower; graph incremental update strategies.
-- Key production concerns: SLA (< 50 ms for ranking), stale embedding risk, feature skew between training and serving.
-- https://eugeneyan.com/writing/system-design-for-recommendations-and-search/
-- https://arxiv.org/abs/2309.06180
-
-## 32 — Beyond-Accuracy Evaluation: Diversity, Fairness & Jurity
-Accuracy alone misses user experience and fairness: catalog coverage (% of items ever recommended); intra-list diversity (avg pairwise distance in embedding space); novelty (popularity-adjusted surprise); serendipity (unexpectedly relevant); fairness metrics — demographic parity, equalized odds across user groups, provider fairness (item exposure); Jurity library covers all of these + NDCG, CTR, MAP in one API; offline vs online gap (high-NDCG models can hurt long-term retention); evaluation dimensions: accuracy, diversity, fairness, novelty, coverage.
-- https://jurity.readthedocs.io/en/latest/
-- https://arxiv.org/abs/2107.14601
-- https://dl.acm.org/doi/10.1145/2792838.2800183
+## References
+- Google recommendation guides: https://developers.google.com/machine-learning/recommendation
+- popularity bias survey: https://link.springer.com/article/10.1007/s11257-024-09406-0
+- Google fairness overview: https://developers.google.com/machine-learning/guides/intro-responsible-ai/fairness

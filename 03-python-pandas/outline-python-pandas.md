@@ -1,114 +1,180 @@
 # 03 — Python & Pandas
 
-Exhaustive learning path for Python data manipulation: NumPy, Pandas, and data wrangling workflows for data science and ML.
+Production-first study outline for the Python that ML engineers and AI engineers use every day.
 
 ---
 
-## 01 — Python Data Structures & Comprehensions
-Lists, dicts, sets, tuples; list/dict/set comprehensions; generators; zip, enumerate, map, filter; unpacking.
-- https://docs.python.org/3/tutorial/datastructures.html
+## Format Used In This Outline
+- `Concept`: what to learn.
+- `Why it matters`: where it shows up in ML or AI engineering.
+- `Typical code`: the kind of code you should be able to write from memory.
 
-## 02 — NumPy Arrays
-ndarray creation, dtypes, shape, reshape; broadcasting rules; vectorized operations; indexing & slicing; np.where.
-- https://numpy.org/doc/stable/user/quickstart.html
-- https://numpy.org/doc/stable/user/numpy-for-matlab-users.html
+## 01 — Core Python You Actually Use
+- `Concept`: lists, dicts, sets, tuples, comprehensions, generators, unpacking, sorting with `key=`, `enumerate`, `zip`.
+- `Why it matters`: almost every ETL, feature build, batching utility, and config transform uses these.
+- `Typical code`: filter invalid rows, build lookup maps, flatten nested outputs, group small objects before turning them into DataFrames.
 
-## 03 — NumPy Linear Algebra & Math
-dot, matmul, einsum; linalg.inv, linalg.eig, linalg.svd; random number generation (rng seeds, distributions).
-- https://numpy.org/doc/stable/reference/routines.linalg.html
+## 02 — Functions, Modules, and Project Structure
+- `Concept`: pure functions, argument defaults, `*args` and `**kwargs`, imports, reusable modules.
+- `Why it matters`: clean feature code and model code are easier to test and reuse in notebooks and jobs.
+- `Typical code`: one file for feature builders, one file for model training, one for inference helpers.
 
-## 04 — Pandas Series & DataFrame
-Creating from dicts/lists/CSV/Parquet; dtypes; index; head/tail/info/describe; memory_usage.
-- https://pandas.pydata.org/docs/user_guide/10min.html
+## 03 — Object-Oriented Python For AI Systems
+- `Concept`: classes, dataclasses, inheritance, composition, `__repr__`, `@property`, `@classmethod`, `@staticmethod`.
+- `Why it matters`: useful for config objects, dataset adapters, model wrappers, retrievers, evaluators, API clients.
+- `Typical code`: `TrainingConfig`, `FeatureStoreClient`, `ModelRunner`, `PromptBuilder`.
 
-## 05 — Indexing & Selection
-loc vs iloc; boolean indexing; .at/.iat; MultiIndex; query(); chained indexing pitfalls and SettingWithCopyWarning.
-- https://pandas.pydata.org/docs/user_guide/indexing.html
+```python
+from dataclasses import dataclass
 
-## 06 — Data Cleaning
-Handling missing values (isna, fillna, dropna, interpolate); duplicates; type coercion; string normalization; category dtype.
-- https://pandas.pydata.org/docs/user_guide/missing_data.html
+@dataclass
+class TrainingConfig:
+    learning_rate: float
+    batch_size: int
+    epochs: int
+```
 
-## 07 — String & Datetime Operations
-str accessor (split, contains, extract, replace); pd.to_datetime; dt accessor (year, month, dayofweek, floor/ceil/round); timedelta arithmetic.
-- https://pandas.pydata.org/docs/user_guide/text.html
-- https://pandas.pydata.org/docs/user_guide/timeseries.html
+## 04 — Type Hints and Validation
+- `Concept`: type hints, `TypedDict`, dataclasses, Pydantic models.
+- `Why it matters`: AI systems pass around nested configs, payloads, prompts, tool calls, and model outputs that break easily without validation.
+- `Typical code`: validate inference request payloads and config files before training starts.
 
-## 08 — GroupBy & Aggregation
-groupby split-apply-combine; agg with multiple functions; transform vs apply; named aggregation; groupby + shift/cumsum.
-- https://pandas.pydata.org/docs/user_guide/groupby.html
+## 05 — Error Handling, Logging, and Debugging
+- `Concept`: `try/except`, custom exceptions, `logging`, `pdb`, stack traces, retries.
+- `Why it matters`: batch pipelines, model-serving APIs, and data ingestion jobs fail in boring ways, not glamorous ones.
+- `Typical code`: log batch ids, data ranges, model versions, and row counts at each stage.
 
-## 09 — Merge, Join & Concat
-merge (inner/left/right/outer, on, suffixes); join on index; concat (axis=0/1, keys); merge_asof for time-series lookups.
-- https://pandas.pydata.org/docs/user_guide/merging.html
+## 06 — Pandas DataFrame Basics
+- `Concept`: create DataFrames, inspect `shape`, `info`, `describe`, `dtypes`, `memory_usage`.
+- `Why it matters`: this is the fastest path from raw tabular data to an ML-ready dataset.
+- `Typical code`: load Parquet, inspect schema drift, check null counts, profile target balance.
 
-## 10 — Reshaping: pivot, melt, stack, unstack
-pivot_table; melt (wide → long); stack/unstack; crosstab; explode; get_dummies for one-hot encoding.
-- https://pandas.pydata.org/docs/user_guide/reshaping.html
+## 07 — Indexing and Filtering
+- `Concept`: `loc`, `iloc`, boolean masks, `query`, column selection, assignment.
+- `Why it matters`: nearly every feature engineering or error-analysis notebook starts here.
+- `Typical code`: filter training data to an observation window and assign derived labels.
 
-## 11 — Window Functions
-rolling, expanding, ewm; custom window aggregations; shift/diff for lag/lead features; time-aware rolling.
-- https://pandas.pydata.org/docs/user_guide/window.html
+```python
+active = df.loc[(df["event_date"] >= "2025-01-01") & (df["status"] == "active")].copy()
+```
 
-## 12 — Apply, Map & Vectorization
-apply vs map vs applymap; when to avoid apply (prefer vectorized ops); np.vectorize; numba @jit for bottleneck loops.
-- https://pandas.pydata.org/docs/reference/frame.html#function-application-groupby-window
+## 08 — Missing Values and Type Cleanup
+- `Concept`: `isna`, `fillna`, `dropna`, `astype`, `to_numeric`, `to_datetime`.
+- `Why it matters`: models fail quietly when string dates, mixed numeric types, or null-heavy features slip through.
+- `Typical code`: cast columns consistently before feature pipelines and train/test splits.
 
-## 13 — IO: CSV, Parquet, JSON, SQL, Excel
-read_csv (dtypes, parse_dates, chunksize); to_parquet/read_parquet (pyarrow, fastparquet); to_sql/read_sql; Excel (openpyxl).
-- https://pandas.pydata.org/docs/user_guide/io.html
+## 09 — GroupBy, Aggregation, and Named Agg
+- `Concept`: `groupby`, `agg`, `transform`, `nunique`, `value_counts`, `size`.
+- `Why it matters`: most classical ML feature engineering is grouped aggregation.
+- `Typical code`: user-level, account-level, merchant-level, and item-level summaries.
 
-## 14 — Performance & Memory Optimization
-Categorical dtype; downcast numerics; chunked processing; Dask for out-of-core; profiling with memory_profiler.
-- https://pandas.pydata.org/docs/user_guide/scale.html
-- https://docs.dask.org/en/stable/dataframe.html
+```python
+features = (
+    events.groupby("user_id")
+    .agg(
+        total_orders=("order_id", "nunique"),
+        avg_amount=("amount", "mean"),
+        last_event=("event_time", "max"),
+    )
+    .reset_index()
+)
+```
 
-## 15 — Plotting with Pandas & Matplotlib
-df.plot API (line, bar, hist, scatter, box, kde); subplots; Matplotlib fig/ax; seaborn for statistical plots.
-- https://pandas.pydata.org/docs/user_guide/visualization.html
-- https://seaborn.pydata.org/tutorial.html
+## 10 — Joins and Table Stitching
+- `Concept`: `merge`, `join`, `concat`, join keys, duplicate explosion checks.
+- `Why it matters`: feature tables usually come from many systems, and silent many-to-many joins are a common failure mode.
+- `Typical code`: join base population, labels, static attributes, and historical aggregates.
 
-## 16 — Polars: Fast DataFrame Library
-Lazy vs eager API; scan_csv/scan_parquet; expressions and chained ops; group_by + agg; vs pandas performance benchmark; when to switch from pandas.
-- https://docs.pola.rs/user-guide/getting-started/
-- https://pola.rs/posts/benchmarks/
+## 11 — Datetime Features
+- `Concept`: `pd.to_datetime`, `.dt.year`, `.dt.month`, `.dt.dayofweek`, `.dt.is_month_end`, timedeltas.
+- `Why it matters`: churn, demand, fraud, and campaign response models all depend heavily on temporal behavior.
+- `Typical code`: recency, tenure, seasonality, weekday/weekend, month-end payroll effects.
 
-## 17 — Python OOP, Decorators & Context Managers
-Classes for ML pipelines; @property, @classmethod, @staticmethod; @dataclass; __slots__ for memory; context managers (with/__enter__/__exit__); decorators for retry/logging.
-- https://docs.python.org/3/tutorial/classes.html
-- https://realpython.com/python-classes/
+## 12 — Rolling, Expanding, and Lag Features
+- `Concept`: `shift`, `rolling`, `expanding`, `ewm`.
+- `Why it matters`: this is the heart of time-based feature engineering.
+- `Typical code`: 3-month average, 6-month max, 30-day count, days since last activity.
 
-## 18 — Type Hints, Pydantic & Dataclasses
-Function annotations; mypy basics; Pydantic BaseModel for config/API schemas; Field validators; model_validator; dataclasses vs NamedTuple vs TypedDict; used throughout LLM tooling (LangChain, FastAPI, Instructor).
-- https://docs.pydantic.dev/latest/
-- https://mypy.readthedocs.io/en/stable/
+```python
+df = df.sort_values(["user_id", "event_month"])
+df["attended_3m_max"] = (
+    df.groupby("user_id")["seminars_attended"]
+      .transform(lambda s: s.shift(1).rolling(3, min_periods=1).max())
+)
+```
 
-## 19 — Python Debugging & Profiling
-pdb/ipdb breakpoints; cProfile + snakeviz; line_profiler (@profile); memory_profiler; py-spy for production; diagnosing slow notebooks and data pipelines.
-- https://docs.python.org/3/library/profile.html
-- https://github.com/benfred/py-spy
+## 13 — Reshaping Data
+- `Concept`: `pivot_table`, `melt`, `stack`, `unstack`, `explode`, `crosstab`.
+- `Why it matters`: useful for feature matrices, reporting tables, lift reports, and recommender interaction matrices.
+- `Typical code`: turn transaction logs into user-by-category summaries or model-monitoring dashboards.
 
-## 20 — Virtual Environments & Packaging
-venv vs conda vs uv (fast resolver); pyproject.toml; pip-tools for lock files; packaging a DS utility library; reproducible environments for MLOps.
-- https://docs.astral.sh/uv/
-- https://packaging.python.org/en/latest/guides/
+## 14 — The Pandas Code Patterns You Use Most In Practice
+- `Concept`: sort, deduplicate, rank within groups, top-N per group, map from lookup tables.
+- `Why it matters`: these patterns appear constantly in error analysis and candidate generation.
+- `Typical code`: latest transaction per user, top 5 recommended items per session, decile bucketing, threshold tables.
 
-## 21 — Async Python (asyncio)
-Event loop; async/await syntax; coroutines vs threads; asyncio.gather and asyncio.create_task for concurrency; aiohttp for async HTTP; async generators; StreamingResponse; essential for LLM streaming, voice agents, and real-time API servers.
-- https://docs.python.org/3/library/asyncio.html
-- https://realpython.com/async-io-python/
+## 15 — Reading and Writing Data
+- `Concept`: `read_csv`, `read_parquet`, `read_sql`, chunked reads, compression.
+- `Why it matters`: I/O is often the real bottleneck.
+- `Typical code`: prefer Parquet for typed analytics data; use chunking for large CSVs and backfills.
 
-## 22 — Multithreading & Multiprocessing
-threading.Thread for I/O-bound tasks; GIL and why it limits CPU parallelism; concurrent.futures (ThreadPoolExecutor, ProcessPoolExecutor); multiprocessing.Pool for CPU-bound; shared memory; Queue for inter-process communication; use in audio pipelines, data loaders, and voice agent backends.
-- https://docs.python.org/3/library/concurrent.futures.html
-- https://docs.python.org/3/library/multiprocessing.html
+## 16 — Performance and Memory Optimization
+- `Concept`: categorical dtypes, downcasting, vectorization, avoiding row-wise `apply`, chunking.
+- `Why it matters`: many DS pipelines are slow because they are written like spreadsheet logic.
+- `Typical code`: replace Python loops with vectorized ops, avoid exploding memory on joins.
 
-## 23 — FastAPI for ML & AI Serving
-Path/query/body params; Pydantic request/response models; async endpoints; background tasks; StreamingResponse for LLM token streaming; middleware; deploy with uvicorn + gunicorn; used for LLM, ML model, and voice agent APIs.
-- https://fastapi.tiangolo.com/tutorial/
-- https://fastapi.tiangolo.com/advanced/custom-response/
+## 17 — Async Python
+- `Concept`: `async`, `await`, event loop, coroutines, `asyncio.gather`, cancellation, timeouts.
+- `Why it matters`: LLM apps, agent frameworks, streaming APIs, and many inference fan-out workflows are I/O-bound.
+- `Typical code`: call multiple embedding, reranking, or tool endpoints concurrently.
 
-## 24 — Streamlit for ML & LLM Apps
-st.dataframe, st.plotly_chart, st.selectbox, st.chat_message; session state for multi-turn UIs; caching with @st.cache_data and @st.cache_resource; deploy with Docker or Streamlit Cloud; production uses: LLM output validation dashboards, model bias review, bandit/experiment monitoring, RAG QA apps; most popular rapid prototyping tool for ML teams; alternative: Gradio (better for demos), Panel (more complex layouts).
-- https://docs.streamlit.io/
-- https://docs.streamlit.io/develop/concepts/architecture/caching
+```python
+import asyncio
+
+async def fetch_one(client, payload):
+    return await client.post("/score", json=payload)
+
+async def fetch_all(client, payloads):
+    return await asyncio.gather(*(fetch_one(client, p) for p in payloads))
+```
+
+## 18 — Multithreading vs Multiprocessing
+- `Concept`: GIL, `ThreadPoolExecutor`, `ProcessPoolExecutor`, CPU-bound vs I/O-bound work.
+- `Why it matters`: choose the wrong concurrency model and you either waste cores or overcomplicate simple I/O.
+- `Typical code`: threads for API calls and file downloads; processes for CPU-heavy preprocessing.
+
+## 19 — Context Managers, Decorators, and Utilities
+- `Concept`: `with`, custom context managers, decorators for retry, timing, caching.
+- `Why it matters`: useful for DB sessions, temporary resources, instrumentation, and robust model-serving code.
+- `Typical code`: timing decorators around embedding calls or feature joins.
+
+## 20 — Serialization and Configuration
+- `Concept`: JSON, YAML, environment variables, `.env`, `pathlib`, reproducible config loading.
+- `Why it matters`: training and serving need the same knobs expressed cleanly.
+- `Typical code`: read training config once, store with the model artifact, reuse at inference.
+
+## 21 — Testing for Data and ML Code
+- `Concept`: `pytest`, fixture-based tests, schema tests, deterministic small-sample assertions.
+- `Why it matters`: feature bugs are expensive and subtle.
+- `Typical code`: test that a 3-month rolling feature excludes the current month and handles missing months correctly.
+
+## 22 — Python Patterns For AI Engineering
+- `Concept`: clients for model APIs, batching, retries, caching, streaming, rate limiting.
+- `Why it matters`: AI engineers spend less time proving linear algebra and more time building reliable systems around models.
+- `Typical code`: batch 100 prompts, stream tokens, parse JSON output, back off on 429s.
+
+## 23 — Notebook-to-Production Discipline
+- `Concept`: notebook exploration, then extract pure functions into modules.
+- `Why it matters`: the fastest path to messy ML code is leaving core logic trapped in notebooks.
+- `Typical code`: notebook for exploration; package for repeatable training and inference.
+
+## 24 — Recommended Hands-On Builds
+- `Feature engineering notebook`: build user-level rolling aggregates from an event table.
+- `Async scoring client`: hit an internal inference API concurrently.
+- `Training config package`: dataclass or Pydantic config with CLI entrypoint.
+- `Lift report utility`: create deciles from predicted probabilities with Pandas.
+
+## References
+- Python asyncio docs: https://docs.python.org/3/library/asyncio.html
+- concurrent.futures docs: https://docs.python.org/3/library/concurrent.futures.html
+- Pandas user guide: https://pandas.pydata.org/docs/user_guide/index.html

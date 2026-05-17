@@ -1,172 +1,218 @@
-# 03 — Machine Learning
+# 06 — Machine Learning
 
-Exhaustive learning path for classical and modern ML: algorithms, evaluation, feature engineering, and production workflows.
+Production-first study outline for tabular ML, feature engineering, validation, thresholding, explainability, fairness, and boosting systems.
 
 ---
 
-## 01 — ML Workflow & Scikit-Learn Pipeline
-fit/predict/transform API; Pipeline + ColumnTransformer; train-test split; preventing data leakage.
-- https://scikit-learn.org/stable/modules/compose.html
-- https://scikit-learn.org/stable/tutorial/machine_learning_map/index.html
+## Format Used In This Outline
+- `Concept`: what to learn.
+- `Why it matters`: where teams use it.
+- `Production example`: the business shape of the problem.
+- `Implementation note`: what to build or watch for.
 
-## 02 — Bias-Variance Tradeoff
-Decompose MSE into bias², variance, and irreducible error; underfitting vs overfitting; learning curves.
-- https://scott.fortmann-roe.com/docs/BiasVariance.html
+## 01 — Problem Framing and Label Definition
+- `Concept`: define target, prediction point, observation window, performance window, and action window.
+- `Why it matters`: most bad ML projects are badly framed before they are badly modeled.
+- `Production example`: predict whether a user will attend a seminar in the next 30 days using data available up to the end of the previous month.
+- `Implementation note`: write down `as_of_date`, `lookback_window`, `label_window`, and intervention timing explicitly.
 
-## 03 — Linear Regression (implementation)
-Closed-form OLS, gradient descent, feature scaling; interpret coefficients; residual analysis.
-- https://scikit-learn.org/stable/modules/linear_model.html
+## 02 — How To Choose One-Year vs Two-Year History
+- `Concept`: choose historical depth based on business cycle, seasonality, user frequency, and data staleness.
+- `Why it matters`: too little history misses signal; too much history adds stale behavior and leakage risk.
+- `Production example`: for annual renewal prediction, 12 to 24 months may be useful; for fast-moving grocery demand, 90 to 180 days may dominate.
+- `Implementation note`: compare model performance and feature stability across 3, 6, 12, and 24 month windows.
 
-## 04 — Logistic Regression (implementation)
-Binary classification; MLE; decision boundary; multi-class (OvR, softmax); regularization.
-- https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+## 03 — Time-Based Splits
+- `Concept`: train, validation, and test should respect time.
+- `Why it matters`: random splits often overestimate performance on behavioral data.
+- `Production example`: train on Jan to Sep, validate on Oct, test on Nov to Dec.
+- `Implementation note`: never let future events leak into feature creation for earlier rows.
 
-## 05 — Regularization: Ridge, Lasso, ElasticNet
-L2 shrinks; L1 zeroes; ElasticNet blends; RidgeCV/LassoCV for λ selection; sparse feature selection.
-- https://scikit-learn.org/stable/modules/linear_model.html#ridge-regression
+## 04 — Base Population Design
+- `Concept`: define who enters the modeling table and when.
+- `Why it matters`: the base population determines business applicability and leakage exposure.
+- `Production example`: include only active users as of the scoring date, not users who had already churned earlier.
 
-## 06 — Decision Trees
-Information gain, Gini impurity; max_depth, min_samples_leaf; decision boundary visualization; tree pruning.
-- https://scikit-learn.org/stable/modules/tree.html
-- https://explained.ai/decision-tree-viz/
+## 05 — Time-Based Feature Engineering
+- `Concept`: recency, frequency, rolling windows, lag features, trailing averages, trailing max/min, trend features.
+- `Why it matters`: this is the core of most high-performing tabular models.
+- `Production example`: 3-month average seminar attendance, 6-month max attendance, days since last login, 12-month spend trend.
+- `Implementation note`: use only data strictly before the prediction date.
 
-## 07 — Random Forests
-Bagging + feature subsampling; OOB error; feature importances (MDI, permutation); variance reduction.
-- https://scikit-learn.org/stable/modules/ensemble.html#forests-of-randomized-trees
+```python
+agg = (
+    events[events["event_date"] < events["as_of_date"]]
+    .groupby(["user_id", "as_of_date"])
+    .agg(
+        seminars_3m_sum=("seminars_last_3m", "sum"),
+        seminars_3m_max=("seminars_last_3m", "max"),
+        seminars_6m_min=("seminars_last_6m", "min"),
+    )
+)
+```
 
-## 08 — Gradient Boosting (XGBoost)
-Additive model; gradient in function space; shrinkage; tree depth; early stopping; XGBoost API.
-- https://xgboost.readthedocs.io/en/stable/tutorials/model.html
-- https://arxiv.org/abs/1603.02754
+## 06 — Feature Types To Cover
+- `Concept`: static features, behavioral aggregates, target-adjacent features, interaction features, category encodings.
+- `Why it matters`: strong models usually mix stable identity/context features with recent behavior.
+- `Production example`: demographic attributes plus recent engagement plus product-category preferences.
 
-## 09 — Gradient Boosting (LightGBM & CatBoost)
-Histogram-based splitting (LightGBM); native categorical handling (CatBoost); DART; comparison with XGBoost.
-- https://lightgbm.readthedocs.io/en/stable/
-- https://catboost.ai/docs/
+## 07 — Data Leakage
+- `Concept`: future information, post-outcome fields, leakage through aggregation windows, leakage through imputation or scaling outside cross-validation.
+- `Why it matters`: leakage produces fake wins and failed production launches.
+- `Production example`: using "last seminar attended date" when that seminar occurred after the scoring date.
+- `Implementation note`: leakage review should happen before model training, not after.
 
-## 10 — Support Vector Machines
-Maximum margin classifier; kernel trick (RBF, polynomial); C vs γ trade-off; SVR for regression.
-- https://scikit-learn.org/stable/modules/svm.html
-- https://cs229.stanford.edu/notes2022fall/cs229-notes3.pdf
+## 08 — Recommended Order Of Operations
+- `Concept`: split first, then fit preprocessing only on training data, then transform validation/test.
+- `Why it matters`: this avoids train-test contamination.
+- `Production example`: time split -> imputation fit on train -> outlier handling thresholds fit on train -> scaling fit on train -> model fit.
+- `Implementation note`: put preprocessing inside a pipeline.
 
-## 11 — K-Nearest Neighbors
-Distance metrics (Euclidean, Manhattan, cosine); k selection via CV; curse of dimensionality; KD-tree.
-- https://scikit-learn.org/stable/modules/neighbors.html
+## 09 — Imputation
+- `Concept`: mean/median for numeric, mode/constant for categorical, model-based imputation, missing indicators.
+- `Why it matters`: different missingness mechanisms imply different choices.
+- `Production example`: median imputation for transaction amount, `"UNKNOWN"` for occupation, missing flag for income.
+- `Implementation note`: add a missingness indicator when missingness itself carries signal.
 
-## 12 — Naive Bayes
-Gaussian, Multinomial, Bernoulli variants; conditional independence assumption; text classification use case.
-- https://scikit-learn.org/stable/modules/naive_bayes.html
+## 10 — Outlier Handling
+- `Concept`: clipping, winsorization, robust scaling, log transform, isolation strategies.
+- `Why it matters`: necessary mainly for linear models, distance-based models, and unstable business metrics.
+- `Production example`: clip annual spend at the 99.5th percentile before logistic regression.
+- `Implementation note`: tree models often tolerate outliers better than linear models.
 
-## 13 — Model Evaluation Metrics
-Classification: accuracy, precision, recall, F1, ROC-AUC, PR-AUC, MCC. Regression: MAE, RMSE, MAPE, R².
-- https://scikit-learn.org/stable/modules/model_evaluation.html
+## 11 — Scaling
+- `Concept`: standard scaling, min-max scaling, robust scaling, log scaling.
+- `Why it matters`: scaling is important for linear models, SVM, KNN, neural nets; usually not required for tree boosting.
+- `Production example`: use `StandardScaler` for logistic regression, skip it for LightGBM.
+- `Implementation note`: choose preprocessing based on model family, not habit.
 
-## 14 — Cross-Validation
-K-fold, stratified K-fold, leave-one-out, time-series split; nested CV for unbiased eval.
-- https://scikit-learn.org/stable/modules/cross_validation.html
+## 12 — Feature Selection: Practical Taxonomy
+- `Concept`: filter, wrapper, embedded, permutation-based, SHAP-based, causal/stability-aware methods.
+- `Why it matters`: feature selection is not one method; it is a family of tradeoffs among speed, stability, interpretability, and model dependence.
+- `Implementation note`: start simple and only escalate when dimensionality, cost, or regulation requires it.
 
-## 15 — Hyperparameter Tuning
-Grid search, random search, Bayesian optimization (Optuna); early stopping; search space design.
-- https://optuna.readthedocs.io/en/stable/
-- https://scikit-learn.org/stable/modules/grid_search.html
+## 13 — Filter Methods
+- `Concept`: variance threshold, correlation pruning, mutual information, chi-square, ANOVA F-score, mRMR-style thinking.
+- `Why it matters`: fast first pass for wide datasets.
+- `Production example`: remove constant fields, near-duplicates, and weak univariate signals before wrapper methods.
+- `Implementation note`: do this inside the training fold only.
 
-## 16 — Feature Engineering
-Polynomial features; interaction terms; target encoding; frequency encoding; date feature extraction.
-- https://feature-engine.trainindata.com/
+## 14 — Wrapper Methods
+- `Concept`: RFE, RFECV, sequential forward/backward selection.
+- `Why it matters`: useful when feature interactions matter and feature count is manageable.
+- `Production example`: reduce a 150-feature credit model to a more interpretable 30-feature version.
+- `Implementation note`: expensive; use with smaller feature sets or strong priors.
 
-## 17 — Feature Selection
-Univariate (chi2, ANOVA F); model-based (RFE, feature importance); SHAP-based; correlation pruning.
-- https://scikit-learn.org/stable/modules/feature_selection.html
+## 15 — Embedded Methods
+- `Concept`: Lasso, ElasticNet, tree-based feature importance, `SelectFromModel`.
+- `Why it matters`: good balance of usefulness and cost.
+- `Production example`: use L1 logistic regression for sparse selection or boosted-tree importances for nonlinear ranking.
 
-## 18 — Handling Imbalanced Datasets
-Class weights; oversampling (SMOTE, ADASYN); undersampling; PR-AUC over ROC-AUC; threshold tuning.
-- https://imbalanced-learn.org/stable/
+## 16 — Modern and State-Of-The-Art Feature Selection Directions
+- `Concept`: stability-aware selection, SHAP-guided pruning, permutation importance, causal feature selection, differentiable selection in deep models.
+- `Why it matters`: the current direction is not just "which features correlate", but "which features remain stable, actionable, and less spurious".
+- `Production example`: use SHAP plus business review to remove proxy features; use causal selection when spurious correlations harm robustness.
+- `Implementation note`: recent literature especially emphasizes stability and causal relevance for responsible ML.
 
-## 19 — Dimensionality Reduction: PCA
-Eigendecomposition; explained variance; scree plot; whitening; when to apply PCA vs feature selection.
-- https://scikit-learn.org/stable/modules/decomposition.html#pca
+## 17 — Recommended Practical Feature-Selection Stack
+- `Step 1`: remove constant and duplicate features.
+- `Step 2`: correlation pruning plus domain review.
+- `Step 3`: mutual information or univariate ranking for a fast screen.
+- `Step 4`: tree model plus permutation importance or SHAP.
+- `Step 5`: optional RFECV or L1-based selection if simplification is required.
+- `Best for tabular production`: correlation pruning + tree model + permutation/SHAP + business review is usually a strong combination.
 
-## 20 — Dimensionality Reduction: t-SNE & UMAP
-Non-linear reduction for visualization; perplexity in t-SNE; UMAP for faster and structure-preserving reduction.
-- https://umap-learn.readthedocs.io/en/latest/
-- https://distill.pub/2016/misread-tsne/
+## 18 — XGBoost and LightGBM Intuition
+- `Concept`: gradient boosting builds trees sequentially to correct previous errors.
+- `Why it matters`: these are dominant baselines for tabular supervised learning.
+- `Production example`: response modeling, churn, fraud, propensity, risk, pricing.
+- `Implementation note`: LightGBM is often faster; XGBoost is often the most familiar and stable baseline.
 
-## 21 — K-Means Clustering
-Lloyd's algorithm; elbow method + silhouette score; k-means++; limitations with non-convex clusters.
-- https://scikit-learn.org/stable/modules/clustering.html#k-means
+```python
+from lightgbm import LGBMClassifier
 
-## 22 — DBSCAN & Hierarchical Clustering
-Density-based; no need to specify k; detects noise; hierarchical with dendrogram; agglomerative strategies.
-- https://scikit-learn.org/stable/modules/clustering.html#dbscan
+model = LGBMClassifier(
+    n_estimators=500,
+    learning_rate=0.05,
+    num_leaves=31,
+)
+model.fit(X_train, y_train)
+proba = model.predict_proba(X_valid)[:, 1]
+```
 
-## 23 — Anomaly Detection
-Isolation Forest, Local Outlier Factor, One-Class SVM; unsupervised vs semi-supervised; threshold selection.
-- https://scikit-learn.org/stable/modules/outlier_detection.html
+## 19 — What Metrics To Calculate After Training
+- `Classification`: confusion matrix, precision, recall, F1, ROC-AUC, PR-AUC, log loss, KS, lift, calibration.
+- `Regression`: RMSE, MAE, MAPE, SMAPE, R-squared, residual diagnostics.
+- `Ranking/recommenders`: NDCG, MAP, MRR, Recall@K, CTR, coverage.
+- `Implementation note`: metrics should reflect actionability, not just abstract score quality.
 
-## 24 — Calibration
-Probability calibration with Platt scaling and isotonic regression; reliability diagrams; when raw model probs are miscalibrated.
-- https://scikit-learn.org/stable/modules/calibration.html
+## 20 — Calibration and Probability Quality
+- `Concept`: a good ranking model is not always a well-calibrated probability model.
+- `Why it matters`: cutoff selection, cost modeling, and capacity planning depend on good probabilities.
+- `Production example`: a score of 0.8 should mean roughly 80% response in that band, not just "high rank".
+- `Implementation note`: review calibration plots and consider Platt or isotonic calibration when needed.
 
-## 25 — SHAP & Model Interpretability
-SHAP values from game theory; TreeSHAP; waterfall, beeswarm, dependence plots; global vs local explanations.
-- https://shap.readthedocs.io/en/latest/
-- https://christophm.github.io/interpretable-ml-book/
+## 21 — Lift Report and Decile Analysis
+- `Concept`: bucket predictions into 10 or 20 bins from high score to low score and summarize each bucket.
+- `Why it matters`: this is how many business teams consume classification models.
+- `Production example`: top decile contains 28% responders with 4.1x lift; bottom decile contains almost none.
+- `Implementation note`: compute users, responders, response rate, cumulative responders, precision, recall, and lift per bucket.
 
-## 26 — Time Series ML (ARIMA, Prophet)
-ARIMA; seasonal decomposition; Prophet for trend + seasonality + holidays; cross-validation for TS.
-- https://otexts.com/fpp3/
-- https://facebook.github.io/prophet/
+```python
+report = scored.assign(
+    decile=pd.qcut(scored["proba"], 10, labels=False, duplicates="drop")
+).groupby("decile").agg(
+    users=("target", "size"),
+    responders=("target", "sum"),
+    min_score=("proba", "min"),
+    max_score=("proba", "max"),
+)
+```
 
-## 27 — Neural Networks with PyTorch (Basics)
-MLP for tabular data; forward pass, loss, backprop; training loop; BatchNorm, Dropout.
-- https://pytorch.org/tutorials/beginner/basics/intro.html
+## 22 — Selecting Probability Cutoff
+- `Concept`: choose threshold from business capacity, cost-benefit, recall needs, or precision targets.
+- `Why it matters`: the best threshold is rarely `0.5`.
+- `Production example`: marketing can contact only 20% of users, so choose the top two deciles or the threshold that maps to that capacity.
+- `Implementation note`: use precision-recall curve, cost matrix, and decile table together.
 
-## 28 — MLflow: Experiment Tracking
-Log parameters, metrics, artifacts; compare runs; model registry; reproducible experiments.
-- https://mlflow.org/docs/latest/index.html
+## 23 — Feature Importance vs Feature Insight
+- `Concept`: importance tells you which features matter; insight tells you how they affect the target.
+- `Why it matters`: stakeholders ask "what drives the prediction?" not just "what ranked high?".
+- `Production example`: feature `days_since_last_attendance` is important, and increasing values decrease response probability sharply after day 45.
+- `Implementation note`: combine SHAP summary, dependence plots, monotonicity checks, and bucketed trend tables.
 
-## 29 — Gradient Descent Variants
-SGD + momentum; Adagrad (adaptive per-parameter lr); RMSprop; Adam (moment estimates); AdamW (decoupled weight decay); learning rate warm-up; cosine annealing; gradient clipping.
-- https://pytorch.org/docs/stable/optim.html
-- https://www.ruder.io/optimizing-gradient-descent/
+## 24 — Bias, Fairness, and Sensitive Features
+- `Concept`: demographic parity, equalized odds, calibration by group, proxy features, fairness slices.
+- `Why it matters`: removing only `gender` is not enough if other proxy features recreate the same bias.
+- `Production example`: even after removing gender, location and spending proxies may reproduce disparate approval rates.
+- `Implementation note`: audit performance by sensitive groups and intersections, not only overall.
 
-## 30 — Tabular Deep Learning
-TabNet (attention masks for feature selection); FT-Transformer (feature tokenizer + transformer); SAINT (intersample attention); when DL beats GBDT on tabular; benchmark on OpenML-CC18.
-- https://arxiv.org/abs/1908.07442
-- https://arxiv.org/abs/2106.11959
+## 25 — Leakage and Fairness Together
+- `Concept`: some proxy variables are both leaky and unfair.
+- `Why it matters`: post-outcome or policy-driven variables can encode both future info and historical bias.
+- `Production example`: prior manual review outcome may be highly predictive but can hard-code human bias.
 
-## 31 — AutoML
-AutoGluon (stack ensembles, best-in-class); TPOT (genetic programming pipelines); H2O AutoML; meta-learning; when AutoML beats manual tuning; production use at scale.
-- https://auto.gluon.ai/stable/index.html
-- https://epistasislab.github.io/tpot/
+## 26 — Recommended End-To-End Build Order
+- `Step 1`: define the prediction date and label window.
+- `Step 2`: build the base population.
+- `Step 3`: create leakage-safe historical features.
+- `Step 4`: split by time.
+- `Step 5`: fit preprocessing on train only.
+- `Step 6`: train XGBoost or LightGBM baseline.
+- `Step 7`: evaluate metrics, calibration, lift, and fairness.
+- `Step 8`: create feature insights and threshold recommendations.
 
-## 32 — Data Validation & Pipeline Testing
-Great Expectations (expectations suites, data docs); Pandera (schema + statistical checks on DataFrames); Evidently for data drift detection; testing data pipelines like code.
-- https://docs.greatexpectations.io/docs/
-- https://pandera.readthedocs.io/en/stable/
+## 27 — Minimal Code Assets Worth Adding Later
+- `Pipeline with train-only preprocessing`
+- `Rolling feature generator`
+- `Lift report function`
+- `Threshold optimization function`
+- `Feature insight report with SHAP`
 
-## 33 — Feature Stores
-Online vs offline store; point-in-time correct joins (prevent leakage); Feast (open source); Tecton; Hopsworks; how feature stores eliminate training-serving skew.
-- https://docs.feast.dev/
-- https://www.tecton.ai/blog/what-is-a-feature-store/
-
-## 34 — Model Serving & MLOps Patterns
-BentoML for packaging models as services; Modal for serverless GPU; Docker + uvicorn for FastAPI model APIs; model versioning; canary deploys; monitoring with Evidently / Arize.
-- https://docs.bentoml.com/en/latest/
-- https://modal.com/docs/guide
-
-## 35 — Multi-Label Classification
-Binary relevance (one classifier per label); label powerset (treat each label combination as a class); classifier chains (exploit label correlations); scikit-multilearn; evaluation with subset accuracy, Hamming loss, per-label F1; BERT-based multi-label text classification; production uses: document tagging, content moderation; most popular approach: binary relevance + threshold tuning.
-- http://scikit.ml/
-- https://arxiv.org/abs/1910.09263
-
-## 36 — Fairness & Bias Evaluation
-Demographic parity, equalized odds, calibration across protected groups; SHAP for disparate impact analysis; Jurity (open-source fairness library for recommendation and ranking); IBM AIF360 for broader ML fairness; LIME/SHAP-based bias debugging; production workflow: audit model on intersectional slices, set per-group recall thresholds; legal context (GDPR, EEOC).
-- https://jurity.readthedocs.io/en/latest/
-- https://aif360.readthedocs.io/en/latest/
-- https://arxiv.org/abs/1811.03073
-
-## 37 — AWS SageMaker & Bedrock
-SageMaker Estimator for managed training; HyperparameterTuner (Bayesian HPO); SageMaker Pipelines for reproducible MLOps; Model Registry for versioning; real-time and batch Endpoints; SageMaker Experiments for tracking; Bedrock for managed LLM APIs (Claude, Titan, Llama); Bedrock Agents and Knowledge Bases; most-used managed ML platform in enterprise; comparison: SageMaker vs Vertex AI vs Azure ML.
-- https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html
-- https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html
+## Current References
+- Scikit-learn feature selection docs: https://scikit-learn.org/stable/modules/feature_selection.html
+- XGBoost Python API: https://xgboost.readthedocs.io/en/latest/python/python_api.html
+- LightGBM parameters: https://lightgbm.readthedocs.io/en/latest/Parameters.html
+- SHAP docs: https://shap.readthedocs.io/en/latest/
+- Causal feature selection survey: https://arxiv.org/abs/2402.02696
+- Filter-method benchmark review: https://arxiv.org/abs/2111.12140

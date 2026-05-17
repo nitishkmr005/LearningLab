@@ -1,78 +1,119 @@
 # 05 — Git
 
-Exhaustive learning path for Git: core internals, branching workflows, collaboration patterns, and advanced operations for data science and ML projects.
+Production-first study outline for Git workflows used by data scientists, ML engineers, and AI engineers.
 
 ---
 
-## 01 — Git Object Model & Internals
-Blobs, trees, commits, tags; SHA-1 content addressing; .git directory layout; how a commit points to a tree; pack files and object storage.
-- https://git-scm.com/book/en/v2/Git-Internals-Git-Objects
-- https://github.blog/developer-skills/programming-languages-and-frameworks/commits-are-snapshots-not-diffs/
+## Format Used In This Outline
+- `Concept`: what to learn.
+- `Why it matters`: the day-to-day workflow reason.
+- `Typical command`: the command pattern you should know.
 
-## 02 — Staging Area & Basic Workflow
-init, add, commit, status, diff (staged vs unstaged); .gitignore patterns; partial staging with git add -p; amend last commit.
-- https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository
+## 01 — Core Daily Workflow
+- `Concept`: `status`, `add`, `commit`, `pull`, `push`, `diff`, `.gitignore`.
+- `Why it matters`: most DS work is small experiments, notebook changes, scripts, and config updates.
+- `Typical command`: `git status` and `git diff` before every commit.
 
-## 03 — Branching & Merging
-Branch as a pointer; create, switch, delete branches; fast-forward vs three-way merge; merge conflicts and resolution; git log --graph.
-- https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
+## 02 — Undo Uncommitted Changes
+- `Concept`: discard or restore local file edits safely.
+- `Why it matters`: useful when a notebook, config, or script is half-broken locally.
+- `Typical command`: `git restore path/to/file.py`
 
-## 04 — Rebasing
-git rebase vs merge; interactive rebase (squash, fixup, reorder, edit); rebase onto; golden rule (never rebase shared history); rebase conflict resolution.
-- https://git-scm.com/book/en/v2/Git-Branching-Rebasing
-- https://www.atlassian.com/git/tutorials/rewriting-history/git-rebase
+## 03 — Undo Local Commits That Are Not Pushed
+- `Concept`: `git reset --soft HEAD~1`, `git reset --mixed HEAD~1`.
+- `Why it matters`: common when you committed too early or grouped the wrong files together.
+- `Typical command`: `git reset --soft HEAD~1`
+- `Example`: keep your code changes, remove the last local commit, recommit with a better message or smaller scope.
 
-## 05 — Remote Repositories
-origin, upstream; clone, fetch, pull, push; tracking branches; git remote add/rename/remove; push --set-upstream; force push safety.
-- https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
+## 04 — Undo Changes Already Pushed To Remote
+- `Concept`: `git revert` creates a new commit that undoes an older one.
+- `Why it matters`: this is the safe default for shared branches and already-pushed work.
+- `Typical command`: `git revert <commit_sha>`
+- `Example`: a bad preprocessing change reached `main`; revert it without rewriting shared history.
 
-## 06 — Tags & Releases
-Lightweight vs annotated tags; semantic versioning (v1.2.3); push tags to remote; delete tags; GitHub releases tied to tags.
-- https://git-scm.com/book/en/v2/Git-Basics-Tagging
+## 05 — Recover Lost Work
+- `Concept`: `git reflog`.
+- `Why it matters`: when you reset, rebase, or delete a branch and panic.
+- `Typical command`: `git reflog`
 
-## 07 — Undoing Changes
-git restore, git reset (--soft, --mixed, --hard); git revert (safe undo for shared history); git clean; ORIG_HEAD; recovery with reflog.
-- https://git-scm.com/book/en/v2/Git-Basics-Undoing-Things
-- https://git-scm.com/docs/git-reflog
+## 06 — Pull Only Part Of A Huge Repo
+- `Concept`: partial clone and sparse checkout.
+- `Why it matters`: large monorepos or research repos are expensive to clone fully.
+- `Typical command`: `git clone --filter=blob:none --sparse <repo_url>`
+- `Follow-up`: `git sparse-checkout set 05-git 06-machine-learning`
+- `Example`: pull only the training and feature folders from a multi-team platform repo, edit them, then commit and push as normal.
 
-## 08 — Stashing & Worktrees
-git stash push/pop/apply/list/drop; stash with untracked files; git worktree for parallel branches without re-cloning.
-- https://git-scm.com/docs/git-stash
-- https://git-scm.com/docs/git-worktree
+## 07 — Pull Only One File Or Folder From Another Branch
+- `Concept`: checkout specific paths from another ref.
+- `Why it matters`: useful when you need a single config, notebook, or utility from `main`.
+- `Typical command`: `git checkout origin/main -- path/to/file_or_folder`
 
-## 09 — Git Log & History Inspection
-log formatting (--oneline, --graph, --decorate); filtering (--author, --since, --grep, -S pickaxe); git blame; git bisect for bug hunting; git shortlog.
-- https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History
+## 08 — Worktrees
+- `Concept`: multiple working directories for one repository.
+- `Why it matters`: very useful for parallel ML tasks, hotfixes, and PR review without recloning.
+- `Typical command`: `git worktree add ../experiment-branch -b experiment-branch`
+- `Example`: keep one worktree on `main`, another on `feature/new-features`, and a third for urgent bugfix review.
 
-## 10 — Branching Workflows
-Git Flow (main/develop/feature/release/hotfix); GitHub Flow (main + feature PRs); trunk-based development; when to choose each; ML repo conventions.
-- https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
-- https://docs.github.com/en/get-started/using-github/github-flow
+## 09 — Feature Branches and PR Flow
+- `Concept`: branch, commit, push, open PR, respond to review, merge.
+- `Why it matters`: this is the standard collaboration path in GitHub-based teams.
+- `Typical command`: `git push -u origin feature/campaign-response-v2`
 
-## 11 — Pull Requests & Code Review
-PR lifecycle; draft PRs; reviewers, labels, milestones; resolving review comments; squash vs merge vs rebase merge; protected branches.
-- https://docs.github.com/en/pull-requests/collaborating-with-pull-requests
+## 10 — Creating PRs
+- `Concept`: branch hygiene, small diffs, draft PRs, reviewable commit history.
+- `Why it matters`: model changes are easier to review when code, config, and metric output are scoped tightly.
+- `Typical command`: `gh pr create --fill`
+- `Example`: open a draft PR with model metrics, schema changes, and rollout notes before final sign-off.
 
-## 12 — Git Hooks
-client-side hooks (pre-commit, commit-msg, pre-push); server-side hooks; pre-commit framework for linting/formatting; husky for JS projects; bypassing hooks.
-- https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
-- https://pre-commit.com/
+## 11 — Rebase and Update Your Branch
+- `Concept`: `fetch`, `rebase`, resolve conflicts, push updated branch.
+- `Why it matters`: long-lived model branches drift quickly.
+- `Typical command`: `git fetch origin && git rebase origin/main`
 
-## 13 — Submodules & Monorepos
-git submodule add/update/sync; detached HEAD in submodules; sparse checkout; monorepo tooling (Bazel, nx, turborepo); pros/cons for ML projects.
-- https://git-scm.com/book/en/v2/Git-Tools-Submodules
+## 12 — Stash For Temporary Context Switching
+- `Concept`: save dirty changes without committing.
+- `Why it matters`: useful when an urgent issue interrupts a training or feature-engineering task.
+- `Typical command`: `git stash push -u -m "wip feature window logic"`
 
-## 14 — Large File Storage (Git LFS)
-Why Git struggles with large binaries; git-lfs track, push, pull; pointer files; LFS in ML repos (models, datasets); DVC as an alternative for ML artifacts.
-- https://git-lfs.com/
-- https://dvc.org/doc/use-cases/versioning-data-and-models
+## 13 — Interactive Staging
+- `Concept`: commit only the relevant hunks.
+- `Why it matters`: notebooks and config files often contain unrelated noise.
+- `Typical command`: `git add -p`
 
-## 15 — CI/CD Integration & Git for ML
-GitHub Actions triggered on push/PR; branch protection rules; semantic-release for automated versioning; MLflow / DVC for experiment tracking alongside git history.
-- https://docs.github.com/en/actions/writing-workflows/quickstart
-- https://dvc.org/doc/start/experiments
+## 14 — Large Files and GitHub Limits
+- `Concept`: Git is poor at large binary artifacts; use Git LFS for large models, datasets, and binaries.
+- `Why it matters`: pushing raw checkpoints or huge CSVs directly bloats repo history and may hit hosting limits.
+- `Typical command`: `git lfs track "*.pt"`
+- `Example`: track model checkpoints, embeddings, and sample datasets with LFS instead of plain Git.
 
-## 16 — Conventional Commits & Changelog Automation
-Commit message format (feat/fix/chore/docs/refactor); BREAKING CHANGE footer; automated CHANGELOG generation; semantic versioning from commit types; commitlint + husky; standard in ML OSS repos.
-- https://www.conventionalcommits.org/en/v1.0.0/
-- https://github.com/conventional-changelog/conventional-changelog
+## 15 — Data Science Reality: Git LFS Is Not MLOps
+- `Concept`: LFS helps with storage, but DVC, object storage, or model registries are usually better for large evolving datasets.
+- `Why it matters`: versioning a 20 GB feature table inside Git is usually the wrong design.
+- `Typical command`: keep code in Git; keep large mutable data in artifact storage.
+
+## 16 — Useful History Inspection
+- `Concept`: `log`, `show`, `blame`, `diff`, `bisect`.
+- `Why it matters`: needed when a model metric regressed and you must identify the exact code change.
+- `Typical command`: `git log --oneline --graph --decorate`
+
+## 17 — Common DS/ML Scenarios You Should Practice
+- `Scenario 1`: accidentally committed a secret or wrong config locally and need to uncommit before push.
+- `Scenario 2`: already pushed a broken feature-engineering change and need a safe revert.
+- `Scenario 3`: want two parallel experiments using the same repo without recloning.
+- `Scenario 4`: need only one folder from a huge remote repository.
+- `Scenario 5`: must push model files safely using Git LFS or, preferably, store them outside Git.
+
+## 18 — Minimal Command Cookbook
+- `Undo last local commit, keep code`: `git reset --soft HEAD~1`
+- `Undo last pushed commit safely`: `git revert HEAD`
+- `Create worktree`: `git worktree add ../my-branch -b my-branch`
+- `Sparse clone huge repo`: `git clone --filter=blob:none --sparse <repo_url>`
+- `Limit checkout to folders`: `git sparse-checkout set path/a path/b`
+- `Get one file from remote branch`: `git checkout origin/main -- path/to/file`
+- `Track large model files`: `git lfs track "*.bin"`
+
+## References
+- `git revert`: https://git-scm.com/docs/git-revert
+- `git worktree`: https://git-scm.com/docs/git-worktree
+- partial clone and sparse checkout: https://git-scm.com/docs/git-clone and https://git-scm.com/docs/sparse-checkout
+- GitHub LFS docs: https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-git-large-file-storage

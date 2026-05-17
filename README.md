@@ -33,7 +33,7 @@ Every topic is chosen because it appears in interviews, production systems, or b
 | 04 | `04-pytorch/` | Tensors, autograd, training loops, distributed training, deployment | ML, AI | 17 | outline |
 | 05 | `05-git/` | Git internals, branching, rebase, CI/CD for ML, conventional commits | ML, AI | 16 | outline |
 | 06 | `06-machine-learning/` | Classical ML algorithms, evaluation, AutoML, fairness, MLOps, AWS SageMaker | DS, ML | 37 | outline |
-| 07 | `07-recommenders/` | Collaborative filtering, neural recsys, two-tower, bandits, LLM-based recs | DS, ML, AI | 29 | outline |
+| 07 | `07-recommenders/` | Collaborative filtering, neural recsys, two-tower, GNNs, bandits, dataset prep, inference patterns | DS, ML, AI | 32 | outline |
 | 08 | `08-embedding-models/` | Word vectors → sentence transformers → multimodal, code embeddings | ML, AI | 24 | outline |
 | 09 | `09-rag/` | RAG pipelines: chunking, retrieval, reranking, evaluation, agentic RAG | AI, GenAI | 30 | outline |
 | 10 | `10-agents/` | ReAct, tool use, memory, multi-agent, LangGraph, MCP, computer use | AI, GenAI | 25 | outline |

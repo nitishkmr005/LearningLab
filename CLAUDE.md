@@ -15,7 +15,10 @@ Two complementary deliverables per topic:
 <NN>-<topic>/
   outline-<topic>.md       # exhaustive learning roadmap — source of truth for subtopics
   blog-<topic>.md          # one-stop literature survey blog
-  XX-<subtopic-name>.py    # one concept per file, runnable as-is
+  scripts/
+    01-<subtopic-name>.py  # one concept per file, runnable as-is
+    02-<subtopic-name>.py
+    ...
 ```
 
 Folder numbers are sequential. Adding a new topic inserts it in order and renumbers downstream folders.
@@ -24,8 +27,10 @@ Folder numbers are sequential. Adding a new topic inserts it in order and renumb
 
 ### Add a runnable script
 1. Open `outline-<topic>.md` and pick the subtopic number.
-2. Create `<NN>-<subtopic-name>.py` — real imports, one concept, runnable without extra setup.
-3. No placeholder comments. No pseudocode.
+2. Create `scripts/<NN>-<subtopic-name>.py` — real imports, one concept, runnable without extra setup.
+3. Every line must have an inline comment explaining what it does — these scripts are for learning, not production.
+4. Running the script must print useful output to the terminal so the learner can see the concept in action.
+5. No placeholder comments. No pseudocode.
 
 ### Write or update a blog
 Use the `/write-learning-blog` skill. It handles research, structure, and citations automatically.
@@ -44,6 +49,6 @@ Blog requirements (enforced by the skill):
 ## Conventions
 
 - Outline section headers: `## NN — Title` (zero-padded two digits).
-- Script filenames: `XX-kebab-case.py` where XX matches the outline section number.
-- Blog filenames: `blog-<topic-slug>.md` (no numbers, just the topic name).
+- Script filenames: `NN-kebab-case.py` inside `scripts/`, where NN matches the outline section number.
+- Blog filenames: `blog-<topic-slug>.md` in the topic root (no numbers).
 - No notebooks. Scripts only.

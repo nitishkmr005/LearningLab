@@ -83,3 +83,9 @@ Process reward models (PRM) vs outcome reward models (ORM); math proof step-leve
 Trajectory-level vs final-answer eval; SWE-bench (code agent); WebArena (browser agent); tool-use accuracy; multi-turn consistency; AgentBench; hallucination compounding across turns.
 - https://arxiv.org/abs/2310.03744
 - https://arxiv.org/abs/2307.13854
+
+## 18 — LLM-as-Judge: Production Implementation
+Pydantic models for attribute-level scoring (relevance, coherence, precision, recall, groundedness); Instructor library for guaranteed JSON extraction; multi-attribute rubric design; aggregating scores across turns and documents; calibrating LLM judge against human labels; Claude 3.5 Sonnet as judge (Anthropic best practices); validation dashboards with Streamlit; CI integration to gate deploys; comparison: single-score vs attribute rubric vs checklist; common failure mode: verbosity bias and self-preference.
+- https://python.useinstructor.com/
+- https://docs.anthropic.com/en/docs/test-and-evaluate/eval-approaches
+- https://eugeneyan.com/writing/llm-evaluator/

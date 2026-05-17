@@ -107,3 +107,8 @@ threading.Thread for I/O-bound tasks; GIL and why it limits CPU parallelism; con
 Path/query/body params; Pydantic request/response models; async endpoints; background tasks; StreamingResponse for LLM token streaming; middleware; deploy with uvicorn + gunicorn; used for LLM, ML model, and voice agent APIs.
 - https://fastapi.tiangolo.com/tutorial/
 - https://fastapi.tiangolo.com/advanced/custom-response/
+
+## 24 — Streamlit for ML & LLM Apps
+st.dataframe, st.plotly_chart, st.selectbox, st.chat_message; session state for multi-turn UIs; caching with @st.cache_data and @st.cache_resource; deploy with Docker or Streamlit Cloud; production uses: LLM output validation dashboards, model bias review, bandit/experiment monitoring, RAG QA apps; most popular rapid prototyping tool for ML teams; alternative: Gradio (better for demos), Panel (more complex layouts).
+- https://docs.streamlit.io/
+- https://docs.streamlit.io/develop/concepts/architecture/caching

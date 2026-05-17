@@ -55,6 +55,17 @@ Blog requirements (enforced by the skill):
 1. Create `<NN>-<topic>/outline-<topic>.md` following the format of existing outlines (numbered `## 01 —` sections, 2-3 reference links each).
 2. Update `README.md` table.
 
+## Outline quality standard
+
+Every section in an outline should note the **most popular production approach**, the **main alternatives**, and the **SotA model or technique** where they differ. This makes the outline serve as a quick reference for choosing tools in interviews and production.
+
+Format guidance for each section description:
+- Lead with the canonical/most-popular approach in industry (e.g., "XGBoost most popular for structured data; LightGBM faster for large datasets; CatBoost best for categoricals").
+- Call out the SotA if it differs from what is commonly deployed (e.g., "research SotA: FT-Transformer; production default: LightGBM").
+- Link to: arXiv papers, official library docs, and the most-referred developer resources (HuggingFace, PyTorch docs, NVIDIA, Anthropic, Snowflake, authoritative blog posts from practitioners).
+
+This standard applies when writing new outlines and when adding new sections to existing ones. Existing sections should be upgraded when the blog for that topic is written.
+
 ## Conventions
 
 - Outline section headers: `## NN — Title` (zero-padded two digits).

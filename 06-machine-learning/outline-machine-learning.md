@@ -154,3 +154,19 @@ Online vs offline store; point-in-time correct joins (prevent leakage); Feast (o
 BentoML for packaging models as services; Modal for serverless GPU; Docker + uvicorn for FastAPI model APIs; model versioning; canary deploys; monitoring with Evidently / Arize.
 - https://docs.bentoml.com/en/latest/
 - https://modal.com/docs/guide
+
+## 35 — Multi-Label Classification
+Binary relevance (one classifier per label); label powerset (treat each label combination as a class); classifier chains (exploit label correlations); scikit-multilearn; evaluation with subset accuracy, Hamming loss, per-label F1; BERT-based multi-label text classification; production uses: document tagging, content moderation; most popular approach: binary relevance + threshold tuning.
+- http://scikit.ml/
+- https://arxiv.org/abs/1910.09263
+
+## 36 — Fairness & Bias Evaluation
+Demographic parity, equalized odds, calibration across protected groups; SHAP for disparate impact analysis; Jurity (open-source fairness library for recommendation and ranking); IBM AIF360 for broader ML fairness; LIME/SHAP-based bias debugging; production workflow: audit model on intersectional slices, set per-group recall thresholds; legal context (GDPR, EEOC).
+- https://jurity.readthedocs.io/en/latest/
+- https://aif360.readthedocs.io/en/latest/
+- https://arxiv.org/abs/1811.03073
+
+## 37 — AWS SageMaker & Bedrock
+SageMaker Estimator for managed training; HyperparameterTuner (Bayesian HPO); SageMaker Pipelines for reproducible MLOps; Model Registry for versioning; real-time and batch Endpoints; SageMaker Experiments for tracking; Bedrock for managed LLM APIs (Claude, Titan, Llama); Bedrock Agents and Knowledge Bases; most-used managed ML platform in enterprise; comparison: SageMaker vs Vertex AI vs Azure ML.
+- https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html
+- https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html

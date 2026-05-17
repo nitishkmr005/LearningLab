@@ -124,3 +124,9 @@ Shared bottom + task-specific towers; MMoE (Mixture of Experts); PLE (Progressiv
 LLMRec; prompting LLMs for zero-shot recommendations; LLM as feature encoder for cold-start; instruction tuning on interaction history; trade-offs vs traditional two-tower at scale.
 - https://arxiv.org/abs/2307.15780
 - https://arxiv.org/abs/2305.07001
+
+## 29 — Contextual Bandits in Production
+LinGreedy (ε-greedy linear contextual bandit); LinUCB and Thompson Sampling with linear reward models; MABWiser (open-source production bandit library — supports ε-greedy, UCB, Thompson, LinGreedy, LinUCB with warm-start and parallel training); Mab2Rec (bandit-powered recommendation system built on MABWiser); offline evaluation with replay method and inverse propensity scoring; when bandits outperform full recsys (sparse data, new catalog); comparison: bandits vs RL vs A/B testing.
+- https://github.com/fidelity/mabwiser
+- https://github.com/fidelity/mab2rec
+- https://arxiv.org/abs/2012.01780

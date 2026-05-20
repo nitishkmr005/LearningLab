@@ -37,10 +37,11 @@
 6. [Claim Decomposition and Evaluation Pipeline](#6-claim-decomposition-and-evaluation-pipeline)
    - 6.1 [Claim Decomposition Engine](#61-claim-decomposition-engine)
    - 6.2 [Full Pipeline: Step by Step](#62-full-pipeline-step-by-step)
+   - 6.3 [Batching Strategy](#63-batching-strategy)
 7. [The Judge Prompt](#7-the-judge-prompt)
    - 7.1 [Modular Judge Prompt Design](#71-modular-judge-prompt-design)
    - 7.2 [Cascading Judge: Cost-Efficient Multi-Tier Evaluation](#72-cascading-judge-cost-efficient-multi-tier-evaluation)
-8. [Field Type Strategy](#8-field-type-strategy)
+8. [Field Type Strategy and Complexity Segmentation](#8-field-type-strategy-and-complexity-segmentation)
 
 **Operations**
 
@@ -176,6 +177,50 @@ Before diving into components, the non-negotiable constraints that drive every d
 
 ---
 
+## Terminology: Rubric, Acceptance Criteria, and Evaluation Criteria
+
+These three terms appear throughout this document and are often conflated. The distinction matters because each lives in a different layer of the system.
+
+| Term | What it is | Where it lives | Produces |
+|---|---|---|---|
+| **Rubric** | The overall scoring framework for a field — what dimensions matter and what the field is trying to measure | YAML config, per field/section | Nothing directly — it's the spec |
+| **Acceptance Criteria** | The specific binary pass/fail conditions — what the extracted value must satisfy to be `is_correct=True` | Inside the rubric: `criteria` + `failure_condition` + `example_pass` + `example_fail` | `is_correct` verdict |
+| **Evaluation Criteria** | The dimensions of quality the judge checks during chain-of-thought — what to look at before reaching a verdict | Generated as `evaluation_steps` from the rubric | `evaluation_steps` executed; `rubric_scores` dict for custom metrics |
+
+**In plain terms:**
+- The **rubric** is the rulebook for a field.
+- **Acceptance criteria** are the specific rules in that rulebook that determine whether the answer passes.
+- **Evaluation criteria** are the steps the judge takes to check those rules — the reasoning process, not the verdict.
+
+**Concrete example** — field `contract.annual_value`:
+
+```
+Rubric (the rulebook):
+  "Contract fields require exact figures. Unit normalization is an error."
+
+Acceptance Criteria (the pass/fail rules):
+  criteria:          "Total annual contract value in USD."
+  failure_condition: "If the stated period is monthly, do not multiply."
+  example_pass:      "4000  (when transcript states $4,000/month)"
+  example_fail:      "48000 (monthly $4,000 multiplied by 12)"
+  → produces: is_correct = false
+
+Evaluation Criteria (the judge's reasoning steps):
+  Step 1: Search transcript for contract value, annual fee, or pricing.
+  Step 2: Identify stated amount and currency.
+  Step 3: Check rubric: 'do not multiply if monthly.'
+  Step 4: The extracted $48,000 fails — monthly figure was annualized.
+  → produces: evaluation_steps[] in the ValidationObject
+```
+
+**Why `is_correct` and `is_missing` stay in the ValidationObject, not the rubric:**
+
+The rubric contains the *definition* of what correct means (acceptance criteria). The ValidationObject stores the *verdict* — the result of applying that definition to a specific extraction. Moving verdicts into the rubric would conflate the scoring key with the score sheet. The analogy: a grading rubric defines what an A means; it doesn't record which student got an A. The grade sheet does that.
+
+`missing_rule` in the YAML is the one exception — it is a rubric-level rule (`"if no account number stated, is_missing=true, severity=completely"`). The rule lives in the rubric; the verdict (`is_missing=true`) lives in the ValidationObject.
+
+---
+
 ## 2. The Validation Object: Core Data Model
 
 The fundamental unit of this system is the **Validation Object** — one per field in the JSON being evaluated, or one per atomic claim extracted from free-form text. Every downstream feature (error dashboards, prompt advisor, model comparisons) is built on aggregations of these objects.
@@ -190,15 +235,10 @@ Two design decisions distinguish this model from most open-source frameworks:
 from typing import Optional
 from pydantic import BaseModel
 
-class Evidence(BaseModel):
-    text: str       # Verbatim quote from the context that supports the judgment
-    location: str   # Where in the context: "paragraph 2", "call turn 3", "line 14"
-    supports: bool  # True = evidence supports is_correct=True; False = contradicts
-
 class ValidationObject(BaseModel):
     # --- Identity ---
     field_path: str            # e.g. "customer.account_number" or "summary.claim[3]"
-    field_type: str            # "extractive" | "inferential" | "free_form"
+    field_type: str            # "extractive" | "inferential" | "free_form" | "classification"
 
     # --- Values ---
     actual_value: Optional[str]    # What the LLM extracted/generated (always the raw LLM output)
@@ -207,7 +247,9 @@ class ValidationObject(BaseModel):
 
     # --- Evaluation reasoning ---
     evaluation_steps: list[str]    # Chain-of-thought steps executed by judge
-    evidence: list[Evidence]       # Verbatim quotes from context, with location + polarity
+    evidence: list[str]            # Verbatim quotes from source context.
+                                   # Plain strings only — no location or polarity metadata.
+                                   # Post-validation: substring-check every quote against context.
 
     # --- Verdict: two independent flags ---
     is_correct: bool               # False if value is wrong or hallucinated
@@ -253,11 +295,7 @@ class ValidationObject(BaseModel):
     "5. If a range stated but single date extracted, set is_missing=true, missing_severity='partially'."
   ],
   "evidence": [
-    {
-      "text": "Agent: 'Your renewal comes up on March 15th of next year.'",
-      "location": "call turn 7",
-      "supports": true
-    }
+    "Agent: 'Your renewal comes up on March 15th of next year.'"
   ],
 
   "is_correct": true,
@@ -292,11 +330,7 @@ class ValidationObject(BaseModel):
     "4. The extraction of $48,000 fails rubric: context states $4,000/month, not $48,000/year."
   ],
   "evidence": [
-    {
-      "text": "Customer: 'We're paying four thousand a month under the current deal.'",
-      "location": "call turn 12",
-      "supports": false
-    }
+    "Customer: 'We're paying four thousand a month under the current deal.'"
   ],
 
   "is_correct": false,
@@ -329,7 +363,7 @@ class ValidationObject(BaseModel):
     "2. No account number found in transcript.",
     "3. Rubric: 'If no account number stated, set is_missing=true, missing_severity=completely.'"
   ],
-  "evidence": [],
+  "evidence": [],   // empty — source document contains no account number
 
   "is_correct": false,
   "is_missing": true,
@@ -1016,6 +1050,189 @@ class EvaluationPipeline:
         return vo
 ```
 
+### 6.3 Batching Strategy
+
+Sending each claim to the judge in a separate API call is correct for development but wasteful in production. The batching strategy reduces cost and latency in three ways: grouping claims from the same document, grouping the same field across multiple documents, and running both tiers concurrently.
+
+#### Three Batching Modes
+
+```
+BATCHING MODES
+
+Mode 1: Within-Document (Tier 1 fields)
+  One document → all Tier 1 claims → one judge call
+  Source context sent once; claims listed in a numbered batch
+  Provider prefix cache covers the static prompt + context on all calls after the first
+
+Mode 2: Cross-Document Field Batching (same field, many docs)
+  Same field + same criteria → batch up to 15 documents
+  Ideal for offline evaluation runs over a dataset
+  Each document's context is a numbered block in the batch prompt
+
+Mode 3: Async Tier Parallelism
+  Tier 1 and Tier 2 claims from different documents run concurrently
+  Tier 2 waits for Tier 1 escalation signals; no blocking between documents
+```
+
+#### Within-Document Batch Call
+
+All Tier 1 fields from a single document are grouped into one prompt. The context is sent once; the judge evaluates each field in sequence and returns a JSON array.
+
+```python
+WITHIN_DOC_BATCH_PROMPT = """
+You are evaluating multiple fields extracted from the same source document.
+The source context appears once below. Evaluate each field against it.
+
+SOURCE CONTEXT:
+{context}
+
+FIELDS TO EVALUATE (one per numbered block):
+{field_blocks}
+
+Return a JSON array with one object per field, in the same order.
+Each object must match the ValidationObject schema.
+"""
+
+async def judge_document_batch(
+    claims: list[Claim],          # all Tier 1 claims for one document
+    config: JudgeConfig,
+    req: EvalRequest,
+    adapter: LLMAdapter,
+) -> list[ValidationObject]:
+
+    # Build numbered field blocks
+    field_blocks = "\n\n".join(
+        f"[Field {i+1}] field_path={c.field_path}\n"
+        f"  actual_value: {c.actual_value}\n"
+        f"  criteria: {c.criteria}\n"
+        f"  evaluation_steps:\n" + "\n".join(f"    {j+1}. {s}" for j, s in enumerate(c.steps))
+        for i, c in enumerate(claims)
+    )
+
+    prompt = WITHIN_DOC_BATCH_PROMPT.format(
+        context=req.context,
+        field_blocks=field_blocks,
+    )
+
+    response = await adapter.complete(
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.0,
+        cache_control=True,   # static prefix (system + context) cached by provider
+    )
+
+    raw = json.loads(response.text)   # list of dicts, one per field
+    return [
+        ValidationObject(**item, judge_model=adapter.model_id)
+        for item in raw
+    ]
+```
+
+#### Cross-Document Field Batching
+
+For offline evaluation runs over a dataset, the same field across multiple documents can be batched together. This maximises the value of prefix caching (rubric + evaluation steps are identical across all documents; only the context changes).
+
+```python
+async def judge_field_across_docs(
+    field_path: str,
+    doc_claims: list[tuple[Claim, EvalRequest]],  # (claim, req) per document
+    config: JudgeConfig,
+    adapter: LLMAdapter,
+    batch_size: int = 15,
+) -> list[ValidationObject]:
+
+    results = []
+    for batch in chunked(doc_claims, batch_size):
+        doc_blocks = "\n\n".join(
+            f"[Document {i+1}]\n"
+            f"  actual_value: {claim.actual_value}\n"
+            f"  context: {req.context}"
+            for i, (claim, req) in enumerate(batch)
+        )
+
+        prompt = CROSS_DOC_BATCH_PROMPT.format(
+            field_path=field_path,
+            criteria=batch[0][0].criteria,          # same criteria for all docs
+            evaluation_steps=batch[0][0].steps,
+            doc_blocks=doc_blocks,
+        )
+
+        response = await adapter.complete(
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            cache_control=True,   # criteria + steps cached; only doc_blocks varies
+        )
+
+        results.extend(parse_batch_response(response.text, batch))
+
+    return results
+```
+
+#### Full Async Dispatch with Tier Pre-routing
+
+The pipeline segments claims by complexity tier before dispatching. Tier 1 claims are grouped into within-document batches; Tier 2 claims run in parallel as individual calls (they've already been flagged as complex — no benefit to batching them).
+
+```python
+async def evaluate_with_batching(
+    request: EvalRequest,
+    claims: list[Claim],
+    config: JudgeConfig,
+    judge: CascadingJudge,
+) -> list[ValidationObject]:
+
+    # Pre-route by complexity tier (set on each Claim by ClaimDecomposer)
+    tier1_claims = [c for c in claims if c.judge_tier == "tier1"]
+    tier2_claims = [c for c in claims if c.judge_tier == "tier2"]
+
+    # Tier 1: one batched call for all easy fields in this document
+    tier1_task = judge_document_batch(
+        claims=tier1_claims,
+        config=config,
+        req=request,
+        adapter=judge.cheap,
+    ) if tier1_claims else asyncio.coroutine(lambda: [])()
+
+    # Tier 2: parallel individual calls for complex/inferential fields
+    tier2_tasks = [
+        judge.judge(claim=c, steps=c.steps, config=config, req=request)
+        for c in tier2_claims
+    ]
+
+    # Run both tiers concurrently — Tier 1 batch and all Tier 2 calls fire together
+    tier1_results, *tier2_results = await asyncio.gather(
+        tier1_task, *tier2_tasks
+    )
+
+    # Merge preserving original field order
+    results_by_path = {vo.field_path: vo for vo in tier1_results}
+    for vo in tier2_results:
+        results_by_path[vo.field_path] = vo
+
+    return [results_by_path[c.field_path] for c in claims]
+```
+
+#### Prompt Caching Integration
+
+Batching and prompt caching work at different layers and compose naturally:
+
+| Layer | What is cached | TTL | Provider |
+|---|---|---|---|
+| Redis eval-steps cache | Evaluation steps per `(criteria_hash, rubric_version)` | 24 h | Your infrastructure |
+| Provider prefix cache | Static prompt prefix: system instructions + rubric + evaluation steps | 5 min (Anthropic ephemeral) | Anthropic / OpenAI |
+| Redis judge-result cache | Full `ValidationObject` per `(field_path, actual_value, context_hash, criteria_version)` | 1 h | Your infrastructure |
+
+Within-document batching maximises prefix cache hits: the system prompt, rubric, and evaluation steps are identical for all fields in the batch — they land in the provider's prefix cache after the first document, making subsequent documents in the same run near-free on the static portion.
+
+Cross-document field batching goes further: the criteria and evaluation steps for the same field are cached across all 15 documents in a batch, so you pay for the context portion only.
+
+```
+CACHE HIT SEQUENCE (within-document batch, 10 documents, 8 Tier 1 fields each):
+
+Doc 1, Batch call:   [MISS] system + rubric + steps → cached by provider
+Doc 2, Batch call:   [HIT]  system + rubric + steps from cache → pay only for context
+Doc 3–10:            [HIT]  same cache hit pattern
+Result: ~70–80% token reduction on the static prefix across the run
+```
+
 ---
 
 ## 7. The Judge Prompt
@@ -1055,11 +1272,8 @@ Actual value extracted by the AI: "{actual_value}"
     ...
   ],
   "evidence": [
-    {
-      "text": "<verbatim quote from the source context>",
-      "location": "<where in the context: paragraph X, turn Y, line Z>",
-      "supports": true | false
-    }
+    "<verbatim quote from the source context>",
+    "<another verbatim quote if needed>"
   ],
   "actual_value": "<same as input if correct; <corrected>correct value here</corrected> if incorrect>",
   "is_correct": true | false,
@@ -1077,6 +1291,8 @@ If the extraction is incorrect, classify using exactly one of these themes:
 {error_taxonomy}
 (e.g. unit_confusion, hallucinated_entity, scope_mismatch, format_error, temporal_confusion, missing_from_source)
 ```
+
+> 🏭 **Production note**: Evidence is a plain `list[str]` of verbatim quotes — no location, no polarity flag. This keeps the judge output minimal and the post-validation check simple: substring-match every quote against the source context. If a quote does not appear in the context, the judge hallucinated it.
 
 > 🏭 **Production note**: The `<corrected>` tag convention in `actual_value` makes the judge output easy to post-process: a simple regex extracts the corrected value and populates `corrected_value` in the `ValidationObject`. This pattern avoids schema ambiguity — one field, two modes, zero parsing ambiguity.
 
@@ -1157,10 +1373,20 @@ Input: claim + context + rubric
               └───────────────────┘
 ```
 
+**Two-stage routing**: Field complexity (pre-computed) determines the starting tier. Confidence (runtime signal) determines whether to escalate from Tier 1 to Tier 2. Pre-routing eliminates the wasted Tier 1 call for fields that will always need escalation.
+
 ```python
 class CascadingJudge:
 
     AMBIGUOUS_THEMES = {"scope_mismatch", "temporal_confusion", "inferential_leap"}
+
+    # Default tier by field type — overridden by YAML judge_tier annotation
+    DEFAULT_TIER: dict[str, str] = {
+        "extractive":     "tier1",   # deterministic, high-confidence in cheap models
+        "classification": "tier1",   # label-from-set is well-bounded
+        "inferential":    "tier2",   # implicit reasoning → cheap models fail more
+        "free_form":      "tier2",   # rubric scoring needs nuanced judgment
+    }
 
     def __init__(
         self,
@@ -1174,20 +1400,36 @@ class CascadingJudge:
         self.threshold = confidence_threshold
         self.always_escalate = always_escalate_scenarios
 
+    def resolve_tier(self, claim: Claim) -> str:
+        """Determine starting tier from YAML annotation or field_type default."""
+        # Explicit YAML annotation takes precedence
+        if claim.judge_tier:
+            return claim.judge_tier
+        # Data-driven override: field has a high historical error rate → escalate
+        if claim.historical_error_rate and claim.historical_error_rate > 0.30:
+            return "tier2"
+        return self.DEFAULT_TIER.get(claim.field_type, "tier1")
+
     async def judge(
         self, claim: Claim, steps: list[str], config: JudgeConfig, req: EvalRequest
     ) -> ValidationObject:
 
-        # Golden set and migration runs always use the expensive, cross-family judge
+        # Scenario-level override: golden set and migration always use Tier 2
         if req.scenario in self.always_escalate:
             vo = await judge_claim(claim, steps, config, req, adapter=self.expensive)
             vo.escalated = True
             return vo
 
-        # Run cheap judge first
+        # Field-level pre-routing: bypass Tier 1 for complex fields
+        starting_tier = self.resolve_tier(claim)
+        if starting_tier == "tier2":
+            vo = await judge_claim(claim, steps, config, req, adapter=self.expensive)
+            vo.escalated = False   # pre-routed, not escalated
+            return vo
+
+        # Tier 1 path: run cheap judge, then check for escalation
         vo = await judge_claim(claim, steps, config, req, adapter=self.cheap)
 
-        # Escalate if uncertain or hitting an ambiguous error theme
         needs_escalation = (
             vo.confidence < self.threshold
             or vo.error_theme in self.AMBIGUOUS_THEMES
@@ -1232,9 +1474,9 @@ judge_settings:
 
 ---
 
-## 8. Field Type Strategy
+## 8. Field Type Strategy and Complexity Segmentation
 
-The field type determines how the judge approaches the evaluation. This is the most important routing decision in the pipeline — using a rubric-scoring judge on an extractive field (like an account number) wastes tokens and produces noisy results; using exact-match on a sentiment summary misses everything meaningful.
+The field type determines how the judge approaches the evaluation. Complexity segmentation extends this by pre-routing fields to either a cheap (Tier 1) or capable (Tier 2) judge before any evaluation runs — eliminating the wasted Tier 1 call for fields that will always need escalation. This is the most important routing decision in the pipeline — using a rubric-scoring judge on an extractive field (like an account number) wastes tokens and produces noisy results; using exact-match on a sentiment summary misses everything meaningful.
 
 ```
 FIELD TYPE → JUDGE STRATEGY MAPPING
@@ -1267,6 +1509,86 @@ FIELD TYPE → JUDGE STRATEGY MAPPING
 │                │                      │    Reference optional but improves signal        │
 └────────────────┴──────────────────────┴──────────────────────────────────────────────────┘
 ```
+
+#### Complexity Segmentation: Pre-Routing by Field Type
+
+Field type alone gives a strong prior on which tier to start with. The routing table below encodes this prior as the default. Two overrides are layered on top: an explicit YAML annotation per field, and a data-driven escalation trigger based on the field's historical error rate in production.
+
+**Default tier assignment:**
+
+| Field Type | Default Tier | Rationale |
+|---|---|---|
+| `extractive` | Tier 1 (cheap) | Locate + exact/format-match is well-bounded; Haiku handles it reliably |
+| `classification` | Tier 1 (cheap) | Label-from-allowed-set is structurally bounded; little ambiguity |
+| `inferential` | Tier 2 (frontier) | Implicit reasoning over unstated information; cheap models fail above 30% |
+| `free_form` | Tier 2 (frontier) | Rubric scoring requires nuanced comparative judgment |
+
+**YAML annotation — explicit override:**
+
+Any field can be pinned to a tier regardless of its `field_type`. Use this when a specific field is known to be harder than its type suggests:
+
+```yaml
+contract_terms:
+  annual_value:
+    field_type: extractive
+    judge_tier: tier1              # default; no override needed
+    criteria: "Total annual contract value in USD."
+    failure_condition: "Do not multiply monthly figures to annual."
+    expected_format: "Integer or decimal, no currency symbol"
+    example_pass: "4000"
+    example_fail: "48000"
+
+  jurisdiction_clause:
+    field_type: extractive
+    judge_tier: tier2              # override: legal language is ambiguous even for extraction
+    criteria: "The governing law jurisdiction stated in the contract."
+    failure_condition: "If multiple jurisdictions mentioned, extract the primary one."
+
+  churn_risk:
+    field_type: inferential
+    judge_tier: tier2              # default for inferential; annotation is optional but explicit
+    criteria: "Infer whether the customer is at risk of churning."
+    rubric_scales:
+      churn_signal:
+        0.0: "No churn indicators present"
+        0.5: "Mild dissatisfaction; no explicit threat"
+        1.0: "Explicit threat to cancel or competitor mention"
+```
+
+**Data-driven escalation — production override:**
+
+After enough production runs accumulate, the pipeline reads historical error rates per field and overrides the tier assignment when a field consistently exceeds the 30% error threshold:
+
+```python
+def resolve_tier(claim: Claim, error_rate_store: ErrorRateStore) -> str:
+    # Explicit YAML annotation always wins
+    if claim.judge_tier:
+        return claim.judge_tier
+
+    # Data-driven override: high historical error rate → escalate regardless of field_type
+    historical_rate = error_rate_store.get(claim.field_path)
+    if historical_rate is not None and historical_rate > 0.30:
+        return "tier2"
+
+    # Fall back to field_type default
+    return CascadingJudge.DEFAULT_TIER.get(claim.field_type, "tier1")
+```
+
+```python
+class ErrorRateStore:
+    """Reads aggregated ValidationObject history to produce per-field error rates."""
+
+    def get(self, field_path: str, lookback_days: int = 30) -> Optional[float]:
+        rows = self.db.query(
+            "SELECT AVG(CASE WHEN is_correct = false THEN 1.0 ELSE 0.0 END) "
+            "FROM validation_objects "
+            "WHERE field_path = ? AND created_at > NOW() - INTERVAL ? DAY",
+            field_path, lookback_days,
+        )
+        return rows[0][0] if rows else None
+```
+
+The resolution order is: **YAML annotation → data-driven override → field_type default**. This ensures that team knowledge (annotation) always takes precedence, production evidence (error rate) corrects wrong defaults, and the table provides a sensible starting point for new fields.
 
 **Classification judge prompt additions:**
 

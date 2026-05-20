@@ -102,13 +102,64 @@ These gaps are not framework-specific — they are structural to the current gen
 
 ### What This Design Addresses
 
-This architecture was built specifically to close all five blind spots:
+#### Two Capabilities No Open-Source Framework Provides
 
-- **Claim-level attribution**: `ValidationObject` per `field_path` is the atomic unit. Every verdict, error theme, and evidence quote is at the claim level.
-- **Closed-loop improvement**: Error Theme Aggregator → Pattern Finder → Prompt Advisor → Human-in-the-Loop governance → versioned prompt update. The loop is designed into the architecture, not bolted on.
-- **Judge bias mitigations**: Dual-ordering pairwise evaluation, cross-family judge configuration, explicit length rubric, `output_tokens` tracking in the 9-metric leaderboard.
-- **Production-first**: Production Sampler is a first-class submission mode. The async evaluation queue (Redis/SQS) and PostgreSQL result store are designed for production volume, not augmented from a dev tool.
-- **Rubric versioning**: `rubric_version` on every `ValidationObject`. Rollup Tester validates taxonomy integrity before writing metrics. Dual Territory dashboard compares two rubric versions on identical inputs.
+These two gaps are not partially solved or solved in a limited way by existing tools — they are structurally absent from every framework surveyed above. This design is built around closing them first.
+
+---
+
+**1. Claim-Level Failure Attribution**
+
+Every open-source framework evaluates at the response level. They produce a score — faithfulness: 0.6, coherence: 3/5 — and stop there. You know the score fell. You do not know which field caused it, what the source document actually said, or which specific rubric clause the output violated.
+
+DeepEval is the closest: it decomposes responses into claims for faithfulness evaluation. But it applies this only to RAG metrics, and it does not bind failures to a specific field path in a structured output. There is no concept of `customer.account_number failed because the transcript states '4829301020' but the extraction returned '482930102'`.
+
+This design binds every failure to an exact location:
+
+```
+field_path:          "customer.account_number"
+is_correct:          false
+reason_for_incorrect: "criteria: 10-digit numeric — extracted value has 9 digits"
+evidence:            ["Agent: 'Your account number is 4829301020'"]
+corrected_value:     "4829301020"
+error_theme:         "digit_drop"
+```
+
+The `ValidationObject` is the atomic unit. Every verdict, evidence quote, error theme, rubric score, and corrected value is bound to one field in one document. This is what makes prompt debugging hours instead of days — you are not reading through responses looking for the pattern; the pattern is already named and counted.
+
+---
+
+**2. Closed-Loop Prompt Improvement**
+
+Every framework is observational. Failures appear on a dashboard or in a test report. The system stops there. Translating those failures into a prompt fix requires a human to read the failures, hypothesize a cause, write a new prompt, deploy it, and re-evaluate — an unstructured process that typically takes days and produces no audit trail.
+
+This design makes the improvement loop a first-class architectural component:
+
+```
+ValidationObjects with is_correct=False
+        ↓
+Error Theme Aggregator — clusters failures by recurring theme
+        ↓
+Pattern Finder — surfaces the top-N themes with supporting examples
+        ↓
+Prompt Advisor — generates a specific, citable fix to the rubric or prompt
+        ↓
+Human-in-the-Loop — Accept / Edit / Reject with mandatory justification
+        ↓
+Versioned prompt deployed; eval_version updated on all future ValidationObjects
+```
+
+No open-source framework implements steps 3, 4, or 5. The gap is not a missing feature — it reflects a different architectural assumption: that evaluation and improvement are separate concerns. This design treats them as one loop.
+
+---
+
+#### Three Additional Production Requirements Addressed
+
+The five blind spots listed in the gap map above are all real. The following three are addressed as production requirements rather than primary differentiators — comparable systems could implement them, and some partially do:
+
+- **Judge bias mitigations**: Dual-ordering pairwise evaluation, cross-family judge configuration (Claude judges GPT outputs, not itself), explicit length rubric, `output_tokens` tracking. Self-enhancement bias is documented at 87.76% self-preference — cross-family judge eliminates it on the cases that matter most.
+- **Production-first**: Production Sampler is a first-class submission mode. The async evaluation queue (Redis/SQS) and PostgreSQL result store are designed for production volume. No framework's OSS tier runs at production scale without a paid cloud tier.
+- **Rubric versioning**: `eval_version` composite key on every `ValidationObject`. Rubric edits invalidate cached evaluation steps and increment the version. Historical comparisons across rubric versions are explicit, not silent.
 
 ---
 

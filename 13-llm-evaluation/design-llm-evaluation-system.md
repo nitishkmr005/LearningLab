@@ -33,6 +33,7 @@
 3. [Full System Architecture](#3-full-system-architecture)
 4. [LLM-Agnostic Adapter Layer](#4-llm-agnostic-adapter-layer)
 5. [YAML-Based Judge Configuration](#5-yaml-based-judge-configuration)
+    - [5.1 — Rubric Structure Reference](#51-rubric-structure-reference)
 
 **Evaluation Pipeline**
 
@@ -1174,6 +1175,198 @@ judge_settings:
   evaluation_steps_cache_ttl: 86400   # 24h; regenerate daily or on rubric change
   max_concurrent_field_evals: 10
 ```
+
+---
+
+### 5.1 Rubric Structure Reference
+
+A rubric YAML file is structured in three nested levels: **file → section → field**. Each level has its own set of keys. The sections below document every key at each level, whether it is required or optional, what it produces, and when to use it.
+
+---
+
+#### Level 1 — File (Task Rubric)
+
+The top-level keys define the task, global constraints, section groupings, and judge model configuration.
+
+```yaml
+metadata:                                  # (required) Task-level identity
+  name: "Call Contract Extraction"         # Human-readable name — stored in RunMetadata
+  version: "2.1"                           # Rubric version — part of eval_version composite key
+  task_type: json_extraction               # Drives the ClaimDecomposer strategy (see §6.1)
+  error_taxonomy: taxonomies/finance.yaml  # Path to error theme taxonomy; used in eval step generation
+
+global_rubrics:                            # (optional) Rules that apply to every field
+  - id: hallucination_guard                # Unique ID for this global rule
+    criteria: "No extracted value may introduce information absent from the transcript."
+    applies_to: all                        # 'all' | list of field_paths
+  - id: pii_guard
+    criteria: "No field may expose PII beyond what is stated in the source document."
+    applies_to: all
+    plugin: pii_detector                   # Load a specialized judge plugin for this rule
+
+sections:                                  # (required) Named groups of fields
+  <section_name>: ...                      # See Level 2
+
+judge_settings:                            # (required) Model routing and caching config
+  primary_judge:
+    provider: anthropic                    # 'anthropic' | 'openai' | 'ollama' | 'enterprise'
+    model: claude-sonnet-4-6
+    temperature: 0.0
+    prompt_cache: true                     # Enable provider-level prefix caching
+  cross_check_judge:                       # (optional) Used for pairwise and Tier 2 escalation
+    provider: openai
+    model: gpt-4o-2024-11-20
+    temperature: 0.0
+  escalation_threshold: 0.85              # Confidence below this → escalate to cross_check_judge
+  always_escalate_scenarios:              # These scenarios always use cross_check_judge
+    - golden_set
+    - migration
+  evaluation_steps_cache_ttl: 86400       # Seconds; regenerated on rubric version change
+  max_concurrent_field_evals: 10          # Async parallelism cap per evaluation request
+```
+
+**File-level field reference:**
+
+| Key | Required | Type | Produces |
+|---|---|---|---|
+| `metadata.name` | Yes | string | Stored in `RunMetadata.rubric_name` |
+| `metadata.version` | Yes | string | Used in `eval_version` composite key: `"rubric=contracts-v2.1,prompt=v3.4"` |
+| `metadata.task_type` | Yes | string | Routes to correct `ClaimDecomposer` strategy |
+| `metadata.error_taxonomy` | No | file path | Injected into `STEP_GENERATION_PROMPT`; drives `error_theme` assignment |
+| `global_rubrics` | No | list | Prepended to evaluation steps for every field in this rubric |
+| `global_rubrics[].plugin` | No | string | Loads a specialized judge plugin (e.g., PII detector, toxicity classifier) |
+| `sections` | Yes | dict | Defines all fields for evaluation |
+| `judge_settings.primary_judge` | Yes | dict | Default adapter for all Tier 1 calls |
+| `judge_settings.cross_check_judge` | No | dict | Adapter for Tier 2 and pairwise calls |
+| `judge_settings.escalation_threshold` | No | float (default 0.85) | Confidence floor below which Tier 1 escalates to Tier 2 |
+| `judge_settings.always_escalate_scenarios` | No | list | Scenarios that bypass Tier 1 entirely |
+| `judge_settings.evaluation_steps_cache_ttl` | No | int (seconds) | TTL for Redis eval-steps cache |
+| `judge_settings.max_concurrent_field_evals` | No | int | Parallelism cap for `asyncio.gather` in the pipeline |
+
+---
+
+#### Level 2 — Section
+
+A section groups related fields under a shared rubric context. The section `rubric` text is injected into every field's evaluation steps within it, providing the judge with the intent behind the group.
+
+```yaml
+sections:
+  contract:                                # Section name — used in field_path prefix
+    rubric: "Contract fields require exact figures. Unit normalization is an error."
+                                           # (optional) Section-level rubric text; injected
+                                           # into eval steps for all fields in this section
+    eval_mode: claim_level                 # (optional) 'claim_level' (default) | 'holistic' | 'both'
+    fields:                                # (required for claim_level / both) Field definitions
+      <field_name>: ...                    # See Level 3
+    rubric_scales:                         # (required for holistic / both) Graded metric dimensions
+      coherence:                           # Metric name → rubric_scores["coherence"] in HolisticResult
+        0.0: "Disjointed — ideas contradict or don't connect"
+        0.5: "Mostly coherent with minor structural gaps"
+        1.0: "Logical flow throughout"
+```
+
+**Section-level field reference:**
+
+| Key | Required | Type | Produces |
+|---|---|---|---|
+| `rubric` | No | string | Injected into `STEP_GENERATION_PROMPT` as section context; shapes evaluation steps for all fields in this section |
+| `eval_mode` | No | string (default `claim_level`) | Passed to `EvalModeRouter`; determines which pipeline path runs |
+| `fields` | Conditional | dict | Required when `eval_mode` is `claim_level` or `both`; each entry becomes a `Claim` |
+| `rubric_scales` | Conditional | dict | Required when `eval_mode` is `holistic` or `both`; each key becomes an entry in `HolisticResult.rubric_scores` |
+
+---
+
+#### Level 3 — Field
+
+A field is the atomic evaluation unit. Its keys define the acceptance criteria (what `is_correct` means for this field), any graded metrics, routing hints, and field-type-specific configuration.
+
+```yaml
+fields:
+  annual_value:                            # Field name — combined with section to form field_path
+    field_type: extractive                 # (required) 'extractive' | 'inferential' | 'classification' | 'free_form'
+    eval_mode: claim_level                 # (optional) Field-level override of section eval_mode
+    judge_tier: tier1                      # (optional) 'tier1' | 'tier2' — overrides DEFAULT_TIER
+
+    # ── Acceptance Criteria ─────────────────────────────────────────────────
+    criteria: "Total annual contract value in USD."
+                                           # (required for claim_level) The pass/fail rule.
+                                           # Drives is_correct verdict.
+    failure_condition: "Do not multiply monthly figures to annual."
+                                           # (recommended) Specific edge case → is_correct=False.
+                                           # Injected as an explicit check in evaluation steps.
+    expected_format: "Integer or decimal, no currency symbol"
+                                           # (optional) Format the value must conform to.
+                                           # Format mismatch → is_correct=False.
+    example_pass: "4000"                   # (recommended) Positive anchor in evaluation steps
+    example_fail: "48000"                  # (recommended) Negative anchor in evaluation steps
+    missing_rule: "If no value stated, is_missing=true, missing_severity='completely'."
+                                           # (optional) Condition under which is_missing=True.
+                                           # Also drives missing_severity: 'partially' | 'completely'.
+
+    # ── Evaluation Criteria (graded metrics) ────────────────────────────────
+    rubric_scales:                         # (optional) Named graded dimensions → rubric_scores dict
+      unit_clarity:                        # Metric name → rubric_scores["unit_clarity"]
+        0.0: "Amount stated with no period context"
+        0.5: "Period mentioned but ambiguous (e.g., 'about $4k')"
+        1.0: "Amount and period stated unambiguously"
+
+    # ── Classification-specific (field_type: classification only) ───────────
+    allowed_labels:                        # (required for classification) Label definitions
+      - label: positive
+        criteria: "Customer expresses satisfaction or explicit approval."
+        example: "Customer said 'That's exactly what I needed.'"
+      - label: negative
+        criteria: "Customer expresses frustration or complaint."
+        example: "Customer said 'This is unacceptable.'"
+      - label: neutral
+        criteria: "Transactional — no emotional language."
+        example: "Customer said 'OK, noted.'"
+    multi_label: false                     # (optional, default false) Allow multiple labels
+
+    # ── Advanced ────────────────────────────────────────────────────────────
+    cot_required: true                     # (optional) Force chain-of-thought even on Tier 1
+    plugin: toxicity_classifier            # (optional) Specialized judge plugin for this field
+```
+
+**Field-level key reference:**
+
+| Key | Required | Type | Applies to | Produces |
+|---|---|---|---|---|
+| `field_type` | Yes | string | All | Default tier routing; judge strategy selection |
+| `eval_mode` | No | string | All | Field-level `EvalModeRouter` override |
+| `judge_tier` | No | `tier1` \| `tier2` | All | Overrides `CascadingJudge.DEFAULT_TIER`; highest-priority routing signal |
+| `criteria` | Yes (claim_level) | string | All | Acceptance criterion; drives `is_correct` verdict |
+| `failure_condition` | Recommended | string | All | Explicit edge-case rule injected into evaluation steps; triggers `is_correct=False` |
+| `expected_format` | Recommended | string | Extractive | Format check in evaluation steps; format failure → `is_correct=False` |
+| `example_pass` | Recommended | string | All | Positive anchor in evaluation steps; reduces judge ambiguity |
+| `example_fail` | Recommended | string | All | Negative anchor in evaluation steps; reduces judge ambiguity |
+| `missing_rule` | No | string | All | Condition for `is_missing=True`; drives `missing_severity` (`"partially"` \| `"completely"`) |
+| `rubric_scales` | No | dict | All | Each key → `rubric_scores["key"]` float (0.0/0.5/1.0) in `ValidationObject` |
+| `rubric_scales.<name>.0.0` | Yes (if rubric_scales) | string | All | Anchor description for score 0.0 |
+| `rubric_scales.<name>.0.5` | No | string | All | Anchor description for score 0.5 (the partial state) |
+| `rubric_scales.<name>.1.0` | Yes (if rubric_scales) | string | All | Anchor description for score 1.0 |
+| `allowed_labels` | Yes (classification) | list | Classification | Injects label definitions into judge prompt; validates `actual_value` membership |
+| `allowed_labels[].label` | Yes | string | Classification | Label string; validated against `actual_value`; used in `corrected_value` |
+| `allowed_labels[].criteria` | Yes | string | Classification | Per-label acceptance rule shown in judge prompt |
+| `allowed_labels[].example` | Recommended | string | Classification | Per-label anchor; reduces label confusion |
+| `multi_label` | No | bool (default `false`) | Classification | If `true`, allows multiple labels; changes verdict logic to set-match |
+| `cot_required` | No | bool (default `false`) | All | Forces full CoT in Tier 1 prompt (normally only on Tier 2) |
+| `plugin` | No | string | All | Loads a specialized judge plugin before evaluation (e.g., PII, toxicity, domain-specific) |
+
+---
+
+#### What the Rubric Produces vs. What It Contains
+
+The rubric is the specification. It does not store verdicts or scores — those belong in the `ValidationObject` (claim-level path) or `HolisticResult` (holistic path). The table below makes the boundary explicit:
+
+| In the rubric | Produced by applying the rubric |
+|---|---|
+| `criteria`, `failure_condition` | `is_correct: bool` |
+| `missing_rule` | `is_missing: bool`, `missing_severity` |
+| `rubric_scales` (key names + anchors) | `rubric_scores: dict[str, float]` |
+| `example_pass`, `example_fail` | `corrected_value` (judge derives this) |
+| `error_taxonomy` (path) | `error_theme: str` |
+| `criteria` + `rubric_scales` + `global_rubrics` | `evaluation_steps: list[str]` (generated, not stored in rubric) |
 
 ---
 

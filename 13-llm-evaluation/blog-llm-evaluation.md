@@ -52,22 +52,9 @@
     - 11.5 [Context Window Collapse in Long Documents](#115-context-window-collapse-in-long-documents)
     - 11.6 [When to Trust Your Evaluator and When Not To](#116-when-to-trust-your-evaluator-and-when-not-to)
 12. [Building Your Own LLM Evaluation System](#12-building-your-own-llm-evaluation-system)
-    - 12.1 [Design Principles](#121-design-principles)
-    - 12.2 [The Validation Object: Core Data Model](#122-the-validation-object-core-data-model)
-    - 12.3 [Full System Architecture](#123-full-system-architecture)
-    - 12.4 [LLM-Agnostic Adapter Layer](#124-llm-agnostic-adapter-layer)
-    - 12.5 [YAML-Based Judge Configuration](#125-yaml-based-judge-configuration)
-    - 12.6 [The Evaluation Pipeline: Step by Step](#126-the-evaluation-pipeline-step-by-step)
-    - 12.7 [The Judge Prompt (with Structured Output)](#127-the-judge-prompt-with-structured-output)
-    - 12.8 [Field Type Strategy](#128-field-type-strategy)
-    - 12.9 [Evaluation Scenarios](#129-evaluation-scenarios)
-    - 12.10 [Prompt Caching Strategy](#1210-prompt-caching-strategy)
-    - 12.11 [Error Theme Extraction and Prompt Advisor](#1211-error-theme-extraction-and-prompt-advisor)
-    - 12.12 [Benchmarking Dashboard](#1212-benchmarking-dashboard)
-    - 12.13 [Observability](#1213-observability)
-    - 12.14 [Known Limitations](#1214-known-limitations)
-    - 12.15 [Production Deployment Checklist](#1215-production-deployment-checklist)
 13. [References](#13-references)
+
+> **New**: Section 6 now includes [§6.1 Per-Framework Limitations](#61-per-framework-advantages-and-real-world-limitations) and [§6.2 Universal Blind Spots and How a Purpose-Built System Addresses Them](#62-universal-blind-spots-and-how-a-purpose-built-system-addresses-them) — sourced from practitioner community reports, GitHub issues, and independent benchmarks (2024–2025).
 
 ---
 
@@ -762,6 +749,153 @@ EvidentlyAI started as an ML monitoring platform for data drift and model qualit
 | **Real-world Users** | 150k+ developers, CI/CD pipelines at AI startups | 156 Fortune 500 companies (security testing); OpenAI internal | Most LangChain-based production deployments | ML teams at companies with existing Evidently monitoring |
 
 > 🎯 **Interview prep**: "Which LLM eval framework would you use?" — The key answer is: DeepEval for RAG quality evaluation in CI/CD; Promptfoo when you need to compare multiple models/prompts in a YAML-first workflow or when security testing matters; LangSmith when you're on LangChain and need production tracing; EvidentlyAI when you have existing ML monitoring and need to extend it to LLMs. They're not mutually exclusive — many teams use DeepEval offline + LangSmith in production.
+
+---
+
+### 6.1 Per-Framework: Advantages and Real-World Limitations
+
+The comparison table above shows what each framework does. This section examines what each framework *cannot* do — the specific limitations practitioners hit in production, drawn from GitHub issues, practitioner blog posts, and independent benchmarks (2024–2025).
+
+#### DeepEval
+
+**Advantages**
+- Broadest metric library in OSS: 50+ metrics covering RAG, agents, multi-turn, safety, and multimodal
+- Native pytest integration — evaluations run alongside unit tests in CI without a new paradigm
+- Multi-provider judge support: OpenAI, Anthropic, HuggingFace, local models via custom wrapper
+- DAG (Directed Acyclic Graph) scoring for multi-step agent evaluation
+
+**Limitations**
+- **Commercial platform lock-in for production features**: All regression tracking, shared dashboards, and live traffic monitoring live behind the Confident AI paid platform. The OSS layer produces only terminal output or JSON files — teams must build their own storage or pay.
+- **No production traffic evaluation in OSS tier**: No live traffic sampling or quality drift detection without the cloud add-on. Production failures cannot automatically become regression test cases.
+- **JSON output fragility**: Custom judges raise `ValueError: invalid JSON` when smaller models produce near-valid JSON (trailing commas, missing quotes) — known GitHub Issue pattern (#1610, #1149). Downstream metrics are silently dropped when judge output is malformed.
+- **Context scoring inconsistency**: Independent benchmarks show DeepEval scores golden contexts at a mean of 0.46 vs 0.82–0.91 for equivalent tools, signaling unreliable context quality discrimination ([Atlan Framework Comparison, 2024](https://atlan.com/know/llm-evaluation-frameworks-compared/)).
+- **No claim-level attribution**: A failing evaluation produces a score with reasoning but no indication of *which specific field or sentence* caused the failure. Debugging is always at the response level.
+
+---
+
+#### Promptfoo
+
+**Advantages**
+- Fastest setup: zero-configuration YAML tests, MIT-licensed, 51k+ developers
+- Best multi-model comparison: same prompt across GPT-4, Claude, Llama in one run
+- Most comprehensive automated red-teaming and security testing of any OSS eval tool
+- CLI-first workflow integrates with any CI/CD system without Python
+
+**Limitations**
+- **SQLite backend marked experimental**: Self-hosted deployments use SQLite, explicitly documented as "not recommended for production use." No horizontal scaling path exists ([Galileo vs Promptfoo, 2024](https://galileo.ai/blog/galileo-vs-promptfoo)).
+- **Throughput ceiling of ~11 tests/minute**: At ~5.4 seconds per test, real-time or high-volume production monitoring is infeasible.
+- **No runtime production safety**: Cannot scan live prompt/response pairs or block harmful outputs pre-exposure — architecture is strictly development-time.
+- **YAML complexity wall**: Test suites with hundreds of cases across multiple prompts become unmanageable files with no UI for browsing, annotating, or refactoring.
+- **No claim-level granularity**: Evaluations score at the response level — no mechanism to identify which specific claim caused a failure, making iterative prompt improvement imprecise.
+
+---
+
+#### LangSmith
+
+**Advantages**
+- Best production observability for LangChain: captures full execution graphs with latency and token counts per step
+- Annotation queues let non-engineers review and label outputs without writing code
+- Debugging advantage: trace trees show exactly which retrieval returned bad context or which LLM call produced a hallucination
+- Built-in safety and bias testing as first-class evaluation modes
+
+**Limitations**
+- **LangChain ecosystem dependency**: Evaluation depth drops significantly outside LangChain/LangGraph. Custom tracing wrappers exist, but evaluations become shallow.
+- **Cost escalation at production scale**: Per-trace pricing auto-upgrades annotated traces to an "extended tier." High-volume teams report monthly bills in the thousands with 400-day default data retention ([ZenML: LangSmith Alternatives, 2024](https://www.zenml.io/blog/langsmith-alternatives)).
+- **No custom rubrics at OSS tier**: Every evaluation cycle requires an engineer to configure evaluators; non-technical stakeholders cannot trigger evaluations independently.
+- **Data governance friction**: Cloud-managed only; self-hosted requires an Enterprise sales engagement — creates GDPR/HIPAA barriers for regulated industries.
+- **No closed-loop prompt improvement**: Tracing surfaces failures but has no built-in mechanism to convert observed error patterns into suggested prompt changes.
+
+---
+
+#### EvidentlyAI
+
+**Advantages**
+- Best at bridging classical ML monitoring (data drift, feature drift) with LLM quality metrics in one stack
+- "Descriptor" concept enables cheap deterministic pre-checks (text length, valid JSON, profanity) before expensive judge calls
+- HTML reports shareable with non-technical stakeholders without any code
+- Open-source core with no licensing cost for basic monitoring
+
+**Limitations**
+- **Weak native RAG metrics**: No built-in faithfulness, context precision, or context recall. Ranking metrics (NDCG, MRR) must be exported and computed externally ([EvidentlyAI RAG Blog, 2024](https://www.evidentlyai.com/blog/open-source-rag-evaluation-tool)).
+- **No multi-model prompt comparison**: Documentation explicitly acknowledges "we're working on testing prompts across different models" — unshipped as of 2025.
+- **Ground truth bottleneck**: Acknowledges that labeled references are often unavailable without providing a solved reference-free RAG evaluation path.
+- **No prompt improvement loop**: Evaluation is purely observational — failures appear on dashboards but nothing converts them to actionable prompt edits.
+- **Multi-step setup complexity for RAG**: Requires manually orchestrating synthetic data generation, chunk scoring, and aggregation; no turnkey RAG pipeline.
+
+---
+
+#### G-Eval (algorithmic approach — [Liu et al., 2023](https://arxiv.org/abs/2303.16634))
+
+**Advantages**
+- Chain-of-thought before scoring substantially improves alignment with human judgment vs naive prompting
+- Log-probability weighting of token scores produces continuous scores better than raw integer ratings
+- Fully customizable criteria in natural language — no retraining required
+- No reference answers required — evaluates open-ended generations
+
+**Limitations**
+- **Position bias**: GPT-4 as judge prefers whichever response appears first in the prompt. Vicuna's measured win-rate over ChatGPT ranged from 2.5% to 82.5% purely from ordering ([Liu et al., 2023](https://arxiv.org/abs/2303.16634); [Ko et al., 2024](https://arxiv.org/abs/2406.07791)).
+- **Verbosity bias**: Judges inflate scores for longer responses regardless of quality — proprietary LLMs systematically prefer lengthier outputs ([Cameron Wolfe, 2024](https://cameronrwolfe.substack.com/p/llm-as-a-judge)).
+- **Self-enhancement bias**: GPT-4 preferred GPT-4-generated responses in 87.76% of comparisons vs 47.61% for human evaluators ([Panickssery et al., 2024](https://arxiv.org/abs/2404.13076)). Evaluating your own model with the same model family is compromised.
+- **Score clustering**: Even with log-prob weighting, outputs cluster around a single score (e.g., 3 on a 1–4 scale), reducing discriminative power between good and mediocre outputs.
+- **Prompt sensitivity**: Small changes in the evaluation prompt produce meaningfully different scores — evaluations are not reproducible across prompt rewrites.
+
+---
+
+#### RAGAS (algorithmic approach — [Es et al., 2023](https://arxiv.org/abs/2309.15217))
+
+**Advantages**
+- Purpose-built for RAG: 8 core metrics each grounded in published methodology
+- Reference-free by default — no labeled golden set required for most metrics
+- Lightweight Python library; fastest RAG evaluation on-ramp
+- Processes 5M+ evaluations monthly; widely integrated with LlamaIndex and LangChain
+
+**Limitations**
+- **Faithfulness metric unreliability**: Uses strict logical entailment — penalizes claims that are factually true in reality but absent from retrieved context; accepts claims supported by partial context (e.g., "Sam Altman founded OpenAI" passes faithfulness even when the context lists multiple co-founders) ([arXiv 2407.12873](https://arxiv.org/pdf/2407.12873)).
+- **Opaque verdict**: A low faithfulness score gives no signal on which specific claim failed or which retrieved chunk was the culprit. No claim-level breakdown.
+- **RAG-only scope**: No non-RAG evaluation metrics — unusable for general LLM quality, agent evaluation, or safety scoring.
+- **No observability**: No tracing, no CI/CD integration, no production monitoring — strictly offline batch evaluation.
+- **Cannot validate source quality**: A system can score 0.95 faithfulness while producing wrong business answers if retrieved content is stale or incorrect — faithfulness only measures consistency with the retrieved chunks, not real-world correctness.
+
+---
+
+#### Prometheus (open-source judge — [Kim et al., ICLR 2024](https://arxiv.org/abs/2310.08491))
+
+**Advantages**
+- Fully open-source 13B judge: no API costs, reproducible evaluations, on-par with GPT-4 on rubric evaluation (Pearson r = 0.897 vs GPT-4's 0.882 across 45 rubrics)
+- Prometheus 2 (8×7B) runs on 16GB VRAM consumer hardware
+- ~10× cheaper than GPT-4 as judge: ~$1.50 per evaluation vs ~$15
+- Supports user-defined score rubrics without retraining
+
+**Limitations**
+- **Hard reference dependency**: Requires both a reference answer and a score rubric to be provided. Without these, quality degrades significantly — unsuitable for reference-free or open-ended evaluation.
+- **RAG-specific failure**: LlamaIndex benchmarks show Prometheus at 0.39 faithfulness / 0.57 relevancy vs GPT-4 at 0.93 / 0.98 — only 42–59% alignment with GPT-4 on RAG judgment tasks ([LlamaIndex Showdown, 2024](https://www.llamaindex.ai/blog/llamaindex-rag-evaluation-showdown-with-gpt-4-vs-open-source-prometheus-model-14cdca608277)).
+- **Hallucinations in feedback text**: Generates wrong or contradictory reasoning — claims information is absent from context when it is present, undermining trust in its explanations.
+- **Overly punitive scoring**: Penalizes answers for omitting reference-answer details more aggressively than GPT-4, producing stricter-than-human scores.
+- **Context misinterpretation at scale**: Struggles with complex multi-hop retrieval scenarios where multiple context chunks need to be integrated.
+
+---
+
+### 6.2 Universal Blind Spots and How a Purpose-Built System Addresses Them
+
+Switching frameworks does not fix these gaps — they require a different architectural approach. The custom design in [`design-llm-evaluation-system.md`](./design-llm-evaluation-system.md) targets each one directly.
+
+| Gap | Frameworks with This Gap | How the Custom Design Resolves It |
+|---|---|---|
+| **No claim-level failure attribution** — evaluations score whole responses; no indication of which field/sentence caused a failure | All (DeepEval, Promptfoo, LangSmith, EvidentlyAI, RAGAS) | `ValidationObject` per field/claim is the fundamental unit. Every failure is attributed to a specific `field_path` with verbatim evidence quotes and `error_detail`. |
+| **No production traffic sampling in OSS** — live evaluation requires paid tiers or custom infra | DeepEval (OSS), Promptfoo, G-Eval/RAGAS | Production Sampler (configurable %, default 5%) is a first-class submission mode in the Submission Layer — no tier upgrade needed. |
+| **No closed-loop prompt improvement** — failures appear on dashboards but nothing converts them to prompt changes | All | Error Theme Aggregator → Pattern Finder → Prompt Advisor → HITL governance. Accepted changes are versioned; new `ValidationObject` records immediately accumulate under the new prompt version. |
+| **Provider / ecosystem lock-in** | LangSmith (LangChain), DeepEval (Confident AI) | LLM-agnostic adapter layer: judge and generator can be any provider (OpenAI, Anthropic, Enterprise GW, OLLAMA, llama-cpp) behind a single interface. |
+| **Position bias in pairwise evaluation** | G-Eval, all pairwise judges | Both orderings evaluated (A vs B and B vs A). Disagreements are flagged as `winner: inconclusive, bias_detected: True` rather than silently picking one. |
+| **Verbosity bias** | G-Eval, all LLM judges | Explicit length rubric in YAML; `output_tokens` tracked per ValidationObject; Tokens column in the 9-metric leaderboard; `is_correct` vs `output_tokens` correlation tracked in dashboard. |
+| **Self-enhancement bias** | G-Eval, any same-family judge | Cross-family judge by design: the `cross_check_judge` in the YAML config is always a different provider family than the generator under evaluation. |
+| **Evidence hallucination in judge output** | All LLM-as-judge approaches | Post-validation step: every `evidence.text` substring is verified as an exact match inside `context` before the ValidationObject is persisted. A judge that fabricates quotes is caught at this gate. |
+| **Rubric drift** — rubric edits silently change scores without changing model quality | All rubric-based approaches | `rubric_version` stored on every `ValidationObject`. Rollup Tester validates taxonomy integrity before writing metrics. Dual-territory dashboard supports before/after rubric version comparisons. |
+| **Data governance / cloud lock-in** | LangSmith (cloud-only OSS), DeepEval (Confident AI) | Fully self-hosted: PostgreSQL result store, Redis caches, OTel spans — all under your own infrastructure. No data leaves your perimeter. |
+| **Opaque aggregate scores** | RAGAS, G-Eval, DeepEval | 9-metric leaderboard (Precision, Recall, F1, Completeness, Helpfulness, Cost, Latency, Tokens, Judge Eval) plus per-field heatmap. Every aggregate is decomposable to the individual claim level. |
+| **Faithfulness metric unreliability** | RAGAS | Per-claim binary verdict with verbatim evidence post-validation. The judge must cite an exact quote that exists in context — not assert logical entailment. |
+| **Schema evolution risk** — prompt or schema changes break extraction quality silently | All | Schema Evolution support: judge evaluates new schema against old before rollout. Blocks regressions at the field level, not just at the aggregate score level. |
+
+> 🎯 **Interview prep**: "What's missing from today's open-source LLM eval frameworks?" — Claim-level failure attribution, closed-loop prompt improvement, cross-provider judge support with bias mitigation, and production traffic sampling without vendor lock-in. No single OSS framework solves all four. That's the architectural gap the custom system fills.
 
 ---
 
@@ -1534,1002 +1668,23 @@ Is the judgment highly subjective (tone, style, "good writing")?
 
 ## 12. Building Your Own LLM Evaluation System
 
-Every framework surveyed in this blog makes implicit assumptions that break for specialized use cases: DeepEval assumes your output is a single string, Promptfoo is optimized for prompt regression testing, LangSmith ties you to the LangChain ecosystem. If you're building a production system that evaluates JSON-extracting LLMs across model providers, handles model migrations, and runs continuously in production, you need a system you own end-to-end. This section is the architecture for that system — designed to be task-agnostic, LLM-agnostic, and built around a single core bet: **convert any LLM output into atomic, independently verifiable claims, then evaluate each claim separately with chain-of-thought reasoning**.
+Every framework surveyed in this blog makes implicit assumptions that break for specialized use cases: DeepEval assumes your output is a single string, Promptfoo is optimized for prompt regression testing, LangSmith ties you to the LangChain ecosystem. When none of them fit, you need a system you own end-to-end.
 
-### 12.1 Design Principles
+The complete architecture for that system — covering design principles, the Validation Object data model, YAML-based judge configuration, LLM-agnostic adapters, the full evaluation pipeline, field type routing, prompt caching, error theme extraction, Pattern Finder, Human-in-the-Loop governance, Report Rollup, the 9-metric benchmarking dashboard, observability, and a production deployment checklist — is documented in a dedicated design document:
 
-Before diving into components, the non-negotiable constraints that drive every decision:
+**[design-llm-evaluation-system.md](./design-llm-evaluation-system.md)**
 
-1. **Task-agnostic**: The same pipeline must handle summary evaluation, JSON extraction, chatbot responses, RAG, and agentic AI — without bespoke code per task type.
-2. **LLM-agnostic**: The judge and the system under test can be any provider — OpenAI, Anthropic, Enterprise Gateway (Azure AI, AWS Bedrock), OLLAMA, llama-cpp. No vendor lock-in at any layer.
-3. **Claim-level granularity**: Evaluation happens at the level of atomic claims, not at the level of the full response. A "score of 3.4 overall" is not actionable. "Claim 7 is incorrect because the context states Q3 revenue was $4.2M but the extraction says $4.8M" is.
-4. **Rubric-driven, not metric-driven**: Users define rubrics in YAML (per field, per section, or globally). The system generates evaluation steps from those rubrics. New criteria (harmfulness, instruction-following, tone) are plugins, not code changes.
-5. **Async by default**: Never in the request path. Evaluation is a background concern.
-6. **Prompt caching everywhere**: The most expensive repeated computation in this system is the judge LLM call. Evaluation steps generated from rubrics, system prompts, and static context should be cached aggressively.
+The design is built around one core bet: **convert any LLM output into atomic, independently verifiable claims, then evaluate each claim separately with chain-of-thought reasoning and rubric-driven criteria defined in YAML**. Key architectural commitments:
 
----
-
-### 12.2 The Validation Object: Core Data Model
-
-The fundamental unit of this system is the **Validation Object** — one per field in the JSON being evaluated, or one per atomic claim extracted from free-form text. Every downstream feature (error dashboards, prompt advisor, model comparisons) is built on aggregations of these objects.
-
-```python
-from enum import Enum
-from typing import Optional
-from pydantic import BaseModel
-
-class MissingInfoStatus(str, Enum):
-    NOT_MISSING    = "not_missing"
-    PARTIALLY_MISSING = "partially_missing"
-    COMPLETELY_MISSING = "completely_missing"
-
-class Evidence(BaseModel):
-    text: str          # Verbatim quote from the context that supports the judgment
-    location: str      # Where in the context: "paragraph 2", "line 14", "call turn 3"
-    supports: bool     # True = evidence supports is_correct=True; False = contradicts
-
-class ValidationObject(BaseModel):
-    # --- Identity ---
-    field_path: str            # e.g. "customer.account_number" or "summary.claim[3]"
-    field_type: str            # "extractive" | "inferential" | "free_form"
-    actual_value: Optional[str]  # What the LLM extracted/generated for this field
-
-    # --- Evaluation reasoning ---
-    evaluation_steps: list[str]   # Chain-of-thought steps executed by judge
-    evidence: list[Evidence]       # Verbatim quotes from context, with location + polarity
-
-    # --- Verdict ---
-    is_correct: bool               # True/False based on rubric
-    missing_info: MissingInfoStatus
-    confidence: float              # 0.0–1.0, derived from judge token logprobs if available
-
-    # --- Error classification ---
-    error_theme: Optional[str]     # From user-supplied error taxonomy; null if is_correct=True
-    error_detail: Optional[str]    # One-sentence description of the specific error
-
-    # --- Metadata ---
-    rubric_version: str
-    judge_model: str
-    latency_ms: int
-    cached: bool                   # Was this result served from cache?
-```
-
-**A concrete example** — evaluating a JSON extraction from a call transcript:
-
-```json
-{
-  "field_path": "contract.renewal_date",
-  "field_type": "extractive",
-  "actual_value": "2025-03-15",
-
-  "evaluation_steps": [
-    "1. Search the transcript for any mention of contract renewal, renewal date, or contract end date.",
-    "2. Identify the exact date or date range stated by the customer or agent.",
-    "3. Verify whether the extracted value matches that date exactly (format-normalized).",
-    "4. If no date is mentioned, mark as completely_missing.",
-    "5. If a date range is mentioned but a single date was extracted, mark as partially_missing."
-  ],
-  "evidence": [
-    {
-      "text": "Agent: 'Your renewal comes up on March 15th of next year.'",
-      "location": "call turn 7",
-      "supports": true
-    }
-  ],
-
-  "is_correct": true,
-  "missing_info": "not_missing",
-  "confidence": 0.94,
-
-  "error_theme": null,
-  "error_detail": null,
-
-  "rubric_version": "contracts-v2.1",
-  "judge_model": "claude-sonnet-4-6",
-  "latency_ms": 820,
-  "cached": false
-}
-```
-
-**A failing example** — wrong value extracted:
-
-```json
-{
-  "field_path": "contract.annual_value",
-  "field_type": "extractive",
-  "actual_value": "48000",
-
-  "evaluation_steps": [
-    "1. Search transcript for mentions of contract value, annual fee, or pricing.",
-    "2. Identify the stated amount and currency.",
-    "3. Check whether the extraction matches the stated amount exactly.",
-    "4. Note any unit ambiguity (monthly vs annual, pre-tax vs post-tax)."
-  ],
-  "evidence": [
-    {
-      "text": "Customer: 'We're paying four thousand a month under the current deal.'",
-      "location": "call turn 12",
-      "supports": false
-    }
-  ],
-
-  "is_correct": false,
-  "missing_info": "not_missing",
-  "confidence": 0.91,
-
-  "error_theme": "unit_confusion",
-  "error_detail": "Extracted annual value $48,000 appears to be monthly fee $4,000 × 12. Context states monthly, not annual.",
-
-  "rubric_version": "contracts-v2.1",
-  "judge_model": "claude-sonnet-4-6",
-  "latency_ms": 1140,
-  "cached": false
-}
-```
-
-> 🏭 **Production note**: The `error_theme` field is only as good as the taxonomy you give the judge. Maintain a shared error taxonomy YAML (e.g., `unit_confusion`, `hallucinated_entity`, `scope_mismatch`, `format_error`, `temporal_confusion`) and pass it in every judge call. This turns unstructured failure logs into structured, queryable signal for your prompt advisor.
-
----
-
-### 12.3 Full System Architecture
-
-```
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                              SUBMISSION LAYER                                     │
-│                                                                                   │
-│   Dev CI/CD Gate          Production Sampler          Manual / UI Submission      │
-│   (on every PR)           (5% of live traffic)        (golden set labeling)       │
-└───────────────────────────────────┬──────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                           EVALUATION REQUEST                                      │
-│                                                                                   │
-│  {                                                                                │
-│    task_type:    "json_extraction" | "summary" | "rag" | "chat" | "agent"        │
-│    llm_output:   <raw LLM response>                                               │
-│    context:      <source document / transcript / retrieved chunks>                │
-│    reference:    <optional golden answer>                                         │
-│    judge_config: "contracts-v2.1.yaml"    ← points to rubric YAML                │
-│    scenario:     "dev" | "prod" | "migration" | "pairwise"                       │
-│    model_meta:   { provider, model_id, prompt_version, temperature }             │
-│  }                                                                                │
-└───────────────────────────────────┬──────────────────────────────────────────────┘
-                                    │
-                    ┌───────────────▼────────────────┐
-                    │      PRE-VALIDATION CHECKS      │
-                    │  (deterministic, synchronous)   │
-                    │                                 │
-                    │  ✓ Schema validation            │
-                    │  ✓ Output length bounds         │
-                    │  ✓ Required fields present      │
-                    │  ✓ Encoding / format check      │
-                    │  ✓ Context length within limits │
-                    └───────────────┬────────────────┘
-                                    │
-                    ┌───────────────▼────────────────┐
-                    │    CLAIM DECOMPOSITION ENGINE   │
-                    │                                 │
-                    │  JSON output  → per-field       │
-                    │  Free-form    → atomic claims   │
-                    │  RAG output   → claim list      │
-                    │  Agent output → action trace    │
-                    └───────────────┬────────────────┘
-                                    │
-                    ┌───────────────▼────────────────┐
-                    │    FIELD TYPE CLASSIFIER        │
-                    │                                 │
-                    │  extractive  → exact match      │
-                    │              + evidence lookup  │
-                    │  inferential → CoT reasoning    │
-                    │  free_form   → rubric scoring   │
-                    └───────────────┬────────────────┘
-                                    │
-                    ┌───────────────▼────────────────┐
-                    │   EVAL STEP GENERATOR           │
-                    │   (cached per criteria+version) │
-                    │                                 │
-                    │  criteria → LLM call →          │
-                    │  numbered evaluation steps      │
-                    │  (G-Eval Improvement 1)         │
-                    └───────────────┬────────────────┘
-                                    │
-               ┌────────────────────┼────────────────────┐
-               │                    │                    │
-   ┌───────────▼──────┐  ┌─────────▼──────┐  ┌─────────▼──────────┐
-   │  JUDGE POOL      │  │  JUDGE POOL     │  │  JUDGE POOL        │
-   │  Primary Judge   │  │  Cross-check    │  │  Specialized       │
-   │                  │  │  (pairwise /    │  │  (harmfulness,     │
-   │  - OpenAI GPT    │  │   ensemble)     │  │   code validity,   │
-   │  - Anthropic     │  │                 │  │   factcheck)       │
-   │  - Enterprise GW │  │  Anti-bias:     │  │                    │
-   │  - OLLAMA        │  │  swap order,    │  │  Pluggable via     │
-   │  - llama-cpp     │  │  cross-family   │  │  criteria YAML     │
-   └───────────┬──────┘  └─────────┬──────┘  └─────────┬──────────┘
-               │                    │                    │
-               └────────────────────┴────────────────────┘
-                                    │
-                    ┌───────────────▼────────────────┐
-                    │     POST-VALIDATION CHECKS      │
-                    │                                 │
-                    │  ✓ Judge output schema valid    │
-                    │  ✓ Score within expected range  │
-                    │  ✓ Evidence quotes exist in ctx │
-                    │  ✓ Reasoning non-empty          │
-                    └───────────────┬────────────────┘
-                                    │
-                    ┌───────────────▼────────────────┐
-                    │   VALIDATION OBJECT ASSEMBLER   │
-                    │                                 │
-                    │  Merges judge output into       │
-                    │  ValidationObject per field     │
-                    │  Attaches error_theme from      │
-                    │  user taxonomy                  │
-                    └───────────────┬────────────────┘
-                                    │
-          ┌─────────────────────────┼──────────────────────────┐
-          │                         │                          │
-┌─────────▼──────┐      ┌──────────▼──────────┐    ┌─────────▼──────────┐
-│  RESULT STORE  │      │  ASYNC QUEUE         │    │  PROMPT CACHE      │
-│  (PostgreSQL)  │      │  (Redis / SQS)       │    │  (Redis)           │
-│                │      │                      │    │                    │
-│  ValidationObj │      │  Error theme batch   │    │  eval_steps cache  │
-│  + run metadata│      │  Pattern scoring     │    │  (criteria_hash →  │
-│  + model_meta  │      │  Prompt advisor      │    │   steps[])         │
-│  Versioned     │      │  Alert engine        │    │  judge_result cache│
-└────────────────┘      └──────────────────────┘    └────────────────────┘
-          │
-          ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                          ANALYTICS LAYER                                 │
-│                                                                          │
-│  Benchmarking Dashboard    Error Theme Dashboard    Prompt Advisor       │
-│  (per model/provider)      (batch pattern mining)   (fix suggestions)    │
-│                                                                          │
-│  Observability: OpenTelemetry traces + spans for every judge call        │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-### 12.4 LLM-Agnostic Adapter Layer
-
-The system under evaluation and the judge model may come from completely different providers. The adapter layer wraps every provider behind a single interface, so the evaluation pipeline never imports `openai` or `anthropic` directly.
-
-```python
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-
-@dataclass
-class LLMResponse:
-    text: str
-    logprobs: dict[str, float] | None  # token → probability; None if provider doesn't support
-    input_tokens: int
-    output_tokens: int
-    latency_ms: int
-    model_id: str
-    provider: str
-
-class LLMAdapter(ABC):
-    @abstractmethod
-    async def complete(
-        self,
-        messages: list[dict],
-        temperature: float = 0.0,
-        max_tokens: int = 2048,
-        top_logprobs: int = 5,        # For G-Eval probability weighting
-        cache_control: bool = True,   # Enable prompt caching where supported
-    ) -> LLMResponse:
-        ...
-
-# ── OpenAI ────────────────────────────────────────────────────────────────
-class OpenAIAdapter(LLMAdapter):
-    def __init__(self, model: str = "gpt-4o-2024-11-20"):
-        from openai import AsyncOpenAI
-        self.client = AsyncOpenAI()
-        self.model = model
-
-    async def complete(self, messages, temperature=0.0, max_tokens=2048,
-                       top_logprobs=5, cache_control=True) -> LLMResponse:
-        import time; t0 = time.monotonic()
-        resp = await self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            logprobs=True,
-            top_logprobs=top_logprobs,
-        )
-        logprobs = {
-            tok.token: tok.logprob
-            for tok in (resp.choices[0].logprobs.content[0].top_logprobs or [])
-        }
-        return LLMResponse(
-            text=resp.choices[0].message.content,
-            logprobs=logprobs,
-            input_tokens=resp.usage.prompt_tokens,
-            output_tokens=resp.usage.completion_tokens,
-            latency_ms=int((time.monotonic() - t0) * 1000),
-            model_id=self.model,
-            provider="openai",
-        )
-
-# ── Anthropic ─────────────────────────────────────────────────────────────
-class AnthropicAdapter(LLMAdapter):
-    def __init__(self, model: str = "claude-sonnet-4-6"):
-        import anthropic
-        self.client = anthropic.AsyncAnthropic()
-        self.model = model
-
-    async def complete(self, messages, temperature=0.0, max_tokens=2048,
-                       top_logprobs=5, cache_control=True) -> LLMResponse:
-        import anthropic, time; t0 = time.monotonic()
-        # Inject prompt cache control on large static blocks
-        if cache_control and messages and len(messages[0].get("content", "")) > 1024:
-            messages[0]["content"] = [
-                {"type": "text", "text": messages[0]["content"],
-                 "cache_control": {"type": "ephemeral"}}
-            ]
-        resp = await self.client.messages.create(
-            model=self.model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            messages=messages,
-        )
-        # Anthropic doesn't expose logprobs — fall back to sampling for G-Eval
-        return LLMResponse(
-            text=resp.content[0].text,
-            logprobs=None,
-            input_tokens=resp.usage.input_tokens,
-            output_tokens=resp.usage.output_tokens,
-            latency_ms=int((time.monotonic() - t0) * 1000),
-            model_id=self.model,
-            provider="anthropic",
-        )
-
-# ── OLLAMA (local) ─────────────────────────────────────────────────────────
-class OLLAMAAdapter(LLMAdapter):
-    def __init__(self, model: str, base_url: str = "http://localhost:11434"):
-        import httpx
-        self.client = httpx.AsyncClient(base_url=base_url, timeout=120)
-        self.model = model
-
-    async def complete(self, messages, temperature=0.0, max_tokens=2048,
-                       top_logprobs=5, cache_control=True) -> LLMResponse:
-        import time; t0 = time.monotonic()
-        resp = await self.client.post("/api/chat", json={
-            "model": self.model,
-            "messages": messages,
-            "options": {"temperature": temperature, "num_predict": max_tokens},
-            "stream": False,
-        })
-        data = resp.json()
-        return LLMResponse(
-            text=data["message"]["content"],
-            logprobs=None,
-            input_tokens=data.get("prompt_eval_count", 0),
-            output_tokens=data.get("eval_count", 0),
-            latency_ms=int((time.monotonic() - t0) * 1000),
-            model_id=self.model,
-            provider="ollama",
-        )
-
-# ── Factory ────────────────────────────────────────────────────────────────
-def get_adapter(provider: str, model: str, **kwargs) -> LLMAdapter:
-    return {
-        "openai":      lambda: OpenAIAdapter(model),
-        "anthropic":   lambda: AnthropicAdapter(model),
-        "ollama":      lambda: OLLAMAAdapter(model, **kwargs),
-        "llama_cpp":   lambda: LlamaCppAdapter(model, **kwargs),   # similar pattern
-        "enterprise":  lambda: EnterpriseGatewayAdapter(model, **kwargs),
-    }[provider]()
-```
-
----
-
-### 12.5 YAML-Based Judge Configuration
-
-Every evaluation task is defined in a YAML file. The pipeline reads this YAML, generates evaluation steps per criterion (cached), and routes each field to the appropriate judge strategy. This keeps the code path identical across tasks — only the YAML changes.
-
-```yaml
-# judge-configs/call-contract-extraction-v2.yaml
-
-metadata:
-  name: "Call Contract Extraction Evaluator"
-  version: "2.1"
-  task_type: json_extraction
-  error_taxonomy: taxonomies/finance-errors.yaml   # user-supplied
-
-global_rubrics:
-  - id: hallucination_guard
-    criteria: "No extracted value should introduce information absent from the transcript."
-    applies_to: all
-  - id: harmful_content
-    criteria: "No extracted field should contain or expose PII beyond what is in the transcript."
-    applies_to: all
-    plugin: harmfulness_detector   # loads specialized judge plugin
-
-sections:
-  customer:
-    rubric: "Customer fields must match verbatim statements in the transcript. Do not infer."
-    fields:
-      account_number:
-        field_type: extractive
-        criteria: "Must be a 10-digit numeric string matching the account number stated by agent or customer."
-        missing_info_rule: "If no account number is stated, mark completely_missing."
-      customer_name:
-        field_type: extractive
-        criteria: "Full name as stated; do not expand abbreviations or correct spelling."
-
-  contract:
-    rubric: "Contract fields require exact figures. Unit normalization (monthly→annual) is an error."
-    fields:
-      renewal_date:
-        field_type: extractive
-        criteria: "ISO 8601 date. If transcript states month and year only, mark partially_missing."
-      annual_value:
-        field_type: extractive
-        criteria: "Total annual contract value in USD. If stated as monthly, do not multiply — mark as unit_ambiguous."
-      sentiment_summary:
-        field_type: free_form
-        criteria: "2-3 sentence summary of customer sentiment. Must cite specific statements."
-        judge_strategy: rubric_scoring   # G-Eval style 1–5
-        rubric_scale:
-          1: "Generic or inaccurate — does not reflect actual sentiment expressed"
-          3: "Mostly accurate but misses key emotional signals"
-          5: "Precisely captures sentiment with direct evidence from transcript"
-
-  risk_flags:
-    rubric: "Risk flags require explicit evidence. Absence of mention means not_flagged, not missing."
-    fields:
-      churn_risk:
-        field_type: inferential
-        criteria: "True only if customer explicitly threatened to cancel or expressed strong dissatisfaction."
-        cot_required: true
-        missing_info_rule: "If no churn signal present, mark not_missing and is_correct=true with value=false."
-
-judge_settings:
-  primary_judge:
-    provider: anthropic
-    model: claude-sonnet-4-6
-    temperature: 0.0
-    prompt_cache: true
-  cross_check_judge:             # Used for pairwise and high-stakes fields
-    provider: openai
-    model: gpt-4o-2024-11-20
-    temperature: 0.0
-  evaluation_steps_cache_ttl: 86400   # 24h; regenerate daily or on rubric change
-  max_concurrent_field_evals: 10
-```
-
----
-
-### 12.6 The Evaluation Pipeline: Step by Step
-
-The pipeline for a single evaluation request runs these stages in order. Stages 1–2 are synchronous and fast. Stage 3 onward is async and parallelized per field.
-
-```python
-import asyncio, hashlib, json
-from typing import Any
-
-class EvaluationPipeline:
-
-    async def evaluate(self, request: EvalRequest) -> EvalResult:
-
-        # ── Stage 1: Pre-validation ───────────────────────────────────────
-        self.pre_validate(request)   # schema, lengths, encoding — raises on failure
-
-        # ── Stage 2: Claim decomposition ─────────────────────────────────
-        claims = self.decomposer.decompose(
-            task_type=request.task_type,
-            llm_output=request.llm_output,
-        )
-        # JSON extraction → one Claim per field_path
-        # Free-form text  → one Claim per atomic sentence/assertion
-        # RAG response    → one Claim per factual statement
-        # Agent output    → one Claim per tool call + one per reasoning step
-
-        # ── Stage 3: Load judge config ────────────────────────────────────
-        config = JudgeConfig.load(request.judge_config)
-
-        # ── Stage 4: Generate evaluation steps (cached) ───────────────────
-        steps_per_field = await asyncio.gather(*[
-            self.get_eval_steps(claim, config)
-            for claim in claims
-        ])
-
-        # ── Stage 5: Parallel judge execution ────────────────────────────
-        validation_objects = await asyncio.gather(*[
-            self.judge_claim(claim, steps, config, request)
-            for claim, steps in zip(claims, steps_per_field)
-        ])
-
-        # ── Stage 6: Post-validation ──────────────────────────────────────
-        for vo in validation_objects:
-            self.post_validate(vo, request.context)  # verify evidence quotes exist in ctx
-
-        # ── Stage 7: Assemble result ──────────────────────────────────────
-        return EvalResult(
-            validation_objects=validation_objects,
-            aggregate_scores=self.aggregate(validation_objects),
-            run_metadata=self.build_metadata(request),
-        )
-
-    async def get_eval_steps(self, claim: Claim, config: JudgeConfig) -> list[str]:
-        """Generate evaluation steps from criteria. Cached per (criteria_hash, rubric_version)."""
-        cache_key = hashlib.sha256(
-            f"{claim.criteria}::{config.version}".encode()
-        ).hexdigest()
-
-        cached = await self.cache.get(cache_key)
-        if cached:
-            return cached
-
-        prompt = STEP_GENERATION_PROMPT.format(
-            task_introduction=config.metadata["name"],
-            field_path=claim.field_path,
-            field_type=claim.field_type,
-            criteria=claim.criteria,
-            rubric=claim.rubric or config.global_rubric,
-            error_taxonomy=config.error_taxonomy,
-        )
-        response = await self.judge_adapter.complete(
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.0,
-            cache_control=True,   # Cache the system prompt in the LLM provider too
-        )
-        steps = self.parse_numbered_list(response.text)
-        await self.cache.set(cache_key, steps, ttl=config.eval_steps_cache_ttl)
-        return steps
-
-    async def judge_claim(
-        self, claim: Claim, steps: list[str], config: JudgeConfig, req: EvalRequest
-    ) -> ValidationObject:
-        """Run the judge on one claim with the pre-generated evaluation steps."""
-
-        # Check result cache first (same input + same judge + same criteria version)
-        cache_key = hashlib.sha256(json.dumps({
-            "field_path": claim.field_path,
-            "actual_value": claim.actual_value,
-            "context_hash": hashlib.md5(req.context.encode()).hexdigest(),
-            "criteria_version": config.version,
-            "judge_model": config.judge_settings["primary_judge"]["model"],
-        }, sort_keys=True).encode()).hexdigest()
-
-        cached = await self.cache.get(f"judge:{cache_key}")
-        if cached:
-            return ValidationObject(**cached, cached=True)
-
-        prompt = JUDGE_PROMPT.format(
-            field_path=claim.field_path,
-            field_type=claim.field_type,
-            actual_value=claim.actual_value,
-            context=req.context,
-            reference=req.reference or "Not provided",
-            evaluation_steps="\n".join(f"{i+1}. {s}" for i, s in enumerate(steps)),
-            error_taxonomy=config.error_taxonomy_text,
-        )
-        response = await self.judge_adapter.complete(
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.0,
-        )
-        vo = self.parse_judge_output(response, claim, config)
-        await self.cache.set(f"judge:{cache_key}", vo.dict(), ttl=3600)
-        return vo
-```
-
----
-
-### 12.7 The Judge Prompt (with Structured Output)
-
-The judge prompt is what produces the `ValidationObject` content. It is structured to force chain-of-thought before verdict, and to extract evidence as verbatim quotes with location.
-
-```
-You are an expert evaluator for an AI extraction system.
-
-[FIELD UNDER EVALUATION]
-Field path:   {field_path}
-Field type:   {field_type}   (extractive | inferential | free_form)
-Actual value extracted by the AI: "{actual_value}"
-
-[SOURCE CONTEXT]
-{context}
-
-[REFERENCE ANSWER]
-{reference}   ← "Not provided" for reference-free evaluation
-
-[EVALUATION STEPS]
-Follow these steps precisely in order:
-{evaluation_steps}
-
-[ERROR TAXONOMY]
-If the extraction is incorrect, classify the error using exactly one of these themes:
-{error_taxonomy}
-(e.g. unit_confusion, hallucinated_entity, scope_mismatch, format_error, temporal_confusion)
-
-[OUTPUT FORMAT — respond with valid JSON only]
-{
-  "evaluation_steps_executed": [
-    "Step 1: <your reasoning for step 1>",
-    "Step 2: <your reasoning for step 2>",
-    ...
-  ],
-  "evidence": [
-    {
-      "text": "<verbatim quote from the context>",
-      "location": "<where in the context: paragraph X, turn Y, line Z>",
-      "supports": true | false
-    }
-  ],
-  "is_correct": true | false,
-  "missing_info": "not_missing" | "partially_missing" | "completely_missing",
-  "confidence": 0.0–1.0,
-  "error_theme": "<from taxonomy above, or null if correct>",
-  "error_detail": "<one sentence explaining the specific error, or null if correct>"
-}
-```
-
-> 🏭 **Production note**: Request JSON output explicitly and validate the schema in your post-validation step. Add a `json_repair` fallback for when the model outputs near-JSON (e.g., trailing commas, missing quotes). Never send malformed judge output downstream — it corrupts your error theme statistics.
-
----
-
-### 12.8 Field Type Strategy
-
-The field type determines how the judge approaches the evaluation. This is the most important routing decision in the pipeline — using a rubric-scoring judge on an extractive field (like an account number) wastes tokens and produces noisy results; using exact-match on a sentiment summary misses everything meaningful.
-
-```
-FIELD TYPE → JUDGE STRATEGY MAPPING
-
-┌──────────────┬──────────────────────┬────────────────────────────────────────┐
-│ Field Type   │ Examples             │ Judge Strategy                         │
-├──────────────┼──────────────────────┼────────────────────────────────────────┤
-│ Extractive   │ Account number,      │ 1. Locate value in context (evidence)  │
-│              │ renewal date,        │ 2. Exact match or format-normalized     │
-│              │ dollar amount,       │    match against actual_value          │
-│              │ enum/category        │ 3. Binary is_correct + missing_info    │
-│              │                      │ No G-Eval scoring — deterministic      │
-├──────────────┼──────────────────────┼────────────────────────────────────────┤
-│ Inferential  │ Churn risk flag,     │ 1. CoT: reason about implicit meaning  │
-│              │ customer intent,     │ 2. Cite evidence that implies the      │
-│              │ sentiment polarity,  │    inferred value                      │
-│              │ risk classification  │ 3. Binary verdict with reasoning       │
-│              │                      │ Evidence quality matters most          │
-├──────────────┼──────────────────────┼────────────────────────────────────────┤
-│ Free-form    │ Call summary,        │ 1. G-Eval style: rubric + steps        │
-│              │ sentiment summary,   │ 2. Probability-weighted 1–5 score      │
-│              │ agent reasoning,     │ 3. Cite what is missing or wrong       │
-│              │ generated text       │ Reference optional but improves signal │
-└──────────────┴──────────────────────┴────────────────────────────────────────┘
-```
-
----
-
-### 12.9 Evaluation Scenarios
-
-The same pipeline handles four distinct scenarios by varying what is passed in and how results are compared.
-
-**Scenario 1: Dev (Iterative Development)**
-
-No golden set yet. Evaluation is reference-free. The goal is to surface failure modes and build the rubric.
-
-```
-Dev workflow:
-  Run 1: reference_free=True → get ValidationObjects → inspect error_themes
-  Run 2: refine rubrics in YAML → re-run same inputs → compare score distribution
-  Run 3: human reviews 10 outputs → approves 10 as references → golden-v0.1.yaml
-  Run 4: reference_based=True on those 10 → calibrate judge against human labels
-```
-
-**Scenario 2: Production Monitoring**
-
-Sample 5% of live traffic. Async, reference-free. Focus on drift detection and latency.
-
-```python
-PROD_EVAL_CONFIG = {
-    "sample_rate": 0.05,
-    "reference_based": False,
-    "metrics_to_track": [
-        "is_correct_rate",       # fraction of fields correct per run
-        "missing_info_rate",     # fragility signal
-        "error_theme_distribution",  # which errors are growing?
-        "judge_latency_p95",
-        "output_verbosity",      # token count trend — verbosity drift
-    ],
-    "alert_thresholds": {
-        "is_correct_rate":     {"min": 0.82, "window": "7d"},
-        "unit_confusion_rate": {"max": 0.05, "window": "1d"},
-    }
-}
-```
-
-**Scenario 3: Model Migration**
-
-Evaluate both models against the same frozen golden dataset. Per-field comparison, not just aggregate.
-
-```python
-async def run_migration_comparison(
-    baseline_provider: str, baseline_model: str,
-    candidate_provider: str, candidate_model: str,
-    golden_dataset_version: str,
-    judge_config: str,
-) -> MigrationReport:
-    dataset = GoldenDataset.load(golden_dataset_version)
-
-    baseline_results = await pipeline.evaluate_batch(
-        dataset, provider=baseline_provider, model=baseline_model,
-        judge_config=judge_config,
-    )
-    candidate_results = await pipeline.evaluate_batch(
-        dataset, provider=candidate_provider, model=candidate_model,
-        judge_config=judge_config,
-        # Use cross-family judge when candidate is a different provider
-        judge_override=get_cross_family_judge(candidate_provider),
-    )
-
-    return MigrationReport(
-        per_field_delta=compute_field_deltas(baseline_results, candidate_results),
-        error_theme_shift=compare_error_distributions(baseline_results, candidate_results),
-        regression_fields=find_regressions(baseline_results, candidate_results, threshold=0.05),
-        improvement_fields=find_improvements(baseline_results, candidate_results, threshold=0.05),
-        bootstrap_significance=bootstrap_test(baseline_results, candidate_results, n=1000),
-    )
-```
-
-> 🎯 **Interview prep**: The critical insight on model migrations is that aggregate score changes hide field-level regressions. A migration that improves summary quality by 8% while degrading account number extraction by 15% shows a net positive aggregate — but the account number regression is catastrophic for downstream data pipelines. Always break migration results down by field_path and field_type.
-
-**Scenario 4: Prompt Changes**
-
-Same model, same golden dataset, different prompt version. Pair each input's baseline and candidate outputs and run pairwise comparison on the delta fields.
-
-```python
-# Pairwise judge prompt addition:
-PAIRWISE_SUFFIX = """
-You are now comparing two extractions for the same field from the same transcript.
-
-Extraction A (baseline prompt v{prompt_v1}): "{value_a}"
-Extraction B (candidate prompt v{prompt_v2}): "{value_b}"
-
-Using the same evaluation steps above, which extraction is more correct?
-Respond with: {"winner": "A" | "B" | "tie", "reason": "<one sentence>"}
-"""
-```
-
-To mitigate position bias in pairwise evaluation, always evaluate both orderings (A vs B and B vs A) and flag disagreements:
-
-```python
-async def pairwise_eval(field, value_a, value_b, steps, config):
-    result_ab = await judge(field, value_a, value_b, "A", "B", steps, config)
-    result_ba = await judge(field, value_b, value_a, "B", "A", steps, config)
-
-    if result_ab["winner"] != result_ba["winner"]:
-        return {"winner": "inconclusive", "bias_detected": True}
-    return result_ab
-```
-
----
-
-### 12.10 Prompt Caching Strategy
-
-Prompt caching is the single highest-leverage cost optimization in this system. The evaluation system's prompts are long (rubric YAML, error taxonomy, evaluation steps) and largely static across thousands of calls.
-
-```
-CACHE LAYERS AND WHAT THEY CACHE
-
-Layer 1 — Evaluation Steps Cache (Redis, 24h TTL)
-  Key:   SHA256(criteria_text + rubric_version)
-  Value: list[str] of numbered evaluation steps
-  Hit rate in practice: ~85% (same criteria applied to many records)
-  Cost impact: eliminates 1 LLM call per field per eval run after warmup
-
-Layer 2 — Judge Provider Prompt Cache (Anthropic/OpenAI)
-  What: The static system prompt (judge role, error taxonomy, output format)
-  How:  Anthropic: cache_control {"type": "ephemeral"} on the system message
-        OpenAI:    prefix caching (automatic, >1024 tokens)
-  TTL:  5 minutes (Anthropic ephemeral) — re-warm on cache miss
-  Cost impact: 90% token cost reduction on the static prefix of every judge call
-
-Layer 3 — Judge Result Cache (Redis, 1h TTL for prod / persistent for golden set)
-  Key:   SHA256(field_path + actual_value + context_hash + criteria_version + judge_model)
-  Value: full ValidationObject dict
-  When:  Same input re-evaluated (dev iteration, golden set re-scoring)
-  Cost impact: ~40% hit rate during active development
-```
-
-```python
-# Anthropic prompt cache setup for the judge system prompt
-JUDGE_SYSTEM_PROMPT_CACHED = [
-    {
-        "type": "text",
-        "text": STATIC_JUDGE_PREAMBLE,  # role, output format, error taxonomy — never changes
-        "cache_control": {"type": "ephemeral"},
-    },
-    {
-        "type": "text",
-        "text": dynamic_rubric_section,  # changes per judge_config — not cached at provider
-    }
-]
-```
-
-> 🏭 **Production note**: Monitor your cache hit rates per layer in your observability dashboard. A drop in Layer 1 hit rate signals rubric churn (someone is editing YAML too frequently). A drop in Layer 2 hit rate means your system prompt is varying between calls — audit the code that builds it. These two signals predict cost spikes before your invoice arrives.
-
----
-
-### 12.11 Error Theme Extraction and Prompt Advisor
-
-After a batch run, `ValidationObject` records with `is_correct=false` are fed into an error theme analysis pipeline. The goal is to turn individual failures into actionable prompt changes.
-
-```
-ERROR THEME PIPELINE
-
-Batch of ValidationObjects (is_correct=False)
-    │
-    ▼
-Error Theme Aggregator
-    │  Count occurrences per error_theme
-    │  Compute frequency per field_path
-    │  Rank by: frequency × impact_weight
-    ▼
-Pattern Priority Scores
-    │
-    │  e.g.  unit_confusion      → 34 occurrences → score 0.87 (HIGH)
-    │        hallucinated_entity → 12 occurrences → score 0.61 (MED)
-    │        format_error        → 3 occurrences  → score 0.21 (LOW)
-    ▼
-Prompt Advisor (LLM call)
-    │
-    │  Input:  Top-N error themes + their ValidationObject.reasoning samples
-    │          + current extraction prompt
-    │  Output: Specific suggested edits to the extraction prompt
-    ▼
-Suggested Prompt Changes (for human review before deployment)
-```
-
-```python
-PROMPT_ADVISOR_PROMPT = """
-You are a prompt engineering expert.
-
-The following extraction prompt is producing systematic errors:
-
-[CURRENT EXTRACTION PROMPT]
-{current_prompt}
-
-[TOP ERROR PATTERNS FROM LAST BATCH]
-{error_theme_summary}
-# Format: error_theme | count | example_reasoning | example_field | example_actual_value
-
-[TASK]
-For each error pattern:
-1. Identify the root cause in the current prompt (missing instruction, ambiguous wording, wrong example)
-2. Write a specific, minimal change to the prompt that would prevent this error
-3. If the error requires a new example in the prompt, provide the example
-
-Respond with a JSON list of suggested changes:
-[
-  {
-    "error_theme": "unit_confusion",
-    "root_cause": "Prompt says 'extract the contract value' without specifying annual vs monthly",
-    "suggested_change": "Add instruction: 'Extract the ANNUAL contract value in USD. If only monthly figures are stated, do not multiply — extract the monthly figure and add the suffix (monthly).'",
-    "confidence": 0.92
-  }
-]
-"""
-```
-
----
-
-### 12.12 Benchmarking Dashboard
-
-The benchmarking dashboard answers the question every engineering team faces before a model migration: "Which model is best for our specific task, and on what metrics does each one fall short?"
-
-```
-BENCHMARKING DASHBOARD — KEY VIEWS
-
-View 1: Cross-Model Scorecards (per judge_config / task type)
-
-  Model               | is_correct | missing_rate | p95_latency | cost/1k | avg_tokens
-  --------------------|------------|--------------|-------------|---------|------------
-  gpt-4o-2024-11-20   |    0.91    |    0.04      |   1,840ms   | $18.20  |    412
-  claude-sonnet-4-6   |    0.89    |    0.06      |   1,210ms   | $12.40  |    387
-  gpt-4o-mini         |    0.83    |    0.09      |    680ms    |  $2.10  |    401
-  llama3.1-70b-ollama |    0.78    |    0.12      |   2,300ms   |  $0.00  |    443
-
-View 2: Per-Field Performance Heatmap
-  (which fields does each model struggle with?)
-
-View 3: Error Theme Breakdown per Model
-  (does gpt-4o-mini have more unit_confusion than claude?)
-
-View 4: Score Trend Over Time
-  (is is_correct_rate drifting as the production data distribution shifts?)
-
-View 5: Public Benchmark Cross-reference
-  (how does our task-specific result compare to MMLU, HELM, MT-Bench scores
-   for the same models? Correlation reveals whether public benchmarks predict
-   task-specific performance.)
-```
-
----
-
-### 12.13 Observability
-
-Every judge call is wrapped in an OpenTelemetry span. This gives you distributed traces across the full evaluation pipeline — from request ingestion through claim decomposition, step generation, judge execution, and result storage.
-
-```python
-from opentelemetry import trace
-
-tracer = trace.get_tracer("llm-eval")
-
-async def judge_claim_instrumented(claim, steps, config, req):
-    with tracer.start_as_current_span("judge_claim") as span:
-        span.set_attribute("field_path", claim.field_path)
-        span.set_attribute("field_type", claim.field_type)
-        span.set_attribute("judge.provider", config.primary_judge["provider"])
-        span.set_attribute("judge.model", config.primary_judge["model"])
-        span.set_attribute("cache.hit", False)  # updated below
-
-        result = await judge_claim(claim, steps, config, req)
-
-        span.set_attribute("cache.hit", result.cached)
-        span.set_attribute("is_correct", result.is_correct)
-        span.set_attribute("error_theme", result.error_theme or "none")
-        span.set_attribute("latency_ms", result.latency_ms)
-        span.set_attribute("confidence", result.confidence)
-
-    return result
-```
-
-Key spans to instrument: `pre_validate`, `claim_decompose`, `eval_steps_generate`, `judge_call` (one per field), `post_validate`, `result_store`. This lets you identify which stage is the latency bottleneck per task type.
-
----
-
-### 12.14 Known Limitations
-
-| Limitation | Impact | Mitigation |
-|---|---|---|
-| **Position bias** | Pairwise judge systematically prefers first response | Evaluate both orderings; flag disagreements as inconclusive |
-| **Verbosity bias** | Judge rewards longer responses regardless of quality | Add explicit length rubric; track is_correct vs output_tokens correlation |
-| **Self-preference** | GPT-4o gives higher scores to GPT-4o outputs | Use cross-family judge (Claude judges GPT, GPT judges Claude) |
-| **Sycophancy** | Adding "expert says X" in prompt makes judge agree | Never include opinions in judge prompt; audit prompt template quarterly |
-| **Evidence hallucination** | Judge fabricates quotes that don't exist in context | Post-validate: check every `evidence.text` substring exists in `context` |
-| **Context window collapse** | Judge misses errors in middle of long contexts | Evaluate per-claim, not full response; chunk long contexts |
-| **Rubric drift** | Rubric edits change scores without changing extraction quality | Version rubrics; store rubric_version on every ValidationObject |
-
-> 🎯 **Interview prep**: "What's the hardest problem in building an LLM evaluator?" — Evidence hallucination in the judge is the one most teams miss. The judge can produce confident, plausible-sounding reasoning with verbatim-looking quotes that don't actually exist in the context. This makes `is_correct=false` verdicts look well-supported when they're fabricated. Post-validation substring matching on every evidence quote is mandatory, not optional.
-
----
-
-### 12.15 Production Deployment Checklist
-
-```
-Before first run:
-  [ ] Judge YAML configs reviewed and versioned (contracts-v1.0.yaml)
-  [ ] Error taxonomy YAML defined with domain-specific themes
-  [ ] LLM adapters tested for all providers in use (openai, anthropic, ollama)
-  [ ] Pre/post validation schemas defined per task type
-  [ ] Prompt cache warmup run (generate + cache eval steps for all criteria)
-  [ ] Judge model pinned to specific version (not "gpt-4o", use "gpt-4o-2024-11-20")
-  [ ] Async queue configured (Redis / SQS) with dead-letter queue
-  [ ] Result store schema migrated (ValidationObject table + indexes)
-  [ ] OTel instrumentation verified (check spans appear in your observability tool)
-
-Before going to production monitoring:
-  [ ] Sample rate configured (5% default; adjust based on volume)
-  [ ] Alert thresholds set per metric per judge_config
-  [ ] Pairwise bias mitigation enabled (dual-ordering) for any comparison runs
-  [ ] Cross-family judge configured (don't judge with same provider as generator)
-  [ ] Evidence post-validation enabled (substring check on every evidence quote)
-
-Before each model migration:
-  [ ] Golden dataset frozen and versioned (golden-contracts-v1.2.yaml)
-  [ ] Baseline scores recorded for current model on frozen dataset
-  [ ] Migration report template configured (per-field delta + error theme shift)
-  [ ] Regression thresholds set per field_path (not just aggregate)
-  [ ] Bootstrap significance test configured (n≥1000, α=0.05)
-```
+- **Task-agnostic and LLM-agnostic** — the same pipeline handles JSON extraction, summarization, RAG, chat, and agents; the judge and the system under test can be any provider.
+- **Claim-level granularity** — evaluation produces one `ValidationObject` per field or atomic claim, not one score per response. Every downstream dashboard, error theme, and prompt improvement is built on aggregations of these objects.
+- **Human-in-the-loop governance** — the Prompt Advisor surfaces improvement suggestions with supporting evidence records; all changes pass through an Accept / Edit / Reject review before touching production prompts.
+- **Report Rollup pipeline** — claim scores flow through Theme Assignment → Rollup Tester → Metrics Calculator → a five-tab dashboard (Metrics, Error Themes, Prompt Improvements, Data Export, Run Summary) with a 9-metric model leaderboard (Precision, Recall, F1, Completeness, Helpfulness, Cost, Latency, Tokens, Judge Eval).
 
 ---
 
 ## 13. References
+
 
 ### Foundational Papers
 

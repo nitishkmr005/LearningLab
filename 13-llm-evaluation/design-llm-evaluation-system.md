@@ -11,23 +11,22 @@
 **Background**
 
 - [Introduction: Why Build Custom](#introduction-why-build-custom)
-  - [Framework-by-Framework Gap Map](#framework-by-framework-gap-map)
-  - [Universal Blind Spots Across All Frameworks](#universal-blind-spots-across-all-frameworks)
-  - [What This Design Addresses](#what-this-design-addresses)
+    - [Framework-by-Framework Gap Map](#framework-by-framework-gap-map)
+    - [Universal Blind Spots Across All Frameworks](#universal-blind-spots-across-all-frameworks)
+    - [What This Design Addresses](#what-this-design-addresses)
 - [Scope: MVP Task Coverage](#scope-mvp-task-coverage)
-  - [In Scope for MVP](#in-scope-for-mvp)
-  - [Phase 2 (Post-MVP)](#phase-2-post-mvp)
-  - [Out of Scope](#out-of-scope-current-architecture)
-  - [Template Summarization: Decomposition Strategy](#template-based-summarization-decomposition-strategy)
+    - [In Scope for MVP](#in-scope-for-mvp)
+    - [Phase 2 (Post-MVP)](#phase-2-post-mvp)
+    - [Out of Scope](#out-of-scope-current-architecture)
+    - [Template Summarization: Decomposition Strategy](#template-based-summarization-decomposition-strategy)
+- [Terminology: Rubric, Acceptance Criteria, Evaluation Criteria, Evaluation Steps](#terminology-rubric-acceptance-criteria-evaluation-criteria-and-evaluation-steps)
 
 **Core Data Model**
 
-- [Terminology: Rubric, Acceptance Criteria, Evaluation Criteria, and Evaluation Steps](#terminology-rubric-acceptance-criteria-evaluation-criteria-and-evaluation-steps)
-
 1. [Design Principles](#1-design-principles)
-2. [The Validation Object](#2-the-validation-object-core-data-model)
-   - 2.1 [Metric-Agnostic Design: Pluggable Custom Metrics](#21-metric-agnostic-design-pluggable-custom-metrics)
-   - 2.2 [Metrics Catalog: All Supported Metrics by Task](#22-metrics-catalog-all-supported-metrics-by-task)
+2. [The Validation Object: Core Data Model](#2-the-validation-object-core-data-model)
+    - [2.1 — Metric-Agnostic Design: Pluggable Custom Metrics](#21-metric-agnostic-design-pluggable-custom-metrics)
+    - [2.2 — Metrics Catalog: All Supported Metrics by Task](#22-metrics-catalog-all-supported-metrics-by-task)
 
 **System Architecture**
 
@@ -38,29 +37,29 @@
 **Evaluation Pipeline**
 
 6. [Evaluation Mode Router and Pipeline](#6-evaluation-mode-router-and-pipeline)
-   - 6.0 [Evaluation Mode Router](#60-evaluation-mode-router)
-   - 6.1 [Claim Decomposition Engine](#61-claim-decomposition-engine)
-   - 6.2 [Full Pipeline: Step by Step](#62-full-pipeline-step-by-step)
-   - 6.3 [Batching Strategy](#63-batching-strategy)
-   - 6.4 [Holistic Path: Section-Level Evaluation](#64-holistic-path-section-level-evaluation)
+    - [6.0 — Evaluation Mode Router](#60-evaluation-mode-router)
+    - [6.1 — Claim Decomposition Engine](#61-claim-decomposition-engine)
+    - [6.2 — Full Pipeline: Step by Step](#62-full-pipeline-step-by-step)
+    - [6.3 — Batching Strategy](#63-batching-strategy)
+    - [6.4 — Holistic Path: Section-Level Evaluation](#64-holistic-path-section-level-evaluation)
 7. [The Judge Prompt](#7-the-judge-prompt)
-   - 7.1 [Modular Judge Prompt Design](#71-modular-judge-prompt-design)
-   - 7.2 [Cascading Judge: Cost-Efficient Multi-Tier Evaluation](#72-cascading-judge-cost-efficient-multi-tier-evaluation)
+    - [7.1 — Modular Judge Prompt Design](#71-modular-judge-prompt-design)
+    - [7.2 — Cascading Judge: Cost-Efficient Multi-Tier Evaluation](#72-cascading-judge-cost-efficient-multi-tier-evaluation)
 8. [Field Type Strategy and Complexity Segmentation](#8-field-type-strategy-and-complexity-segmentation)
 
 **Operations**
 
-9.  [Evaluation Scenarios and Modes](#9-evaluation-scenarios-and-modes)
-    - 9.1 [Validation Tool: Ground Truth Creation](#91-validation-tool-ground-truth-creation)
+9. [Evaluation Scenarios and Modes](#9-evaluation-scenarios-and-modes)
+    - [9.1 — Validation Tool: Ground Truth Creation](#91-validation-tool-ground-truth-creation)
 10. [Prompt Caching Strategy](#10-prompt-caching-strategy)
 11. [Error Theme Extraction, Pattern Finder, and Human-in-the-Loop](#11-error-theme-extraction-pattern-finder-and-human-in-the-loop)
-    - 11.1 [Error Theme → Prompt Improvement Pipeline](#111-error-theme--prompt-improvement-pipeline)
-    - 11.2 [Prompt Advisor Prompt](#112-prompt-advisor-prompt)
-    - 11.3 [Human-in-the-Loop: The Review Record](#113-human-in-the-loop-the-review-record)
-    - 11.4 [Theme Assignment and Clustering](#114-theme-assignment-and-clustering-bridge-to-the-metrics-layer)
+    - [11.1 — Error Theme → Prompt Improvement Pipeline](#111-error-theme--prompt-improvement-pipeline)
+    - [11.2 — Prompt Advisor Prompt](#112-prompt-advisor-prompt)
+    - [11.3 — Human-in-the-Loop: The Review Record](#113-human-in-the-loop-the-review-record)
+    - [11.4 — Theme Assignment and Clustering](#114-theme-assignment-and-clustering-bridge-to-the-metrics-layer)
 12. [Report Rollup and Benchmarking Dashboard](#12-report-rollup-and-benchmarking-dashboard)
-    - 12.1 [Report Rollup Pipeline](#121-report-rollup-pipeline)
-    - 12.2 [Dashboard: Five-Tab Structure](#122-dashboard-five-tab-structure)
+    - [12.1 — Report Rollup Pipeline](#121-report-rollup-pipeline)
+    - [12.2 — Dashboard: Five-Tab Structure](#122-dashboard-five-tab-structure)
 13. [Observability](#13-observability)
 
 **Assessment**

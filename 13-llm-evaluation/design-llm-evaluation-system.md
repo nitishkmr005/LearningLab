@@ -27,6 +27,7 @@
 1. [Design Principles](#1-design-principles)
 2. [The Validation Object](#2-the-validation-object-core-data-model)
    - 2.1 [Metric-Agnostic Design: Pluggable Custom Metrics](#21-metric-agnostic-design-pluggable-custom-metrics)
+   - 2.2 [Metrics Catalog: All Supported Metrics by Task](#22-metrics-catalog-all-supported-metrics-by-task)
 
 **System Architecture**
 
@@ -562,6 +563,160 @@ Judge output for a field with custom metrics:
 ```
 
 The Metrics Calculator aggregates each key in `rubric_scores` independently — `avg(rubric_scores["resolution"])` across all runs, `avg(rubric_scores["completeness"])`, etc. These appear as separate rows in the dashboard. You can track resolution coverage, coherence score, or toxicity rate as first-class metrics across model versions — no pipeline code changes, only YAML additions.
+
+---
+
+### 2.2 Metrics Catalog: All Supported Metrics by Task
+
+Every metric from the major evaluation frameworks maps onto one of four evaluation approaches in this system:
+
+| Approach | Column label | How it works |
+|---|---|---|
+| `claim_level › is_correct` | Binary verdict | Acceptance criteria → `is_correct` bool per claim |
+| `claim_level › rubric_scores` | Scored per claim | `rubric_scales` → `rubric_scores[name]` float (0.0/0.5/1.0) |
+| `holistic › rubric_scores` | Scored per section | `HolisticJudge` → `HolisticResult.rubric_scores[name]` |
+| `aggregate` | Computed post-evaluation | Derived from ValidationObject stats; no judge call |
+| `instrumental` | Measured outside judge | Token counts, latency, cost — system metadata |
+
+The tables below list every metric this system can produce, grouped by task. The "Source" column names the framework(s) that defined or popularised the metric. "Needs reference" means a ground-truth answer is required.
+
+---
+
+#### Universal — All Tasks
+
+| Metric | Source | Description | Approach | Needs reference |
+|---|---|---|---|---|
+| **Toxicity** | DeepEval, EvidentlyAI, Promptfoo | Presence of harmful, offensive, or biased content in the output | `claim_level › is_correct` (acceptance criteria `failure_condition`; `error_theme="toxicity"`) or `holistic › rubric_scores["toxicity"]` | No |
+| **Bias** | DeepEval, Prometheus | Unfair stereotyping or differential treatment of demographic groups | `holistic › rubric_scores["bias"]` (0.0=overt bias, 0.5=subtle, 1.0=none) | No |
+| **Instruction Following** | Prometheus, G-Eval | Degree to which output satisfies each stated instruction | `claim_level › is_correct` — one claim per instruction; binary pass/fail per constraint | No |
+| **Fluency** | G-Eval, SummEval | Grammar, naturalness, and sentence-level quality | `holistic › rubric_scores["fluency"]` | No |
+| **Readability** | EvidentlyAI, Prometheus | Ease of reading; clarity and accessibility of phrasing | `holistic › rubric_scores["readability"]` | No |
+| **Verbosity** | EvidentlyAI, Custom | Whether output length is appropriate — not too long, not too short | `holistic › rubric_scores["verbosity"]` | No |
+| **PII Leakage** | Custom, LangSmith | Output contains personally identifiable information beyond what is in the input | `claim_level › is_correct` — failure_condition on PII patterns; `error_theme="pii_leakage"` | No |
+| **Format Compliance** | DeepEval (JSON Correctness) | Output matches required schema, format, or structural constraints | `claim_level › is_correct` — deterministic schema validation before judge call | No |
+| **Hallucination Rate** | DeepEval, RAGAS, FActScoring | Fraction of claims that introduce information absent from the source | `aggregate` — `is_correct=False` with `reason_for_incorrect="source_document_does_not_contain_this_information"` rate | No |
+| **Latency (p50/p95)** | Promptfoo, DeepEval | Time-to-first-token and total generation time | `instrumental` — `ValidationObject.latency_ms`; p50/p95 computed in dashboard | No |
+| **Token Count** | Promptfoo, DeepEval | Input + output token usage per call | `instrumental` — provider metadata stored in `RunMetadata` | No |
+| **Cost per 1k evaluations** | Promptfoo, LangSmith | Dollar cost normalized to 1,000 evaluation calls | `instrumental` — token count × provider price; computed in report rollup | No |
+| **Judge Agreement Rate** | Custom | Rate at which Tier 1 and Tier 2 judges agree (escalation signal quality) | `aggregate` — compare `escalated=True` verdicts vs. Tier 1 verdicts on same claims | No |
+| **Cache Hit Rate** | Custom | Fraction of judge calls served from Redis or provider prefix cache | `instrumental` — `ValidationObject.cached` flag rate | No |
+
+---
+
+#### JSON Extraction / Structured Output
+
+| Metric | Source | Description | Approach | Needs reference |
+|---|---|---|---|---|
+| **Field Precision** | RAGAS (adapted), Custom | Fraction of extracted fields that are correct | `aggregate` — `is_correct=True` count / total fields across ValidationObjects | Optional |
+| **Field Recall** | RAGAS (adapted), Custom | Fraction of expected fields that were extracted (not missing) | `aggregate` — `(1 - is_missing_rate)` across fields | Yes — expected field list |
+| **Field F1** | Standard | Harmonic mean of field precision and recall | `aggregate` — computed from precision and recall | Yes |
+| **Field Correctness** | Custom | Binary: is the extracted value correct per rubric criteria | `claim_level › is_correct` — one ValidationObject per field | No |
+| **Missing Field Rate** | Custom | Fraction of expected fields entirely absent from output | `aggregate` — `is_missing=True` rate; `missing_severity="completely"` | No |
+| **Partial Extraction Rate** | Custom | Fraction of fields present but incomplete | `aggregate` — `is_missing=True, missing_severity="partially"` rate | No |
+| **Format Compliance** | DeepEval | Extracted values match expected format (e.g., ISO date, 10-digit string) | `claim_level › is_correct` — `expected_format` in rubric; failure_condition on format | No |
+| **Unit Normalization Error** | Custom | Incorrect unit conversion (e.g., monthly figure annualized) | `claim_level › is_correct` — explicit `failure_condition`; `error_theme="unit_ambiguous"` | No |
+| **Hallucination** | DeepEval, FActScoring | Extracted value not present in source document | `claim_level › is_correct` — `evidence=[]` + `is_correct=False` + `reason_for_incorrect="source_document_does_not_contain_this_information"` | No |
+| **Entity Coverage** | FActScoring (adapted) | Fraction of named entities from source captured correctly | `claim_level › is_correct` — per-entity field; `is_missing` for absent entities | Yes |
+| **Completeness** | Custom | How much of the required structured output was populated | `claim_level › rubric_scores["completeness"]` or `aggregate` from is_missing counts | No |
+
+---
+
+#### Summarization — Template (section-by-section)
+
+| Metric | Source | Description | Approach | Needs reference |
+|---|---|---|---|---|
+| **Faithfulness** | RAGAS, DeepEval, G-Eval (Consistency) | Every claim in the summary is supported by the source document | `claim_level › is_correct` — verbatim evidence post-validates each claim | No |
+| **Coverage / Completeness** | SummEval, DeepEval | Key facts from the source are captured in the summary | `claim_level › rubric_scores["completeness"]` per section | Yes |
+| **Factual Consistency** | G-Eval, RAGAS | No claim in the summary contradicts the source | `claim_level › is_correct` — `is_correct=False` when claim contradicts source evidence | No |
+| **Hallucination** | DeepEval, FActScoring | Claims present in summary with no source grounding | `claim_level › is_correct` — empty `evidence[]` + failed verdict | No |
+| **Coherence** | G-Eval, SummEval | Logical flow and internal consistency across the whole section | `holistic › rubric_scores["coherence"]` | No |
+| **Relevance** | G-Eval, RAGAS | Important content selected; irrelevant details excluded | `holistic › rubric_scores["relevance"]` | No |
+| **Conciseness / Verbosity** | EvidentlyAI, SummEval | Summary length is appropriate — no padding, no omissions | `holistic › rubric_scores["verbosity"]` | No |
+| **Redundancy** | SummEval | Absence of repeated information within the summary | `holistic › rubric_scores["redundancy"]` (0.0=highly redundant, 1.0=none) | No |
+| **Resolution Mention** | Custom (call centre) | Summary explicitly states whether the customer issue was resolved | `claim_level › rubric_scores["resolution"]` | No |
+| **Precision (reference-based)** | ROUGE / BLEU (adapted) | N-gram or semantic overlap of generated summary with reference | `claim_level › is_correct` with reference provided | Yes |
+| **Recall (reference-based)** | ROUGE / BLEU (adapted) | Fraction of reference content present in generated summary | `aggregate` with reference; `is_missing` per expected claim | Yes |
+
+---
+
+#### Summarization — Free-form
+
+Inherits all template summarization metrics above, plus:
+
+| Metric | Source | Description | Approach | Needs reference |
+|---|---|---|---|---|
+| **Abstractiveness** | SummEval | Degree of paraphrasing vs. verbatim copy from source | `holistic › rubric_scores["abstractiveness"]` (0.0=fully extractive, 1.0=fully abstract) | No |
+| **Density** | SummEval | Ratio of extractive fragments to total text length | `holistic › rubric_scores["density"]` | No |
+| **Fluency** | G-Eval, SummEval | Grammar and naturalness at sentence level | `holistic › rubric_scores["fluency"]` | No |
+| **Claim Decomposition Coverage** | FActScoring | Fraction of atomic facts in source covered by generated summary | `claim_level › is_missing` — Phase 2 LLM decomposer on free-form output | Yes |
+
+---
+
+#### Classification
+
+| Metric | Source | Description | Approach | Needs reference |
+|---|---|---|---|---|
+| **Label Accuracy** | Standard, DeepEval | Assigned label matches the correct label | `claim_level › is_correct` — one ValidationObject per classification field | Yes (ground truth label) |
+| **Label Precision (per label)** | Standard | True positives / (TP + FP) for each allowed label | `aggregate` — computed from `is_correct` across ValidationObjects filtered by label | Yes |
+| **Label Recall (per label)** | Standard | True positives / (TP + FN) for each allowed label | `aggregate` — computed from `is_correct` + `is_missing` per label | Yes |
+| **Label F1 (per label)** | Standard | Harmonic mean of per-label precision and recall | `aggregate` — derived from precision + recall | Yes |
+| **Out-of-Label Detection** | Custom | Model assigned a label not in `allowed_labels` | `claim_level › is_correct` — deterministic: `actual_value ∉ allowed_labels` → `is_correct=False` | No |
+| **Missing Label Rate** | Custom | Label was not assigned when one was required | `aggregate` — `is_missing=True` rate across classification fields | No |
+| **Label Confidence Calibration** | Custom | Judge's stated confidence correlates with observed accuracy | `aggregate` — compare `confidence` field to `is_correct` rate per confidence bucket | No |
+| **Multi-label Subset Accuracy** | Custom | All correct labels assigned, no incorrect labels (for `multi_label: true` fields) | `claim_level › is_correct` — binary: exact set match | Yes |
+
+---
+
+#### RAG / Question Answering
+
+| Metric | Source | Description | Approach | Needs reference |
+|---|---|---|---|---|
+| **Faithfulness** | RAGAS | Fraction of answer claims supported by retrieved context (not hallucinated) | `claim_level › is_correct` — evidence from retrieved chunks; empty evidence = hallucination | No |
+| **Answer Relevance** | RAGAS, DeepEval | How directly the answer addresses the question asked | `holistic › rubric_scores["answer_relevance"]` | No |
+| **Context Precision** | RAGAS | Fraction of retrieved chunks that are relevant to the query | `claim_level › is_correct` — one claim per chunk; is the chunk relevant? | Yes |
+| **Context Recall** | RAGAS | Fraction of ground-truth information present across retrieved chunks | `claim_level › is_missing` — one claim per expected piece of information | Yes |
+| **Context Relevance** | DeepEval | Relevance of each retrieved chunk to the user query | `claim_level › rubric_scores["relevance"]` per chunk | No |
+| **Answer Correctness** | RAGAS | Factual match between generated answer and ground-truth answer | `claim_level › is_correct` with reference provided | Yes |
+| **Grounding / Citation Accuracy** | Custom, LangSmith | Citations point to real, supporting passages in the source | `claim_level › is_correct` — post-validate citation text as substring of cited source | No |
+| **Response Completeness** | DeepEval | All aspects of a multi-part question are addressed | `claim_level › is_missing` — one claim per question aspect | No |
+| **Noise Sensitivity** | RAGAS | Accuracy degradation when irrelevant chunks are added to context | `aggregate` — compare `is_correct` rates across clean vs. noisy context eval runs | No |
+| **Answer Similarity** | RAGAS | Semantic similarity between generated and reference answer | `claim_level › is_correct` with reference + semantic overlap rubric | Yes |
+| **Source Attribution** | Custom | Each factual claim is attributed to a specific source document | `claim_level › is_correct` — evidence validates attribution; `is_correct=False` if claim lacks source | No |
+
+---
+
+#### Agent / Tool Use
+
+| Metric | Source | Description | Approach | Needs reference |
+|---|---|---|---|---|
+| **Task Completion** | DeepEval | Whether the agent completed the assigned end-to-end task | `claim_level › is_correct` — one claim per task requirement | Yes |
+| **Tool Call Accuracy** | DeepEval | Correct tools called with correct parameters in correct order | `claim_level › is_correct` — one claim per tool call step | Yes |
+| **Trajectory Quality** | LangSmith, Custom | Quality of the reasoning path — steps are logical and non-redundant | `holistic › rubric_scores["trajectory_quality"]` on full agent trace | No |
+| **Plan Quality** | Custom | Agent's plan is appropriate and sufficient for the task | `holistic › rubric_scores["plan_quality"]` | No |
+| **Efficiency** | Custom | Minimal steps taken; no unnecessary tool calls or loops | `holistic › rubric_scores["efficiency"]` (0.0=many unnecessary steps, 1.0=optimal) | No |
+| **Role Adherence** | DeepEval | Agent stays within its defined persona and constraints | `claim_level › is_correct` — one claim per constraint; failure_condition on violation | No |
+| **Memory Faithfulness** | Custom | Agent correctly uses information from prior conversation turns | `claim_level › is_correct` — evidence from conversation history | No |
+| **Handoff Accuracy** | Custom (multi-agent) | Correct sub-agent or tool selected for delegation | `claim_level › is_correct` — one claim per handoff decision | Yes |
+
+---
+
+#### Reference-Based NLG (for comparison / regression baselines)
+
+These classical metrics cannot be computed by an LLM judge — they are computed deterministically. They appear as instrumental metrics in `RunMetadata`, not in `ValidationObject`.
+
+| Metric | Source | Description | Approach |
+|---|---|---|---|
+| **BLEU** | Papineni et al. 2002 | N-gram precision overlap with reference; standard MT benchmark | `instrumental` — computed via `sacrebleu` library |
+| **ROUGE-1/2/L** | Lin 2004 | Recall-oriented n-gram overlap; standard summarization benchmark | `instrumental` — computed via `rouge-score` library |
+| **METEOR** | Banerjee & Lavie 2005 | BLEU variant with stemming, synonyms, and word order | `instrumental` — computed via `nltk.translate.meteor_score` |
+| **BERTScore** | Zhang et al. 2019 | Token-level semantic similarity using BERT embeddings | `instrumental` — computed via `bert-score` library |
+| **MoverScore** | Zhao et al. 2019 | Earth mover distance between sentence embeddings | `instrumental` — computed via `moverscore` library |
+| **Exact Match** | SQuAD benchmark | Binary: generated answer exactly matches reference string | `instrumental` — string equality check |
+| **Semantic Similarity** | LangSmith, EvidentlyAI | Cosine similarity between output and reference embeddings | `instrumental` — embedding model (e.g. `text-embedding-3-small`) |
+
+---
+
+**Reading the table:** The "Approach" column tells you exactly where each metric lives in the system. `claim_level › is_correct` means it is an acceptance criterion evaluated per atomic claim — it goes in the YAML `criteria` / `failure_condition` fields. `holistic › rubric_scores["name"]` means it goes in a `holistic` section's `rubric_scales`. `aggregate` means no YAML change needed — it is computed by the Metrics Calculator from existing `ValidationObject` fields. `instrumental` means it is measured outside the LLM judge entirely.
 
 ---
 

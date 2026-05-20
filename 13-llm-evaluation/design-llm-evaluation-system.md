@@ -36,10 +36,12 @@
 
 **Evaluation Pipeline**
 
-6. [Claim Decomposition and Evaluation Pipeline](#6-claim-decomposition-and-evaluation-pipeline)
+6. [Evaluation Mode Router and Pipeline](#6-evaluation-mode-router-and-pipeline)
+   - 6.0 [Evaluation Mode Router](#60-evaluation-mode-router)
    - 6.1 [Claim Decomposition Engine](#61-claim-decomposition-engine)
    - 6.2 [Full Pipeline: Step by Step](#62-full-pipeline-step-by-step)
    - 6.3 [Batching Strategy](#63-batching-strategy)
+   - 6.4 [Holistic Path: Section-Level Evaluation](#64-holistic-path-section-level-evaluation)
 7. [The Judge Prompt](#7-the-judge-prompt)
    - 7.1 [Modular Judge Prompt Design](#71-modular-judge-prompt-design)
    - 7.2 [Cascading Judge: Cost-Efficient Multi-Tier Evaluation](#72-cascading-judge-cost-efficient-multi-tier-evaluation)
@@ -844,6 +846,7 @@ global_rubrics:
 
 sections:
   customer:
+    # eval_mode defaults to claim_level when not specified — each field becomes one Claim
     rubric: "Customer fields must match verbatim statements in the transcript. Do not infer."
     fields:
       account_number:
@@ -912,6 +915,47 @@ sections:
         multi_label: false
         missing_rule: "If no sentiment signal present, assign 'neutral'. Do not leave blank."
 
+  call_summary:
+    # eval_mode: holistic — skip claim decomposition entirely.
+    # The whole section text is sent to the judge in one call.
+    # Use for metrics that measure whole-output properties, not individual claims.
+    # Coherence, readability, and verbosity have no meaning at the atomic-claim level.
+    eval_mode: holistic
+    rubric: "Evaluate the overall quality of the generated call summary as a whole."
+    rubric_scales:
+      coherence:
+        0.0: "Disjointed — ideas don't connect or contradict each other"
+        0.5: "Mostly coherent with minor structural gaps"
+        1.0: "Well-organized, ideas flow logically"
+      readability:
+        0.0: "Dense, jargon-heavy, or hard to follow"
+        0.5: "Readable with some awkward phrasing"
+        1.0: "Clear and concise — easily understood on first read"
+      verbosity:
+        0.0: "Far too long (padding) or too short (key facts missing)"
+        0.5: "Acceptable length with minor bloat"
+        1.0: "Appropriately concise for the content"
+
+  summary_faithfulness:
+    # eval_mode: both — run claim decomposition (for faithfulness precision/recall)
+    # AND a holistic pass (for section-level coherence).
+    # ValidationObjects carry is_correct per claim; HolisticResult carries rubric_scores.
+    eval_mode: both
+    rubric: "Summary must be faithful to the transcript and internally coherent."
+    fields:
+      key_issue:
+        field_type: free_form
+        criteria: "The stated key issue must be explicitly mentioned by the customer."
+        failure_condition: "If the issue is inferred rather than stated, mark as incorrect."
+      resolution:
+        field_type: free_form
+        criteria: "Resolution must match what the agent confirmed at the end of the call."
+    rubric_scales:
+      coherence:
+        0.0: "Summary reads as disconnected fragments"
+        0.5: "Mostly coherent"
+        1.0: "Flows as a unified narrative"
+
 judge_settings:
   primary_judge:
     provider: anthropic
@@ -928,9 +972,86 @@ judge_settings:
 
 ---
 
-## 6. Claim Decomposition and Evaluation Pipeline
+## 6. Evaluation Mode Router and Pipeline
 
-The pipeline for a single evaluation request runs two major stages: deterministic claim decomposition (synchronous, fast) followed by parallel judge execution per claim (async). All MVP task types use deterministic decomposition — no LLM call needed until the judge.
+The pipeline starts with a routing decision: does this field or section need claim decomposition, or should it be evaluated as a whole? The router reads `eval_mode` from the YAML config and splits the workload before any LLM call is made. The two resulting paths — claim-level and holistic — run concurrently and produce different result types that are merged at the end.
+
+```
+EVALUATION MODE ROUTING
+
+                    EvalRequest
+                         │
+              ┌──────────▼──────────┐
+              │   EvalModeRouter    │
+              │  reads eval_mode    │
+              │  from YAML config   │
+              └──┬──────────────┬───┘
+                 │              │
+          claim_level        holistic
+          (default)          (no decomposition)
+                 │              │
+    ┌────────────▼──┐    ┌──────▼────────────┐
+    │ ClaimDecomposer│    │  HolisticJudge    │
+    │ → Claim[]      │    │  (whole section)  │
+    └────────────┬──┘    └──────┬────────────┘
+                 │              │
+    ┌────────────▼──┐    ┌──────▼────────────┐
+    │ CascadingJudge │    │  HolisticResult   │
+    │ per Claim      │    │  rubric_scores{}  │
+    └────────────┬──┘    └──────┬────────────┘
+                 │              │
+              ┌──▼──────────────▼──┐
+              │     EvalResult     │
+              │  validation_objects│  ← from claim-level path
+              │  holistic_results  │  ← from holistic path
+              └────────────────────┘
+
+eval_mode: both → both branches run in parallel; results merged into EvalResult
+```
+
+| `eval_mode` | What runs | Output type | Metrics produced |
+|---|---|---|---|
+| `claim_level` (default) | ClaimDecomposer → CascadingJudge per claim | `list[ValidationObject]` | `is_correct`, `is_missing`, `rubric_scores` per claim; precision/recall/F1 in aggregate |
+| `holistic` | HolisticJudge on full section text, no decomposition | `HolisticResult` | `rubric_scores` (coherence, readability, verbosity) — no `is_correct`/`is_missing` |
+| `both` | Both branches run concurrently | `list[ValidationObject]` + `HolisticResult` | All of the above; claim-level faithfulness + section-level coherence together |
+
+**When to use each mode:**
+
+| Metric | eval_mode | Why |
+|---|---|---|
+| Faithfulness, precision, recall, completeness | `claim_level` | Require knowing which specific claims are correct/missing |
+| Coherence, readability, verbosity, fluency | `holistic` | Measure whole-output properties — meaningless on an atomic claim |
+| Toxicity | `claim_level` or `holistic` | Claim-level catches specific hallucinated harmful facts; holistic catches tone/style toxicity |
+| Both faithfulness and coherence together | `both` | Run claim-level for verdict + holistic for quality scores in one eval |
+
+```python
+from dataclasses import dataclass, field
+
+@dataclass
+class RoutingDecision:
+    claim_level_sections: list[SectionConfig]   # → ClaimDecomposer → CascadingJudge
+    holistic_sections: list[SectionConfig]       # → HolisticJudge directly
+    both_sections: list[SectionConfig]           # → both paths run concurrently
+
+class EvalModeRouter:
+    def route(self, config: JudgeConfig) -> RoutingDecision:
+        claim_level, holistic, both = [], [], []
+        for section in config.sections.values():
+            mode = section.get("eval_mode", "claim_level")   # claim_level is default
+            if mode == "claim_level":
+                claim_level.append(section)
+            elif mode == "holistic":
+                holistic.append(section)
+            elif mode == "both":
+                both.append(section)
+            else:
+                raise ValueError(f"Unknown eval_mode: {mode!r}")
+        return RoutingDecision(claim_level, holistic, both)
+```
+
+### 6.0 Evaluation Mode Router
+
+*(See routing diagram and table above.)*
 
 ### 6.1 Claim Decomposition Engine
 
@@ -1355,6 +1476,161 @@ Doc 1, Batch call:   [MISS] system + rubric + steps → cached by provider
 Doc 2, Batch call:   [HIT]  system + rubric + steps from cache → pay only for context
 Doc 3–10:            [HIT]  same cache hit pattern
 Result: ~70–80% token reduction on the static prefix across the run
+```
+
+### 6.4 Holistic Path: Section-Level Evaluation
+
+The holistic path skips claim decomposition entirely. The whole section text is sent to the judge in one call with the `rubric_scales` from YAML. The judge scores each named dimension and returns a `HolisticResult` — no `is_correct`, no `is_missing`, no per-claim breakdown.
+
+#### HolisticResult Data Model
+
+```python
+from pydantic import BaseModel
+from typing import Optional
+
+class HolisticResult(BaseModel):
+    section_path: str                 # e.g. "call_summary" or "report.executive_summary"
+    eval_mode: str = "holistic"
+    section_text: str                 # The full section text that was evaluated
+    rubric_scores: dict[str, float]   # e.g. {"coherence": 0.8, "readability": 1.0, "verbosity": 0.5}
+    evaluation_steps: list[str]       # Judge's reasoning before scores
+    judge_model: str
+    latency_ms: int
+    cached: bool = False
+    eval_version: str                 # "rubric=summary-v1.2,prompt=v2.0"
+```
+
+No `is_correct` or `is_missing` — those are claim-level verdicts. A section is not "correct" or "incorrect" as a whole; it is more or less coherent, readable, verbose. The `rubric_scores` dict is the complete output.
+
+#### HolisticJudge
+
+```python
+HOLISTIC_JUDGE_PROMPT = """You are evaluating the overall quality of a text section.
+Do NOT check individual facts. Evaluate only the named quality dimensions below.
+
+SECTION: {section_path}
+TEXT TO EVALUATE:
+{section_text}
+
+QUALITY DIMENSIONS TO SCORE (0.0 / 0.5 / 1.0 only):
+{rubric_scales_formatted}
+
+INSTRUCTIONS:
+1. Read the full section text.
+2. For each dimension, reason briefly about what you observe.
+3. Assign a score: 0.0 (absent/poor), 0.5 (partial/acceptable), 1.0 (complete/good).
+4. Do not assign scores between anchors (e.g. 0.3 or 0.7) — use only 0.0, 0.5, 1.0.
+
+OUTPUT FORMAT (JSON):
+{{
+  "evaluation_steps": ["<step 1>", "<step 2>", ...],
+  "rubric_scores": {{
+    "<dimension_name>": 0.0 | 0.5 | 1.0,
+    ...
+  }}
+}}
+"""
+
+class HolisticJudge:
+
+    def __init__(self, adapter: LLMAdapter):
+        self.adapter = adapter
+
+    def _format_rubric_scales(self, rubric_scales: dict) -> str:
+        lines = []
+        for name, anchors in rubric_scales.items():
+            lines.append(f"{name}:")
+            for score, description in sorted(anchors.items()):
+                lines.append(f"  {score}: {description}")
+        return "\n".join(lines)
+
+    async def evaluate(
+        self,
+        section_path: str,
+        section_text: str,
+        config: SectionConfig,
+        req: EvalRequest,
+    ) -> HolisticResult:
+
+        import time, hashlib
+        t0 = time.monotonic()
+
+        # Result cache: same section text + same rubric version → same result
+        cache_key = hashlib.sha256(
+            f"{section_path}::{section_text}::{config.version}".encode()
+        ).hexdigest()
+        cached = await self.cache.get(f"holistic:{cache_key}")
+        if cached:
+            return HolisticResult(**cached, cached=True)
+
+        prompt = HOLISTIC_JUDGE_PROMPT.format(
+            section_path=section_path,
+            section_text=section_text,
+            rubric_scales_formatted=self._format_rubric_scales(config.rubric_scales),
+        )
+
+        response = await self.adapter.complete(
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            cache_control=True,   # system + rubric_scales cached; only section_text varies
+        )
+
+        parsed = json.loads(response.text)
+        result = HolisticResult(
+            section_path=section_path,
+            section_text=section_text,
+            rubric_scores=parsed["rubric_scores"],
+            evaluation_steps=parsed["evaluation_steps"],
+            judge_model=self.adapter.model_id,
+            latency_ms=int((time.monotonic() - t0) * 1000),
+            eval_version=config.eval_version,
+        )
+        await self.cache.set(f"holistic:{cache_key}", result.dict(), ttl=3600)
+        return result
+```
+
+#### Updated EvalResult — Both Paths Merged
+
+```python
+class EvalResult(BaseModel):
+    # Claim-level results (eval_mode: claim_level or both)
+    validation_objects: list[ValidationObject]
+
+    # Section-level holistic results (eval_mode: holistic or both)
+    holistic_results: list[HolisticResult]
+
+    aggregate_scores: dict[str, float]   # precision, recall, F1, avg rubric_scores, etc.
+    run_metadata: RunMetadata
+```
+
+#### Full Dispatch with Both Paths
+
+```python
+async def evaluate(self, request: EvalRequest) -> EvalResult:
+
+    config = JudgeConfig.load(request.judge_config)
+    routing = EvalModeRouter().route(config)
+
+    # ── Claim-level path (claim_level + both sections) ──────────────────────
+    claim_sections = routing.claim_level_sections + routing.both_sections
+    claim_level_task = self._run_claim_level(claim_sections, config, request)
+
+    # ── Holistic path (holistic + both sections) ─────────────────────────────
+    holistic_sections = routing.holistic_sections + routing.both_sections
+    holistic_task = self._run_holistic(holistic_sections, config, request)
+
+    # Both paths run concurrently
+    validation_objects, holistic_results = await asyncio.gather(
+        claim_level_task,
+        holistic_task,
+    )
+
+    return EvalResult(
+        validation_objects=validation_objects,
+        holistic_results=holistic_results,
+        aggregate_scores=self.aggregate(validation_objects, holistic_results),
+        run_metadata=self.build_metadata(request),
+    )
 ```
 
 ---

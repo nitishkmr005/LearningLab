@@ -1461,12 +1461,14 @@ from dataclasses import dataclass
 
 @dataclass
 class Claim:
-    field_path: str          # e.g. "customer.account_number" or "summary.claim[3]"
-    field_type: str          # "extractive" | "inferential" | "free_form" | "classification"
+    field_path: str               # e.g. "customer.account_number" or "summary.claim[3]"
+    field_type: str               # "extractive" | "inferential" | "free_form" | "classification"
     actual_value: str | None
-    criteria: str            # From YAML rubric for this field
-    rubric: str | None       # Section-level rubric text
-    allowed_labels: list[str] | None  # For classification fields only
+    criteria: str                 # From YAML rubric for this field
+    rubric: str | None            # Section-level rubric text
+    allowed_labels: list[str] | None   # For classification fields only
+    judge_tier: str = "tier1"    # "tier1" | "tier2" — resolved by EvalModeRouter from YAML
+    steps: list[str] = field(default_factory=list)  # Populated after eval step generation (§6.2 Stage 4)
 
 # ── Decomposition prompt for Phase 2 free-form tasks ──────────────────────────
 DECOMPOSE_PROMPT = """Split the following text into atomic, independently verifiable claims.
@@ -1607,17 +1609,27 @@ class EvaluationPipeline:
         # ── Stage 3: Load judge config (already loaded for decomposition; re-use) ──
         config = JudgeConfig.load(request.judge_config)
 
-        # ── Stage 4: Generate evaluation steps (cached) ───────────────────
+        # ── Stage 4: Generate evaluation steps (cached per field per rubric version) ──
+        # One LLM call per unique (criteria, rubric_version) — not per document.
+        # Results are cached in Redis at 24h TTL and reused across all documents.
         steps_per_field = await asyncio.gather(*[
             self.get_eval_steps(claim, config)
             for claim in claims
         ])
+        # Attach steps to each Claim so the batch dispatcher can access them directly.
+        for claim, steps in zip(claims, steps_per_field):
+            claim.steps = steps
 
-        # ── Stage 5: Parallel judge execution ────────────────────────────
-        validation_objects = await asyncio.gather(*[
-            self.judge_claim(claim, steps, config, request)
-            for claim, steps in zip(claims, steps_per_field)
-        ])
+        # ── Stage 5: Batch judge execution ───────────────────────────────
+        # Tier 1 fields (extractive, classification) → one batched call per document.
+        # Tier 2 fields (inferential, free_form) → one individual call per field, run in parallel.
+        # See §6.3 for full batching strategy and output-parse failure recovery.
+        validation_objects = await evaluate_with_batching(
+            request=request,
+            claims=claims,
+            config=config,
+            judge=self.judge,
+        )
 
         # ── Stage 6: Post-validation ──────────────────────────────────────
         for vo in validation_objects:
@@ -1695,60 +1707,65 @@ class EvaluationPipeline:
 
 ### 6.3 Batching Strategy
 
-Sending each claim to the judge in a separate API call is correct for development but wasteful in production. The batching strategy reduces cost and latency in three ways: grouping claims from the same document, grouping the same field across multiple documents, and running both tiers concurrently.
+#### Why Not One Call Per Field
 
-#### Three Batching Modes
+Sending one judge call per field is the simplest approach and correct for development. In production it is wasteful: a document with 10 fields produces 10 separate API calls, each paying the full prompt overhead (system instructions, source context, rubric) even though 9 of those 10 calls are sending the identical context again.
+
+The batching strategy removes this overhead while preserving evaluation quality. The core principle: **fields that are independent and bounded can share one call; fields that require deep focused reasoning get individual calls.**
+
+#### Tier 1 vs Tier 2: Why the Split
+
+| | Tier 1 (extractive, classification) | Tier 2 (inferential, free_form) |
+|---|---|---|
+| **Judge call** | One batched call for all Tier 1 fields in the document | One individual call per field |
+| **Why batch?** | Fields are independent — account number and renewal date don't affect each other's verdict. Safe to evaluate together. | Inferential fields require deep focused CoT. Batching multiple inferential fields in one prompt causes reasoning from one field to bleed into the next. |
+| **Why not batch Tier 2?** | — | A judgment about churn risk should not share context with a judgment about contract value. Individual calls produce cleaner, more auditable reasoning. |
+| **Parallelism** | One task (the batch) | All Tier 2 calls fire in parallel via `asyncio.gather` |
 
 ```
-BATCHING MODES
+CALL STRUCTURE (one document, 6 Tier 1 fields + 2 Tier 2 fields)
 
-Mode 1: Within-Document (Tier 1 fields)
-  One document → all Tier 1 claims → one judge call
-  Source context sent once; claims listed in a numbered batch
-  Provider prefix cache covers the static prompt + context on all calls after the first
-
-Mode 2: Cross-Document Field Batching (same field, many docs)
-  Same field + same criteria → batch up to 15 documents
-  Ideal for offline evaluation runs over a dataset
-  Each document's context is a numbered block in the batch prompt
-
-Mode 3: Async Tier Parallelism
-  Tier 1 and Tier 2 claims from different documents run concurrently
-  Tier 2 waits for Tier 1 escalation signals; no blocking between documents
+WITHOUT batching:   8 API calls, context sent 8 times
+WITH batching:      1 API call  (Tier 1 batch)
+                  + 2 API calls (Tier 2, parallel)
+                  = 3 total calls, context sent 3 times
 ```
 
-#### Within-Document Batch Call
+#### Within-Document Batch Call (Tier 1)
 
-All Tier 1 fields from a single document are grouped into one prompt. The context is sent once; the judge evaluates each field in sequence and returns a JSON array.
+All Tier 1 fields for a single document are sent in one prompt. The source context appears once. The judge returns a JSON array — one object per field, in the same order as the input blocks.
 
 ```python
 WITHIN_DOC_BATCH_PROMPT = """
 You are evaluating multiple fields extracted from the same source document.
-The source context appears once below. Evaluate each field against it.
+The source context appears once below. Evaluate each field independently against it.
+Do NOT let your reasoning for one field affect another.
 
 SOURCE CONTEXT:
 {context}
 
-FIELDS TO EVALUATE (one per numbered block):
+FIELDS TO EVALUATE:
 {field_blocks}
 
-Return a JSON array with one object per field, in the same order.
-Each object must match the ValidationObject schema.
+Return a JSON array — one object per field, in the same numbered order.
+Each object must have: field_path, is_correct, is_missing, missing_severity,
+actual_value, corrected_value, evaluation_steps, evidence, reason_for_incorrect,
+rubric_scores, error_theme.
 """
 
 async def judge_document_batch(
-    claims: list[Claim],          # all Tier 1 claims for one document
+    claims: list[Claim],
     config: JudgeConfig,
     req: EvalRequest,
     adapter: LLMAdapter,
 ) -> list[ValidationObject]:
 
-    # Build numbered field blocks
     field_blocks = "\n\n".join(
         f"[Field {i+1}] field_path={c.field_path}\n"
-        f"  actual_value: {c.actual_value}\n"
+        f"  actual_value: {c.actual_value!r}\n"
         f"  criteria: {c.criteria}\n"
-        f"  evaluation_steps:\n" + "\n".join(f"    {j+1}. {s}" for j, s in enumerate(c.steps))
+        f"  evaluation_steps:\n"
+        + "\n".join(f"    {j+1}. {s}" for j, s in enumerate(c.steps))
         for i, c in enumerate(claims)
     )
 
@@ -1760,120 +1777,190 @@ async def judge_document_batch(
     response = await adapter.complete(
         messages=[{"role": "user", "content": prompt}],
         temperature=0.0,
-        cache_control=True,   # static prefix (system + context) cached by provider
+        cache_control=True,   # system + context cached by provider after first document
     )
 
-    raw = json.loads(response.text)   # list of dicts, one per field
-    return [
-        ValidationObject(**item, judge_model=adapter.model_id)
-        for item in raw
-    ]
+    return _parse_batch_response(response.text, claims, adapter, config, req)
 ```
 
-#### Cross-Document Field Batching
+#### Batch Output-Parse Failure Recovery
 
-For offline evaluation runs over a dataset, the same field across multiple documents can be batched together. This maximises the value of prefix caching (rubric + evaluation steps are identical across all documents; only the context changes).
+Batching introduces a parse risk: if the judge's JSON output is malformed for one field, a naive `json.loads` fails for all fields in the batch. The parser handles this at two levels:
+
+- **Field-level failure**: The top-level JSON array parses fine, but one field's object is missing a required key or has the wrong type. That field falls back to an individual call; the rest succeed.
+- **Full batch failure**: The entire response is invalid JSON (e.g., truncated output). All fields in the batch fall back to individual calls, running in parallel.
+
+```python
+import json, logging
+from pydantic import ValidationError
+
+logger = logging.getLogger(__name__)
+
+async def _parse_batch_response(
+    raw_text: str,
+    claims: list[Claim],
+    adapter: LLMAdapter,
+    config: JudgeConfig,
+    req: EvalRequest,
+) -> list[ValidationObject]:
+
+    # ── Attempt full batch parse ───────────────────────────────────────────
+    try:
+        raw_list = json.loads(raw_text)
+    except json.JSONDecodeError:
+        # Entire response is malformed — fall back to individual calls for all fields
+        logger.warning(
+            f"Batch JSON decode failed for {len(claims)} fields. "
+            "Retrying all fields individually."
+        )
+        return list(await asyncio.gather(*[
+            _judge_single_fallback(claim, adapter, config, req)
+            for claim in claims
+        ]))
+
+    # ── Field-level parse with per-field fallback ──────────────────────────
+    results = []
+    for i, (claim, item) in enumerate(zip(claims, raw_list)):
+        try:
+            vo = ValidationObject(**item, judge_model=adapter.model_id)
+            results.append(vo)
+        except (ValidationError, KeyError, TypeError) as e:
+            logger.warning(
+                f"Batch parse failed for field {claim.field_path} "
+                f"(index {i}): {e}. Retrying individually."
+            )
+            vo = await _judge_single_fallback(claim, adapter, config, req)
+            results.append(vo)
+
+    return results
+
+
+async def _judge_single_fallback(
+    claim: Claim,
+    adapter: LLMAdapter,
+    config: JudgeConfig,
+    req: EvalRequest,
+) -> ValidationObject:
+    """Single-field judge call used as fallback when batch parse fails."""
+    prompt = JUDGE_PROMPT.format(
+        field_path=claim.field_path,
+        field_type=claim.field_type,
+        actual_value=claim.actual_value,
+        context=req.context,
+        reference=req.reference or "Not provided",
+        evaluation_steps="\n".join(f"{i+1}. {s}" for i, s in enumerate(claim.steps)),
+        error_taxonomy=config.error_taxonomy_text,
+    )
+    response = await adapter.complete(
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.0,
+    )
+    return parse_judge_output(response, claim, config)
+```
+
+#### Cross-Document Field Batching (Offline Runs)
+
+For offline evaluation runs over a dataset — e.g., evaluating 500 historical documents — the same field across multiple documents can be batched together. The criteria and evaluation steps are identical for every document; only the context changes. This maximises prefix cache coverage: the static portion (system + criteria + steps) is cached after the first call in the batch.
 
 ```python
 async def judge_field_across_docs(
     field_path: str,
-    doc_claims: list[tuple[Claim, EvalRequest]],  # (claim, req) per document
+    doc_claims: list[tuple[Claim, EvalRequest]],
     config: JudgeConfig,
     adapter: LLMAdapter,
-    batch_size: int = 15,
-) -> list[ValidationObject]:
+    batch_size: int = 15,          # 15 documents per call is the practical limit before
+) -> list[ValidationObject]:      # prompt length exceeds context window for long documents
 
     results = []
     for batch in chunked(doc_claims, batch_size):
         doc_blocks = "\n\n".join(
             f"[Document {i+1}]\n"
-            f"  actual_value: {claim.actual_value}\n"
+            f"  actual_value: {claim.actual_value!r}\n"
             f"  context: {req.context}"
             for i, (claim, req) in enumerate(batch)
         )
-
         prompt = CROSS_DOC_BATCH_PROMPT.format(
             field_path=field_path,
-            criteria=batch[0][0].criteria,          # same criteria for all docs
-            evaluation_steps=batch[0][0].steps,
+            criteria=batch[0][0].criteria,
+            evaluation_steps="\n".join(f"{j+1}. {s}" for j, s in enumerate(batch[0][0].steps)),
             doc_blocks=doc_blocks,
         )
-
         response = await adapter.complete(
             messages=[{"role": "user", "content": prompt}],
             temperature=0.0,
-            cache_control=True,   # criteria + steps cached; only doc_blocks varies
+            cache_control=True,   # criteria + steps cached; only doc_blocks varies per call
         )
-
-        results.extend(parse_batch_response(response.text, batch))
+        results.extend(await _parse_batch_response(
+            response.text, [c for c, _ in batch], adapter, config, batch[0][1]
+        ))
 
     return results
 ```
 
-#### Full Async Dispatch with Tier Pre-routing
+#### Full Async Dispatch
 
-The pipeline segments claims by complexity tier before dispatching. Tier 1 claims are grouped into within-document batches; Tier 2 claims run in parallel as individual calls (they've already been flagged as complex — no benefit to batching them).
+`evaluate_with_batching` is what Stage 5 of `EvaluationPipeline.evaluate()` calls. It splits claims by tier, fires the Tier 1 batch and all Tier 2 individual calls concurrently, then merges results in original field order.
 
 ```python
 async def evaluate_with_batching(
     request: EvalRequest,
-    claims: list[Claim],
+    claims: list[Claim],           # all claims with steps already attached (Stage 4)
     config: JudgeConfig,
     judge: CascadingJudge,
 ) -> list[ValidationObject]:
 
-    # Pre-route by complexity tier (set on each Claim by ClaimDecomposer)
     tier1_claims = [c for c in claims if c.judge_tier == "tier1"]
     tier2_claims = [c for c in claims if c.judge_tier == "tier2"]
 
-    # Tier 1: one batched call for all easy fields in this document
-    tier1_task = judge_document_batch(
-        claims=tier1_claims,
-        config=config,
-        req=request,
-        adapter=judge.cheap,
-    ) if tier1_claims else asyncio.coroutine(lambda: [])()
+    # Tier 1: one batched call — all extractive/classification fields together
+    tier1_coro = (
+        judge_document_batch(tier1_claims, config, request, judge.cheap)
+        if tier1_claims
+        else asyncio.sleep(0, result=[])
+    )
 
-    # Tier 2: parallel individual calls for complex/inferential fields
-    tier2_tasks = [
+    # Tier 2: individual calls, all fired concurrently
+    tier2_coros = [
         judge.judge(claim=c, steps=c.steps, config=config, req=request)
         for c in tier2_claims
     ]
 
-    # Run both tiers concurrently — Tier 1 batch and all Tier 2 calls fire together
-    tier1_results, *tier2_results = await asyncio.gather(
-        tier1_task, *tier2_tasks
-    )
+    # Both tiers run concurrently — Tier 1 batch + all Tier 2 calls fire at the same time
+    all_results = await asyncio.gather(tier1_coro, *tier2_coros)
+    tier1_results: list[ValidationObject] = all_results[0]
+    tier2_results: list[ValidationObject] = list(all_results[1:])
 
-    # Merge preserving original field order
-    results_by_path = {vo.field_path: vo for vo in tier1_results}
-    for vo in tier2_results:
-        results_by_path[vo.field_path] = vo
-
-    return [results_by_path[c.field_path] for c in claims]
+    # Merge preserving original field order from the decomposer
+    by_path = {vo.field_path: vo for vo in tier1_results + tier2_results}
+    return [by_path[c.field_path] for c in claims]
 ```
 
 #### Prompt Caching Integration
 
-Batching and prompt caching work at different layers and compose naturally:
+The three cache layers compose with batching naturally:
 
-| Layer | What is cached | TTL | Provider |
+| Layer | What is cached | Key | TTL |
 |---|---|---|---|
-| Redis eval-steps cache | Evaluation steps per `(criteria_hash, rubric_version)` | 24 h | Your infrastructure |
-| Provider prefix cache | Static prompt prefix: system instructions + rubric + evaluation steps | 5 min (Anthropic ephemeral) | Anthropic / OpenAI |
-| Redis judge-result cache | Full `ValidationObject` per `(field_path, actual_value, context_hash, criteria_version)` | 1 h | Your infrastructure |
-
-Within-document batching maximises prefix cache hits: the system prompt, rubric, and evaluation steps are identical for all fields in the batch — they land in the provider's prefix cache after the first document, making subsequent documents in the same run near-free on the static portion.
-
-Cross-document field batching goes further: the criteria and evaluation steps for the same field are cached across all 15 documents in a batch, so you pay for the context portion only.
+| Redis eval-steps cache | Evaluation steps list | `sha256(criteria + rubric_version)` | 24 h |
+| Provider prefix cache | System prompt + rubric + steps (static prefix) | Provider-managed | 5 min (Anthropic ephemeral) |
+| Redis judge-result cache | Full `ValidationObject` | `sha256(field_path + actual_value + context_hash + criteria_version)` | 1 h |
 
 ```
-CACHE HIT SEQUENCE (within-document batch, 10 documents, 8 Tier 1 fields each):
+CALL COUNT AND COST (10 documents, 6 Tier 1 fields + 2 Tier 2 fields each)
 
-Doc 1, Batch call:   [MISS] system + rubric + steps → cached by provider
-Doc 2, Batch call:   [HIT]  system + rubric + steps from cache → pay only for context
-Doc 3–10:            [HIT]  same cache hit pattern
-Result: ~70–80% token reduction on the static prefix across the run
+Eval step generation:   8 LLM calls total  (one per field, first run only — all cached after)
+
+Per document:
+  Tier 1 batch:         1 call  (6 fields → 1 call)
+  Tier 2 individual:    2 calls (one per field, parallel)
+  Total per document:   3 calls
+
+Across 10 documents:    30 calls  vs.  80 calls without batching  (63% reduction)
+
+Provider prefix cache:
+  Doc 1 Tier 1 batch:  [MISS] system + context → cached
+  Doc 2–10 Tier 1:     [HIT]  only field values sent — static prefix served from cache
+  Additional savings:  ~70–80% token reduction on the static prefix
 ```
 
 ### 6.4 Holistic Path: Section-Level Evaluation

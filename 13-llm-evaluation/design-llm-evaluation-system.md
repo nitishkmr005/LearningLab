@@ -281,6 +281,54 @@ Toxicity is a special case — it is defined as a failure condition in the rubri
 
 ---
 
+#### Scoring Granularity: Why Binary for Verdicts and 0–1 Float (Not 1–5) for Scores
+
+The scoring granularity choice is constrained by the fact that this system evaluates **atomic claims**, not holistic responses.
+
+**`is_correct` and `is_missing` are boolean, not float — because atomic claims have no partial state.**
+
+An atomic claim is a single, independently verifiable assertion: "The renewal date is March 15th." That date is either in the source document or it isn't. There is no 0.4 version of a date. Converting `is_correct` to a float (0.0/0.4/1.0) would imply a meaningful partial state that doesn't exist at the atomic level — and would break precision/recall arithmetic, which requires binary verdicts.
+
+**`rubric_scores` uses 0–1 float with three anchors — not a 1–5 Likert scale.**
+
+1–5 scales are designed for **holistic human evaluation of full responses**. G-Eval uses them, and the research on that approach shows a consistent problem: score clustering. Judges gravitate to 3 and 5; values of 1, 2, and 4 are rarely used. In practice, a 1–5 scale collapses to 3 effective levels.
+
+For atomic claim evaluation, those 3 levels map naturally to `0.0 / 0.5 / 1.0`:
+
+```
+0.0  →  absent / completely wrong / not captured
+0.5  →  partial / present but incomplete / ambiguous
+1.0  →  complete / fully and accurately captured
+```
+
+Three anchors is the right granularity for an atomic claim. More distinctions don't add information — they add noise and inter-rater disagreement. A claim either captures the key fact (1.0), partially captures it (0.5), or misses it (0.0). There is no meaningful difference between "3 out of 5" and "4 out of 5" at this level.
+
+**0–1 float also aggregates cleanly.** You average directly across claims and documents to get a field-level or run-level score. A 1–5 average requires normalization before it's interpretable. Thresholds are intuitive: `> 0.8` means good, `< 0.5` means failing — no conversion needed.
+
+**Holistic metrics belong at the document level, not per-claim.**
+
+Metrics like overall readability or document-level coherence are not meaningful on an atomic claim — they measure properties of the whole output. These belong as **document-level metrics**, computed once after all claims are evaluated and stored separately from the per-claim `ValidationObject`. Putting them inside `rubric_scores` on each claim would be the wrong granularity — you'd be scoring readability on "The renewal date is March 15th" individually, which doesn't make sense.
+
+The boundary is:
+```
+Per-claim (ValidationObject.rubric_scores):
+  completeness, faithfulness, unit_clarity — claim-level dimensions
+
+Document-level (EvalResult aggregate):
+  readability, coherence, overall_quality — whole-output dimensions
+```
+
+**Summary table:**
+
+| What | Scale | Why |
+|---|---|---|
+| `is_correct` | `bool` (binary) | Atomic claim: correct or not — no partial state |
+| `is_missing` | `bool` (binary) | Present or absent — no partial state |
+| `rubric_scores` | `float`, 0–1, anchors at 0.0/0.5/1.0 | Three meaningful states per claim; cleaner aggregation than 1–5 |
+| Document-level holistic metrics | Separate aggregate, not in ValidationObject | Not meaningful per-claim; measure whole-output properties |
+
+---
+
 **Why `is_correct` and `is_missing` stay in the ValidationObject, not the rubric:**
 
 The rubric contains the *definition* of what correct means (acceptance criteria). The ValidationObject stores the *verdict* — the result of applying that definition to a specific extraction. Moving verdicts into the rubric would conflate the scoring key with the score sheet. The analogy: a grading rubric defines what an A means; it doesn't record which student got an A. The grade sheet does that.
@@ -461,6 +509,12 @@ The `rubric_scores: dict[str, float]` field is the extension point. It is an emp
 
 ```yaml
 # In judge-configs/call-summary-v1.yaml
+#
+# rubric_scales uses a 0–1 float with three anchors: 0.0 / 0.5 / 1.0.
+# This is intentional — not a 1–5 Likert scale.
+# Atomic claims have three meaningful states: absent, partial, complete.
+# 1–5 scales produce score clustering at 3 and 5 (G-Eval research); the extra
+# distinctions don't add information at the per-claim level and complicate aggregation.
 
 sections:
   summary:
@@ -472,22 +526,24 @@ sections:
         rubric_scales:
           resolution:        # metric name → appears as rubric_scores["resolution"]
             0.0: "No mention of resolution or outcome"
-            0.5: "Resolution implied but not stated"
+            0.5: "Resolution implied but not stated explicitly"
             1.0: "Resolution clearly stated with outcome"
           completeness:      # second metric on the same field
             0.0: "Key facts missing from summary"
-            0.5: "Most facts present, minor gaps"
+            0.5: "Most facts present, one or two gaps"
             1.0: "All key facts accurately captured"
 
       toxicity_check:
         field_type: free_form
         judge_strategy: rubric_scoring
-        plugin: toxicity_classifier   # Specialized judge plugin
+        # Toxicity is binary — no partial state, so no 0.5 anchor.
+        # But it lives in rubric_scores (not is_correct) because it's an additive
+        # quality dimension, not a verdict on whether the field was extracted correctly.
         criteria: "Flag if the generated text contains harmful, biased, or inappropriate language."
         rubric_scales:
           toxicity:
-            0.0: "No issues detected"
-            1.0: "Contains harmful content"
+            0.0: "No harmful or biased content detected"
+            1.0: "Contains harmful, biased, or inappropriate content"
 ```
 
 Judge output for a field with custom metrics:

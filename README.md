@@ -34,17 +34,18 @@ Every topic is chosen because it appears in interviews, production systems, or b
 | 05 | `05-pytorch/` | Tensors, autograd, training loops, distributed training, deployment | ML, AI | 17 | blog |
 | 06 | `06-git/` | Git internals, branching, rebase, CI/CD for ML, conventional commits | ML, AI | 16 | blog |
 | 07 | `07-machine-learning/` | Classical ML algorithms, evaluation, AutoML, fairness, MLOps, AWS SageMaker | DS, ML | 37 | blog |
-| 08 | `08-recommenders/` | Collaborative filtering, neural recsys, two-tower, GNNs, bandits, dataset prep, inference patterns | DS, ML, AI | 32 | blog |
-| 09 | `09-embedding-models/` | Word vectors → sentence transformers → multimodal, code embeddings | ML, AI | 24 | blog |
-| 10 | `10-rag/` | RAG pipelines: chunking, retrieval, reranking, evaluation, agentic RAG | AI, GenAI | 30 | blog |
-| 11 | `11-agents/` | ReAct, tool use, memory, multi-agent, LangGraph, MCP, computer use | AI, GenAI | 25 | blog |
-| 12 | `12-llm/` | Transformer architecture, fine-tuning, alignment, RLHF, reasoning models | ML, AI, GenAI | 30 | blog |
-| 13 | `13-llm-inferencing/` | Quantization, vLLM, flash attention, speculative decoding, KV cache | ML, GenAI | 24 | blog |
-| 14 | `14-llm-evaluation/` | Benchmarks, metrics, LLM-as-judge, hallucination, agentic eval | AI, GenAI | 18 | blog |
-| 15 | `15-reinforcement-learning/` | RL algorithms, deep RL, PPO, SAC, RLHF, DPO, GRPO | ML, AI | 16 | blog |
-| 16 | `16-speech/` | ASR, TTS, speaker recognition, Whisper, voice agent architecture | AI, GenAI | 17 | blog |
-| 17 | `17-vision-ocr/` | CNNs, detection, segmentation, ViT, OCR, SAM, DINOv2, video | ML, AI, GenAI | 18 | blog |
-| 18 | `18-ds-ml-ai-interviews/` | 80/20 interview prep: DSA, SQL, stats, ML, PyTorch, NLP, embeddings, LLMs, fine-tuning, agents, system design | DS, ML, AI, GenAI | 16 | blog |
+| 08 | `08-deep-learning/` | Neural nets, activations, backprop, loss functions (with formulas), optimizers, CNNs, RNNs, attention, regularisation, transfer learning, diffusion | DS, ML, AI | 12 | outline |
+| 09 | `09-recommenders/` | Collaborative filtering, neural recsys, two-tower, GNNs, bandits, dataset prep, inference patterns | DS, ML, AI | 32 | blog |
+| 10 | `10-embedding-models/` | Word vectors → sentence transformers → multimodal, code embeddings | ML, AI | 24 | blog |
+| 11 | `11-rag/` | RAG pipelines: chunking, retrieval, reranking, evaluation, agentic RAG | AI, GenAI | 30 | blog |
+| 12 | `12-agents/` | ReAct, tool use, memory, multi-agent, LangGraph, MCP, computer use | AI, GenAI | 25 | blog |
+| 13 | `13-llm/` | Transformer architecture, fine-tuning, alignment, RLHF, reasoning models | ML, AI, GenAI | 30 | blog |
+| 14 | `14-llm-inferencing/` | Quantization, vLLM, flash attention, speculative decoding, KV cache | ML, GenAI | 24 | blog |
+| 15 | `15-llm-evaluation/` | Benchmarks, metrics, LLM-as-judge, hallucination, agentic eval | AI, GenAI | 18 | blog |
+| 16 | `16-reinforcement-learning/` | RL algorithms, deep RL, PPO, SAC, RLHF, DPO, GRPO | ML, AI | 16 | blog |
+| 17 | `17-speech/` | ASR, TTS, speaker recognition, Whisper, voice agent architecture | AI, GenAI | 17 | blog |
+| 18 | `18-vision-ocr/` | CNNs, detection, segmentation, ViT, OCR, SAM, DINOv2, video | ML, AI, GenAI | 18 | blog |
+| 19 | `19-interview/` | 80/20 interview prep: DSA, SQL, stats, ML, PyTorch, NLP, embeddings, LLMs, fine-tuning, agents, system design | DS, ML, AI, GenAI | 16 | blog |
 
 ---
 

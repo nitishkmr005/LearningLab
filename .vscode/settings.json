@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "LearningLab",
+            "database": "${workspaceFolder:10.LearningLab}/01-sql/queries/learning.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

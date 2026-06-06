@@ -580,8 +580,6 @@ DOCS_META = {
         "Deep dive into positional embeddings, normalization, attention variants, and MoE from 2017 to today."),
     "skill-building-guide":                 ("Claude Code", "Skill Building Guide",
         "Condensed reference for building and publishing Claude Code skills."),
-    "limitations-solutions":                ("Docs", "Limitations & Solutions",
-        "Known limitations in the LearningLab project and their workarounds."),
 }
 
 SKIP_FILES = {'.DS_Store', 'bookmarks_24_05_2026.html'}

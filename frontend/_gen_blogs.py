@@ -15,7 +15,7 @@ It compares modification times and only regenerates changed files.
 Use --force to rebuild everything regardless.
 ──────────────────────────────────────────────────────────────────────────────
 """
-import os, sys, base64, time
+import os, sys, base64, time, json, re
 
 BASE_DIR     = os.path.dirname(os.path.abspath(__file__))   # frontend/
 PROJECT_ROOT = os.path.dirname(BASE_DIR)                    # repo root
@@ -300,14 +300,16 @@ function extractMath(src) {{
 
   /* block math  $$...$$ */
   src = src.replace(/[$][$]([\\s\\S]+?)[$][$]/g, function(_, math) {{
-    store.push({{ math: math, block: true }});
-    return '\\n\\nMATHBLK' + (store.length - 1) + '\\n\\n';
+    const token = '@@LLMATHBLK_' + store.length + '@@';
+    store.push({{ math: math, block: true, token: token }});
+    return '\\n\\n' + token + '\\n\\n';
   }});
 
   /* inline math  $...$  — simple pattern, no lookbehind needed */
   src = src.replace(/[$]([^\\n$]+?)[$]/g, function(_, math) {{
-    store.push({{ math: math, block: false }});
-    return 'MATHINL' + (store.length - 1);
+    const token = '@@LLMATHINL_' + store.length + '@@';
+    store.push({{ math: math, block: false, token: token }});
+    return token;
   }});
 
   return {{ src: src, store: store }};
@@ -326,12 +328,12 @@ function restoreMath(html, store) {{
     }}
     if (entry.block) {{
       /* marked wraps lone paragraphs with <p> */
-      html = html.replace(new RegExp('<p>\\\\s*MATHBLK' + i + '\\\\s*</p>', 'g'),
+      html = html.replace(new RegExp('<p>\\\\s*' + entry.token + '\\\\s*</p>', 'g'),
                           '<div class="math-block">' + rendered + '</div>');
       /* fallback if not wrapped */
-      html = html.split('MATHBLK' + i).join('<div class="math-block">' + rendered + '</div>');
+      html = html.split(entry.token).join('<div class="math-block">' + rendered + '</div>');
     }} else {{
-      html = html.split('MATHINL' + i).join('<span class="math-inline">' + rendered + '</span>');
+      html = html.split(entry.token).join('<span class="math-inline">' + rendered + '</span>');
     }}
   }});
   return html;
@@ -563,6 +565,8 @@ DOCS_META = {
 
 SKIP_FILES = {'.DS_Store', 'bookmarks_24_05_2026.html'}
 VIEWABLE_EXTS = {'.pdf', '.md', '.html'}
+GITHUB_BLOB = 'https://github.com/nitishkmr005/LearningLab/blob/main/'
+GITHUB_RAW  = 'https://raw.githubusercontent.com/nitishkmr005/LearningLab/main/'
 
 def _title_from_stem(stem):
     """'my-cool-file-2026' → 'My Cool File 2026'"""
@@ -594,11 +598,11 @@ def scan_docs():
                 cat   = _cat_from_dirpath(root)
                 title = _title_from_stem(stem)
                 desc  = ''
-            # .md files are rendered to styled HTML; others open directly
+            # .md → rendered HTML page; others → GitHub blob viewer
             if ext == '.md':
                 link_href = 'doc-' + stem + '.html'
             else:
-                link_href = '../' + rel.replace(os.sep, '/')
+                link_href = GITHUB_BLOB + rel.replace(os.sep, '/')
             entries.append((rel, cat, title, desc, ext, link_href))
     return entries
 
@@ -688,6 +692,68 @@ def update_index_docs():
     print(f"  ✓  INDEX docs section updated ({count} docs)")
 
 # ─────────────────────────────────────────────────────────────────────────────
+# SCRIPTS AUTO-SCAN  (feeds playground.html via scripts-config.json)
+# ─────────────────────────────────────────────────────────────────────────────
+_TOPIC_RE    = re.compile(r'^\d{2}-')
+_SCRIPT_EXTS = {'.sql', '.py'}
+
+def _extract_desc(path, ext):
+    """Return first meaningful comment line from a script file."""
+    prefix = '--' if ext == '.sql' else '#'
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith(prefix):
+                    text = line[len(prefix):].strip()
+                    if text and not re.fullmatch(r'[-=\s]+', text):
+                        return text[:90]
+    except Exception:
+        pass
+    return ''
+
+def scan_scripts():
+    """Walk all NN-topic/ dirs and collect scripts/ + queries/ files."""
+    topics = []
+    for item in sorted(os.listdir(PROJECT_ROOT)):
+        if not _TOPIC_RE.match(item):
+            continue
+        topic_dir = os.path.join(PROJECT_ROOT, item)
+        if not os.path.isdir(topic_dir):
+            continue
+        scripts = []
+        for subdir_name in ('scripts', 'queries'):
+            subdir = os.path.join(topic_dir, subdir_name)
+            if not os.path.isdir(subdir):
+                continue
+            for fname in sorted(os.listdir(subdir)):
+                ext = os.path.splitext(fname)[1].lower()
+                if ext not in _SCRIPT_EXTS:
+                    continue
+                fpath = os.path.join(subdir, fname)
+                rel   = os.path.relpath(fpath, PROJECT_ROOT).replace(os.sep, '/')
+                scripts.append({
+                    'file': fname,
+                    'path': rel,
+                    'ext':  ext[1:],
+                    'desc': _extract_desc(fpath, ext),
+                })
+        if scripts:
+            num  = item[:2]
+            name = item[3:].replace('-', ' ').title()
+            topics.append({'num': num, 'name': name, 'dir': item, 'scripts': scripts})
+    return topics
+
+def gen_scripts_config():
+    """Write frontend/scripts-config.json for the playground to consume."""
+    topics = scan_scripts()
+    out = os.path.join(BASE_DIR, 'scripts-config.json')
+    with open(out, 'w', encoding='utf-8') as f:
+        json.dump(topics, f, indent=2)
+    total = sum(len(t['scripts']) for t in topics)
+    print(f"  ✓  SCRIPTS CONFIG — {total} script(s) in {len(topics)} topic(s)")
+
+# ─────────────────────────────────────────────────────────────────────────────
 # BUILD FUNCTION
 # ─────────────────────────────────────────────────────────────────────────────
 def build_all(force=False):
@@ -769,6 +835,7 @@ def build_all(force=False):
 
     # rebuild docs section in index.html whenever we run
     update_index_docs()
+    gen_scripts_config()
 
     if uptodate and not WATCH:
         print(f"  –  {len(uptodate)} file(s) up to date (use --force to rebuild all)")

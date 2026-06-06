@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Playground — LearningLab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #f6f1e7;
+      --bg-mid:   #ede6d6;
+      --bg-code:  #1a1814;
+      --text:     #1c1814;
+      --muted:    #6e6259;
+      --faint:    #a89f94;
+      --accent:   #c85e35;
+      --border:   #d9cfc0;
+      --ok:       #4a7c59;
+      --err:      #c0392b;
+      --f-serif:  'DM Serif Display', Georgia, serif;
+      --f-body:   'Syne', sans-serif;
+      --f-mono:   'JetBrains Mono', 'Fira Code', monospace;
+      --nav-h:    52px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: var(--f-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
+
+    /* ── nav ── */
+    nav {
+      height: var(--nav-h); flex-shrink: 0;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-back { font-family: var(--f-mono); font-size: 11px; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .15s; }
+    .nav-back:hover { color: var(--accent); }
+    .nav-center { font-family: var(--f-serif); font-size: 16px; color: var(--text); }
+    .nav-badge { font-family: var(--f-mono); font-size: 10px; background: var(--accent); color: #fff; padding: 2px 8px; letter-spacing: .5px; }
+
+    /* ── layout ── */
+    .playground { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── sidebar ── */
+    .sidebar { width: 230px; flex-shrink: 0; border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--bg); }
+    .sidebar-hd { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .sidebar-lbl { font-family: var(--f-mono); font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--faint); display: block; margin-bottom: 6px; }
+    .db-badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-mono); font-size: 10px; color: var(--faint); }
+    .db-badge.ready  { color: var(--ok); }
+    .db-badge.err    { color: var(--err); }
+    .db-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .script-list { list-style: none; overflow-y: auto; flex: 1; padding: 6px 0; }
+    .script-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 16px; cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: background .1s, border-color .1s;
+    }
+    .script-item:hover { background: var(--bg-mid); }
+    .script-item.active { border-left-color: var(--accent); background: var(--bg-mid); }
+    .s-num  { font-family: var(--f-mono); font-size: 10px; color: var(--faint); flex-shrink: 0; margin-top: 1px; }
+    .s-info { min-width: 0; }
+    .s-name { font-size: 12px; font-weight: 500; color: var(--text); line-height: 1.3; }
+    .script-item.active .s-name { color: var(--accent); }
+    .s-desc { font-size: 10px; color: var(--faint); margin-top: 2px; line-height: 1.3; }
+
+    /* ── editor panel ── */
+    .editor-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .editor-hd {
+      flex-shrink: 0; padding: 10px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg);
+    }
+    .file-title { font-family: var(--f-serif); font-size: 17px; color: var(--text); }
+    .hint { font-family: var(--f-mono); font-size: 10px; color: var(--faint); }
+
+    .toolbar { display: flex; gap: 7px; align-items: center; }
+    .btn {
+      font-family: var(--f-mono); font-size: 10px; letter-spacing: .4px;
+      padding: 5px 12px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--muted); cursor: pointer; transition: all .12s;
+    }
+    .btn:hover { border-color: var(--muted); color: var(--text); }
+    .btn-run { background: var(--accent); color: #fff; border-color: var(--accent); font-size: 11px; padding: 5px 16px; }
+    .btn-run:hover { background: #a84d28; border-color: #a84d28; }
+    .btn-run:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── editor + results ── */
+    .editor-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .editor-wrap { flex: 1; position: relative; min-height: 0; }
+    #editor {
+      width: 100%; height: 100%;
+      background: var(--bg-code); color: #d4c9b8;
+      font-family: var(--f-mono); font-size: 13px; line-height: 1.7;
+      padding: 18px 22px; border: none; outline: none; resize: none; tab-size: 2;
+    }
+    #editor::selection { background: rgba(200,94,53,.25); }
+
+    .spin-overlay {
+      position: absolute; inset: 0;
+      background: rgba(26,24,20,.65);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--f-mono); font-size: 12px; color: var(--faint);
+    }
+    .spin-overlay.hidden { display: none; }
+
+    /* ── results ── */
+    .results-panel { flex-shrink: 0; max-height: 38vh; overflow-y: auto; border-top: 2px solid var(--border); background: var(--bg); }
+    .results-hd {
+      position: sticky; top: 0; background: var(--bg); z-index: 1;
+      padding: 7px 18px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .results-lbl { font-family: var(--f-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--faint); }
+    .results-meta { font-family: var(--f-mono); font-size: 10px; color: var(--muted); }
+    .results-body { padding: 10px 18px 16px; }
+
+    .r-block { margin-bottom: 14px; }
+    .r-stmt  { font-family: var(--f-mono); font-size: 10px; color: var(--faint); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .r-ok    { font-family: var(--f-mono); font-size: 11px; color: var(--ok); }
+    .r-err   { font-family: var(--f-mono); font-size: 11px; color: var(--err); background: rgba(192,57,43,.08); padding: 5px 10px; }
+    .r-empty { font-family: var(--f-mono); font-size: 12px; color: var(--faint); padding: 22px 0; text-align: center; }
+    .r-rowcount { font-family: var(--f-mono); font-size: 10px; color: var(--faint); margin-top: 3px; }
+
+    table.r-table { border-collapse: collapse; font-size: 12px; }
+    table.r-table th { background: var(--bg-mid); font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase; padding: 5px 12px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; }
+    table.r-table td { font-family: var(--f-mono); font-size: 12px; padding: 4px 12px; border-bottom: 1px solid var(--border); vertical-align: top; white-space: nowrap; }
+    table.r-table tr:last-child td { border-bottom: none; }
+    table.r-table tr:hover td { background: var(--bg-mid); }
+    .null-val { color: var(--faint); font-style: italic; }
+
+    .r-table-wrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-back">← LearningLab</a>
+  <span class="nav-center">SQL Playground</span>
+  <span class="nav-badge">LIVE · SQLite</span>
+</nav>
+
+<div class="playground">
+
+  <!-- sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-hd">
+      <span class="sidebar-lbl">Scripts</span>
+      <div class="db-badge" id="dbBadge">
+        <span class="db-dot"></span>
+        <span id="dbLabel">Loading engine…</span>
+      </div>
+    </div>
+    <ul class="script-list" id="scriptList"></ul>
+  </aside>
+
+  <!-- editor + results -->
+  <div class="editor-panel">
+    <div class="editor-hd">
+      <div>
+        <div class="file-title" id="fileTitle">—</div>
+        <div class="hint">⌘/Ctrl + Enter to run</div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="copyBtn">Copy</button>
+        <button class="btn" id="resetBtn">Reset DB</button>
+        <button class="btn btn-run" id="runBtn" disabled>▶ Run All</button>
+      </div>
+    </div>
+    <div class="editor-body">
+      <div class="editor-wrap">
+        <textarea id="editor" spellcheck="false" placeholder="Loading…"></textarea>
+        <div class="spin-overlay" id="spinner">Loading…</div>
+      </div>
+      <div class="results-panel">
+        <div class="results-hd">
+          <span class="results-lbl">Results</span>
+          <span class="results-meta" id="resultsMeta"></span>
+        </div>
+        <div class="results-body" id="resultsBody">
+          <div class="r-empty">Click ▶ Run All or press ⌘+Enter to execute</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- sql.js must load before our code -->
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js"></script>
+<script>
+const RAW = 'https://raw.githubusercontent.com/nitishkmr005/LearningLab/main/01-sql/queries/';
+
+const SCRIPTS = [
+  { file: '01-setup.sql',                  num: '01', name: 'Setup',                  desc: 'Creates all tables & sample data — run first' },
+  { file: '02-sql-execution-order.sql',    num: '02', name: 'Execution Order',         desc: 'FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY' },
+  { file: '03-joins.sql',                  num: '03', name: 'JOINs',                   desc: 'INNER, LEFT, SELF, CROSS joins with real examples' },
+  { file: '04-subqueries-ctes.sql',        num: '04', name: 'Subqueries & CTEs',       desc: 'Correlated subqueries, WITH clause, recursive CTEs' },
+  { file: '05-window-functions.sql',       num: '05', name: 'Window Functions',         desc: 'ROW_NUMBER, RANK, LAG/LEAD, running totals' },
+  { file: '06-set-operations.sql',         num: '06', name: 'Set Operations',           desc: 'UNION, INTERSECT, EXCEPT with practical cases' },
+  { file: '07-null-and-case.sql',          num: '07', name: 'NULL & CASE',             desc: 'NULL handling, COALESCE, NULLIF, CASE expressions' },
+  { file: '08-datetime-string.sql',        num: '08', name: 'DateTime & Strings',      desc: 'Date math, strftime, string functions' },
+  { file: '09-analytical-patterns.sql',    num: '09', name: 'Analytical Patterns',     desc: 'Funnels, sessionization, cohorts, pivots' },
+  { file: '10-views-optimization.sql',     num: '10', name: 'Views & Optimization',    desc: 'CREATE VIEW, indexes, EXPLAIN QUERY PLAN' },
+  { file: '11-ml-feature-engineering.sql', num: '11', name: 'ML Feature Engineering', desc: 'Normalization, binning, one-hot encoding in SQL' },
+  { file: '12-interview-problems.sql',     num: '12', name: 'Interview Problems',      desc: 'Classic SQL interview Qs with solutions' },
+];
+
+let db = null;
+let activeIdx = 0;
+
+const $ = id => document.getElementById(id);
+const dbBadge   = $('dbBadge');
+const dbLabel   = $('dbLabel');
+const scriptList = $('scriptList');
+const fileTitle  = $('fileTitle');
+const editor     = $('editor');
+const runBtn     = $('runBtn');
+const copyBtn    = $('copyBtn');
+const resetBtn   = $('resetBtn');
+const resultsBody = $('resultsBody');
+const resultsMeta = $('resultsMeta');
+const spinner    = $('spinner');
+
+/* ── Build sidebar ── */
+SCRIPTS.forEach((s, i) => {
+  const li = document.createElement('li');
+  li.className = 'script-item';
+  li.dataset.i = i;
+  li.innerHTML =
+    `<span class="s-num">${s.num}</span>` +
+    `<div class="s-info"><div class="s-name">${s.name}</div><div class="s-desc">${s.desc}</div></div>`;
+  li.addEventListener('click', () => loadScript(i));
+  scriptList.appendChild(li);
+});
+
+/* ── sql.js init ── */
+async function initDB() {
+  const SQL = await initSqlJs({
+    locateFile: f => `https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/${f}`
+  });
+  db = new SQL.Database();
+  const setup = await fetchRaw('01-setup.sql');
+  db.run(setup);
+  dbLabel.textContent = 'Ready · 4 tables';
+  dbBadge.classList.add('ready');
+  runBtn.disabled = false;
+}
+
+/* ── Fetch script ── */
+async function fetchRaw(filename) {
+  const r = await fetch(RAW + filename);
+  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  return r.text();
+}
+
+/* ── Load script into editor ── */
+async function loadScript(idx) {
+  activeIdx = idx;
+  document.querySelectorAll('.script-item').forEach((el, i) =>
+    el.classList.toggle('active', i === idx));
+
+  const s = SCRIPTS[idx];
+  fileTitle.textContent = `${s.num} — ${s.name}`;
+  editor.value = '';
+  clearResults();
+  spinner.classList.remove('hidden');
+  spinner.textContent = `Fetching ${s.file}…`;
+
+  try {
+    editor.value = await fetchRaw(s.file);
+  } catch (e) {
+    editor.value = `-- Failed to load: ${e.message}`;
+  } finally {
+    spinner.classList.add('hidden');
+  }
+}
+
+/* ── Run SQL ── */
+function runSQL() {
+  if (!db) return;
+  const sql = editor.value.trim();
+  if (!sql) return;
+
+  clearResults();
+
+  const stmts = sql
+    .split(/;/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0 && !/^--/.test(s));
+
+  let totalRows = 0, errorCount = 0;
+  const t0 = performance.now();
+
+  stmts.forEach(stmt => {
+    const block = document.createElement('div');
+    block.className = 'r-block';
+
+    const preview = stmt.replace(/\s+/g, ' ').slice(0, 90) + (stmt.length > 90 ? '…' : '');
+    const stmtEl = document.createElement('div');
+    stmtEl.className = 'r-stmt';
+    stmtEl.title = stmt;
+    stmtEl.textContent = preview + ';';
+    block.appendChild(stmtEl);
+
+    try {
+      const out = db.exec(stmt);
+      if (out.length > 0) {
+        out.forEach(r => {
+          totalRows += r.values.length;
+          block.appendChild(makeTable(r.columns, r.values));
+          const rc = document.createElement('div');
+          rc.className = 'r-rowcount';
+          rc.textContent = `${r.values.length} row${r.values.length !== 1 ? 's' : ''} returned`;
+          block.appendChild(rc);
+        });
+      } else {
+        const ok = document.createElement('div');
+        ok.className = 'r-ok';
+        ok.textContent = '✓ OK';
+        block.appendChild(ok);
+      }
+    } catch (e) {
+      errorCount++;
+      const err = document.createElement('div');
+      err.className = 'r-err';
+      err.textContent = '✗ ' + e.message;
+      block.appendChild(err);
+    }
+
+    resultsBody.appendChild(block);
+  });
+
+  const ms = (performance.now() - t0).toFixed(1);
+  resultsMeta.textContent =
+    `${stmts.length} stmt${stmts.length !== 1 ? 's' : ''} · ${totalRows} row${totalRows !== 1 ? 's' : ''} · ${ms}ms` +
+    (errorCount ? ` · ${errorCount} error${errorCount !== 1 ? 's' : ''}` : '');
+}
+
+/* ── Build result table ── */
+function makeTable(cols, rows) {
+  const wrap = document.createElement('div');
+  wrap.className = 'r-table-wrap';
+  const t = document.createElement('table');
+  t.className = 'r-table';
+  const thead = t.createTHead();
+  const hr = thead.insertRow();
+  cols.forEach(c => { const th = document.createElement('th'); th.textContent = c; hr.appendChild(th); });
+  const tbody = t.createTBody();
+  rows.forEach(row => {
+    const tr = tbody.insertRow();
+    row.forEach(val => {
+      const td = tr.insertCell();
+      if (val === null) { td.innerHTML = '<span class="null-val">NULL</span>'; }
+      else { td.textContent = val; }
+    });
+  });
+  wrap.appendChild(t);
+  return wrap;
+}
+
+function clearResults() {
+  resultsBody.innerHTML = '';
+  resultsMeta.textContent = '';
+}
+
+/* ── Reset DB ── */
+async function resetDB() {
+  if (!db) return;
+  db.close(); db = null;
+  runBtn.disabled = true;
+  dbLabel.textContent = 'Reinitializing…';
+  dbBadge.classList.remove('ready', 'err');
+  clearResults();
+  try {
+    await initDB();
+    const ok = document.createElement('div');
+    ok.className = 'r-empty';
+    ok.textContent = 'Database reset — all tables recreated.';
+    resultsBody.appendChild(ok);
+  } catch (e) {
+    dbLabel.textContent = 'Error: ' + e.message;
+    dbBadge.classList.add('err');
+  }
+}
+
+/* ── Copy button ── */
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(editor.value).then(() => {
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => (copyBtn.textContent = 'Copy'), 1500);
+  });
+});
+
+runBtn.addEventListener('click', runSQL);
+resetBtn.addEventListener('click', resetDB);
+
+/* ── Tab + Cmd+Enter in editor ── */
+editor.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = editor.selectionStart;
+    editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(editor.selectionEnd);
+    editor.selectionStart = editor.selectionEnd = s + 2;
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runSQL();
+});
+
+/* ── Start ── */
+(async () => {
+  const param = new URLSearchParams(location.search).get('script');
+  const startIdx = param ? Math.max(0, SCRIPTS.findIndex(s => s.file === param)) : 0;
+  try {
+    await Promise.all([initDB(), loadScript(startIdx)]);
+  } catch (e) {
+    dbLabel.textContent = 'Engine failed: ' + e.message;
+    dbBadge.classList.add('err');
+  }
+})();
+</script>
+</body>
+</html>

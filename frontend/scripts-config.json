@@ -1,0 +1,81 @@
+[
+  {
+    "num": "01",
+    "name": "Sql",
+    "dir": "01-sql",
+    "scripts": [
+      {
+        "file": "01-setup.sql",
+        "path": "01-sql/queries/01-setup.sql",
+        "ext": "sql",
+        "desc": "SETUP \u2014 Run this FIRST before any other query file"
+      },
+      {
+        "file": "02-sql-execution-order.sql",
+        "path": "01-sql/queries/02-sql-execution-order.sql",
+        "ext": "sql",
+        "desc": "SQL EXECUTION ORDER"
+      },
+      {
+        "file": "03-joins.sql",
+        "path": "01-sql/queries/03-joins.sql",
+        "ext": "sql",
+        "desc": "JOINS \u2014 Every type with the gotchas interviewers probe"
+      },
+      {
+        "file": "04-subqueries-ctes.sql",
+        "path": "01-sql/queries/04-subqueries-ctes.sql",
+        "ext": "sql",
+        "desc": "SUBQUERIES, CTEs & RECURSIVE CTEs"
+      },
+      {
+        "file": "05-window-functions.sql",
+        "path": "01-sql/queries/05-window-functions.sql",
+        "ext": "sql",
+        "desc": "WINDOW FUNCTIONS \u2014 The most-tested topic in DS/ML interviews"
+      },
+      {
+        "file": "06-set-operations.sql",
+        "path": "01-sql/queries/06-set-operations.sql",
+        "ext": "sql",
+        "desc": "SET OPERATIONS \u2014 UNION, INTERSECT, EXCEPT"
+      },
+      {
+        "file": "07-null-and-case.sql",
+        "path": "01-sql/queries/07-null-and-case.sql",
+        "ext": "sql",
+        "desc": "NULL HANDLING & CASE EXPRESSIONS"
+      },
+      {
+        "file": "08-datetime-string.sql",
+        "path": "01-sql/queries/08-datetime-string.sql",
+        "ext": "sql",
+        "desc": "DATE/TIME & STRING FUNCTIONS"
+      },
+      {
+        "file": "09-analytical-patterns.sql",
+        "path": "01-sql/queries/09-analytical-patterns.sql",
+        "ext": "sql",
+        "desc": "ANALYTICAL PATTERNS \u2014 The patterns that appear in every DS take-home"
+      },
+      {
+        "file": "10-views-optimization.sql",
+        "path": "01-sql/queries/10-views-optimization.sql",
+        "ext": "sql",
+        "desc": "VIEWS, INDEXES & QUERY OPTIMIZATION"
+      },
+      {
+        "file": "11-ml-feature-engineering.sql",
+        "path": "01-sql/queries/11-ml-feature-engineering.sql",
+        "ext": "sql",
+        "desc": "SQL FOR ML \u2014 Feature engineering patterns for model training"
+      },
+      {
+        "file": "12-interview-problems.sql",
+        "path": "01-sql/queries/12-interview-problems.sql",
+        "ext": "sql",
+        "desc": "INTERVIEW PROBLEMS \u2014 10 classic SQL interview questions"
+      }
+    ]
+  }
+]

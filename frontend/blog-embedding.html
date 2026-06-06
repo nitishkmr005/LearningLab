@@ -234,14 +234,16 @@ function extractMath(src) {
 
   /* block math  $$...$$ */
   src = src.replace(/[$][$]([\s\S]+?)[$][$]/g, function(_, math) {
-    store.push({ math: math, block: true });
-    return '\n\nMATHBLK' + (store.length - 1) + '\n\n';
+    const token = '@@LLMATHBLK_' + store.length + '@@';
+    store.push({ math: math, block: true, token: token });
+    return '\n\n' + token + '\n\n';
   });
 
   /* inline math  $...$  — simple pattern, no lookbehind needed */
   src = src.replace(/[$]([^\n$]+?)[$]/g, function(_, math) {
-    store.push({ math: math, block: false });
-    return 'MATHINL' + (store.length - 1);
+    const token = '@@LLMATHINL_' + store.length + '@@';
+    store.push({ math: math, block: false, token: token });
+    return token;
   });
 
   return { src: src, store: store };
@@ -260,12 +262,12 @@ function restoreMath(html, store) {
     }
     if (entry.block) {
       /* marked wraps lone paragraphs with <p> */
-      html = html.replace(new RegExp('<p>\\s*MATHBLK' + i + '\\s*</p>', 'g'),
+      html = html.replace(new RegExp('<p>\\s*' + entry.token + '\\s*</p>', 'g'),
                           '<div class="math-block">' + rendered + '</div>');
       /* fallback if not wrapped */
-      html = html.split('MATHBLK' + i).join('<div class="math-block">' + rendered + '</div>');
+      html = html.split(entry.token).join('<div class="math-block">' + rendered + '</div>');
     } else {
-      html = html.split('MATHINL' + i).join('<span class="math-inline">' + rendered + '</span>');
+      html = html.split(entry.token).join('<span class="math-inline">' + rendered + '</span>');
     }
   });
   return html;

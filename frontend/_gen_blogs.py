@@ -47,11 +47,13 @@ ALL_FILES = [
     ("19-vision-ocr",         "blog-vision-ocr.md",             "blog-vision-ocr.html",             "Vision & OCR",                         "index.html#topics"),
     # ── Interview ─────────────────────────────────────────────────────────────
     ("20-interview",          "blog-ds-ml-ai-interviews.md",    "interview-overview.html",          "DS/ML/AI Interview Guide",             "index.html#interview"),
-    ("20-interview",   "1.deep-learning-interview.md",   "interview-deep-learning.html",     "Deep Learning — Interview Q&A",        "index.html#interview"),
-    ("20-interview",   "2.ml-algorithms-interview.md",   "interview-ml-algorithms.html",     "ML Algorithms — Interview Q&A",        "index.html#interview"),
-    ("20-interview",   "3.statistics-interview.md",      "interview-statistics.html",        "Statistics — Interview Q&A",           "index.html#interview"),
-    ("20-interview",   "4.model-evaluation-interview.md","interview-model-eval.html",        "Model Evaluation — Interview Q&A",     "index.html#interview"),
-    ("20-interview",   "5.feature-engineering-interview.md", "interview-feature-eng.html",  "Feature Engineering — Interview Q&A",  "index.html#interview"),
+    ("20-interview",   "1.sql-interview.md",              "interview-sql.html",               "SQL — Interview Q&A",                  "index.html#interview"),
+    ("20-interview",   "2.pandas-dsa-interview.md",       "interview-pandas-dsa.html",        "Python, Pandas & DSA — Interview Q&A", "index.html#interview"),
+    ("20-interview",   "3.statistics-interview.md",       "interview-statistics.html",        "Statistics — Interview Q&A",           "index.html#interview"),
+    ("20-interview",   "4.ml-algorithms-interview.md",    "interview-ml-algorithms.html",     "ML Algorithms & Evaluation — Interview Q&A", "index.html#interview"),
+    ("20-interview",   "5.deep-learning-interview.md",    "interview-deep-learning.html",     "Deep Learning — Interview Q&A",        "index.html#interview"),
+    ("20-interview",   "6.recommenders-interview.md",     "interview-recommenders.html",      "Recommender Systems — Interview Q&A",  "index.html#interview"),
+    ("20-interview",   "7.nlp-llm-interview.md",          "interview-nlp-llm.html",           "NLP & Large Language Models — Interview Q&A", "index.html#interview"),
     # ── References ───────────────────────────────────────────────────────────
     (".",                     "references.md",                  "references.html",                  "LearningLab — Reference URLs",         "index.html#references"),
 ]

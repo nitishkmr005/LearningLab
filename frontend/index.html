@@ -140,7 +140,7 @@
     .ioc-btn { font-family: var(--f-m); font-size: 10px; letter-spacing: .8px; text-transform: uppercase; padding: 10px 20px; background: var(--accent); color: var(--white); text-decoration: none; border: 1px solid var(--accent); transition: background .15s; white-space: nowrap; flex-shrink: 0; }
     .ioc-btn:hover { background: #a84d28; border-color: #a84d28; }
 
-    .interview-subjects { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+    .interview-subjects { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
     .isub-card { background: var(--bg-card); border: 1px solid var(--border); padding: 20px 18px; display: flex; flex-direction: column; gap: 12px; transition: background .15s; position: relative; overflow: hidden; }
     .isub-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s var(--ease); }
     .isub-card:hover { background: var(--bg-hover); }
@@ -206,7 +206,7 @@
 
     /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 1024px) {
-      .interview-subjects { grid-template-columns: repeat(3, 1fr); }
+      .interview-subjects { grid-template-columns: repeat(2, 1fr); }
       .doc-cat-body .docs-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 760px) {
@@ -237,7 +237,7 @@
 
 <!-- ══════════ SECTION NAV ══════════ -->
 <div class="section-nav" id="sectionNav">
-  <a href="#topics"    class="snav-item active" data-section="topics">Topics (19)</a>
+  <a href="#topics"    class="snav-item active" data-section="topics">Topics (20)</a>
   <a href="#interview" class="snav-item"         data-section="interview">Interview Prep</a>
   <a href="#docs"      class="snav-item"         data-section="docs">Docs &amp; PDFs</a>
   <a href="#references" class="snav-item"        data-section="references">References</a>
@@ -261,7 +261,7 @@
 <div class="progress-bar-section">
   <span class="prog-label">Coverage</span>
   <div class="prog-track"><div class="prog-fill" id="pFill"></div></div>
-  <span class="prog-count"><strong>19</strong> topic blogs · <strong>6</strong> interview guides</span>
+  <span class="prog-count"><strong>20</strong> topic blogs · <strong>7</strong> interview guides</span>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════
@@ -270,7 +270,7 @@
 <section class="section" id="topics">
   <div class="section-hd">
     <h2>Topics</h2>
-    <span class="section-meta" id="topicCount">19 topics</span>
+    <span class="section-meta" id="topicCount">20 topics</span>
   </div>
 
   <div class="topics-grid" id="topicsGrid">
@@ -536,6 +536,19 @@
       </div>
     </div>
 
+    <!-- 20 Multimodal AI -->
+    <div class="tc" data-roles="AI GenAI">
+      <div class="tc-num-col"><span class="tc-num">20</span><span class="tc-num-lbl">Multimodal</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Multimodal AI</span><span class="tc-status outline">outline</span></div>
+        <div class="tc-tags"><span class="tag tag-AI">AI</span><span class="tag tag-GenAI">GenAI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-multimodal-ai.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">vision-language · image gen · audio-visual agents</span>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /topics-grid -->
 </section>
 
@@ -545,7 +558,7 @@
 <section class="section" id="interview">
   <div class="section-hd">
     <h2>Interview Prep</h2>
-    <span class="section-meta">Topic 20 · 6 guides</span>
+    <span class="section-meta">Topic 20 · 7 guides</span>
   </div>
   <div class="interview-wrap">
 
@@ -554,24 +567,24 @@
       <div class="ioc-left">
         <p class="ioc-eyebrow">Topic 20 — Master Guide</p>
         <h3 class="ioc-title">DS / ML / AI Interview Guide</h3>
-        <p class="ioc-desc">80/20 interview prep across all roles: DSA, SQL, statistics, ML algorithms, PyTorch, NLP, embeddings, LLMs, fine-tuning, agents, and system design. 16 topic sections, 350+ questions with detailed answers.</p>
+        <p class="ioc-desc">80/20 interview prep: the 20% of questions that appear in 80% of DS/ML/AI interviews. Covers SQL, Python &amp; Pandas, Statistics, ML Algorithms, Deep Learning, Recommender Systems, and NLP &amp; LLMs — 7 guides, 100+ questions with full worked answers.</p>
       </div>
       <a href="interview-overview.html" class="ioc-btn">Open Guide →</a>
     </div>
 
-    <!-- 5 subject cards -->
+    <!-- 7 subject cards -->
     <div class="interview-subjects">
       <div class="isub-card">
-        <span class="isub-icon">🧠</span>
+        <span class="isub-icon">🗄️</span>
         <span class="isub-num">Subject 01</span>
-        <span class="isub-title">Deep Learning</span>
-        <a href="interview-deep-learning.html" class="isub-link">Study Q&amp;A →</a>
+        <span class="isub-title">SQL</span>
+        <a href="interview-sql.html" class="isub-link">Study Q&amp;A →</a>
       </div>
       <div class="isub-card">
-        <span class="isub-icon">🌳</span>
+        <span class="isub-icon">🐼</span>
         <span class="isub-num">Subject 02</span>
-        <span class="isub-title">ML Algorithms</span>
-        <a href="interview-ml-algorithms.html" class="isub-link">Study Q&amp;A →</a>
+        <span class="isub-title">Python, Pandas &amp; DSA</span>
+        <a href="interview-pandas-dsa.html" class="isub-link">Study Q&amp;A →</a>
       </div>
       <div class="isub-card">
         <span class="isub-icon">📊</span>
@@ -580,16 +593,28 @@
         <a href="interview-statistics.html" class="isub-link">Study Q&amp;A →</a>
       </div>
       <div class="isub-card">
-        <span class="isub-icon">📐</span>
+        <span class="isub-icon">🌳</span>
         <span class="isub-num">Subject 04</span>
-        <span class="isub-title">Model Evaluation</span>
-        <a href="interview-model-eval.html" class="isub-link">Study Q&amp;A →</a>
+        <span class="isub-title">ML Algorithms &amp; Evaluation</span>
+        <a href="interview-ml-algorithms.html" class="isub-link">Study Q&amp;A →</a>
       </div>
       <div class="isub-card">
-        <span class="isub-icon">⚙️</span>
+        <span class="isub-icon">🧠</span>
         <span class="isub-num">Subject 05</span>
-        <span class="isub-title">Feature Engineering</span>
-        <a href="interview-feature-eng.html" class="isub-link">Study Q&amp;A →</a>
+        <span class="isub-title">Deep Learning</span>
+        <a href="interview-deep-learning.html" class="isub-link">Study Q&amp;A →</a>
+      </div>
+      <div class="isub-card">
+        <span class="isub-icon">🎯</span>
+        <span class="isub-num">Subject 06</span>
+        <span class="isub-title">Recommender Systems</span>
+        <a href="interview-recommenders.html" class="isub-link">Study Q&amp;A →</a>
+      </div>
+      <div class="isub-card">
+        <span class="isub-icon">💬</span>
+        <span class="isub-num">Subject 07</span>
+        <span class="isub-title">NLP &amp; Large Language Models</span>
+        <a href="interview-nlp-llm.html" class="isub-link">Study Q&amp;A →</a>
       </div>
     </div>
 
@@ -796,7 +821,7 @@
 
 <!-- ══════════ FOOTER ══════════ -->
 <footer>
-  <span class="foot-left">LearningLab · <strong>20 topics</strong> · 19 blogs + 6 interview guides</span>
+  <span class="foot-left">LearningLab · <strong>20 topics</strong> · 20 blogs + 7 interview guides</span>
   <span class="foot-right">DS · ML · AI · GenAI</span>
 </footer>
 

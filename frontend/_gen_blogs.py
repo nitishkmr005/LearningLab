@@ -15,11 +15,12 @@ It compares modification times and only regenerates changed files.
 Use --force to rebuild everything regardless.
 ──────────────────────────────────────────────────────────────────────────────
 """
-import os, sys, base64
+import os, sys, base64, time
 
 BASE_DIR     = os.path.dirname(os.path.abspath(__file__))   # frontend/
 PROJECT_ROOT = os.path.dirname(BASE_DIR)                    # repo root
 FORCE        = '--force' in sys.argv
+WATCH        = '--watch' in sys.argv
 
 # (source subdir relative to PROJECT_ROOT, md filename, output html, page title, back anchor)
 ALL_FILES = [
@@ -284,7 +285,9 @@ HTML_TEMPLATE = """\
 
 <script>
 /* Content is Base64-encoded so no escaping issues regardless of chars in md */
-const _B64 = "{b64}";
+const _B64      = "{b64}";
+/* Path from frontend/ to source dir — used to rewrite relative image URLs */
+const _IMG_BASE = "{img_base}";
 
 function decodeB64(b64) {{
   const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
@@ -373,6 +376,14 @@ window.addEventListener('load', function() {{
         heading: function(text, level) {{
           var id = uniqueSlug(slugify(text));
           return '<h' + level + ' id="' + id + '">' + text + '</h' + level + '>';
+        }},
+        image: function(href, title, text) {{
+          /* rewrite relative paths so images load from frontend/ subfolder */
+          if (_IMG_BASE && !/^https?:\\/\\/|^\\/|^data:/.test(href)) {{
+            href = _IMG_BASE + href;
+          }}
+          var t = title ? ' title="' + title + '"' : '';
+          return '<img src="' + href + '" alt="' + (text || '') + '"' + t + ' style="max-width:100%;height:auto">';
         }},
         table: function(header, body) {{
           return '<div class="table-wrap"><table><thead>' + header + '</thead><tbody>' + body + '</tbody></table></div>';
@@ -523,45 +534,195 @@ def encode_md(content):
     return base64.b64encode(content.encode('utf-8')).decode('ascii')
 
 # ─────────────────────────────────────────────────────────────────────────────
-# BUILD
+# DOCS AUTO-SCAN
 # ─────────────────────────────────────────────────────────────────────────────
-generated, skipped, uptodate = [], [], []
+# Optional metadata for known docs. Key = filename stem (no ext).
+# Files not listed here get auto-generated title/desc from path.
+DOCS_META = {
+    "inference-engineering":                ("LLM", "Inference Engineering",
+        "Deep dive into LLM inference optimization — batching strategies, throughput vs latency, hardware."),
+    "llm-inference":                        ("LLM", "LLM Inference",
+        "Comprehensive reference — KV cache, quantization, speculative decoding, deployment patterns."),
+    "ultimate-guide-to-fine-tuning-llms":   ("LLM · Fine-tuning", "Ultimate Guide to Fine-Tuning LLMs",
+        "End-to-end guide — data prep, LoRA/QLoRA, full fine-tuning, RLHF, DPO, production deployment."),
+    "rag-evaluation-testing-in-production": ("RAG", "RAG Evaluation & Testing in Production",
+        "Practical guide to evaluating RAG pipelines — faithfulness, relevance, retrieval metrics."),
+    "daily-dose-of-ds":                     ("Statistics", "Daily Dose of Data Science",
+        "Visual explanations of statistics, ML concepts, and Python techniques — compiled reference PDF."),
+    "complete-guide-to-building-skill-for-claude": ("Claude Code", "Complete Guide to Building Skills",
+        "Official guide — skill structure, prompts, tool use, and publishing Claude Code skills."),
+    "nitish-harsoor-resume-2026":           ("Personal", "Nitish Harsoor — Résumé 2026",
+        "Current résumé — data science, ML engineering, and AI engineering roles."),
+    "transformer-internals-what-changed-since-2017": ("LLM", "Transformer Internals: What Changed Since 2017",
+        "Deep dive into positional embeddings, normalization, attention variants, and MoE from 2017 to today."),
+    "skill-building-guide":                 ("Claude Code", "Skill Building Guide",
+        "Condensed reference for building and publishing Claude Code skills."),
+    "limitations-solutions":                ("Docs", "Limitations & Solutions",
+        "Known limitations in the LearningLab project and their workarounds."),
+}
 
-for subdir, mdfile, out_html, title, back_link in ALL_FILES:
-    src_dir  = os.path.join(PROJECT_ROOT, subdir)
-    md_path  = os.path.join(src_dir, mdfile)
-    out_path = os.path.join(BASE_DIR, out_html)
+SKIP_FILES = {'.DS_Store', 'bookmarks_24_05_2026.html'}
+VIEWABLE_EXTS = {'.pdf', '.md', '.html'}
 
-    if not os.path.exists(md_path):
-        skipped.append(out_html)
-        print(f"  ✗  SKIP  {out_html}  (source not found: {os.path.relpath(md_path)})")
-        continue
+def _title_from_stem(stem):
+    """'my-cool-file-2026' → 'My Cool File 2026'"""
+    return stem.replace('-', ' ').replace('_', ' ').title()
 
-    # incremental: skip if output is newer than source
-    if not FORCE and os.path.exists(out_path):
-        if os.path.getmtime(md_path) <= os.path.getmtime(out_path):
-            uptodate.append(out_html)
-            print(f"  –  OK    {out_html}  (up to date)")
+def _cat_from_dirpath(dirpath):
+    return os.path.basename(dirpath).replace('-', ' ').title()
+
+def scan_docs():
+    """Walk docs/ and return list of (rel_path, category, title, description, ext)."""
+    docs_dir = os.path.join(PROJECT_ROOT, 'docs')
+    entries = []
+    for root, dirs, files in os.walk(docs_dir):
+        dirs.sort()
+        for fname in sorted(files):
+            if fname in SKIP_FILES or fname.startswith('.'):
+                continue
+            ext = os.path.splitext(fname)[1].lower()
+            if ext not in VIEWABLE_EXTS:
+                continue
+            stem = os.path.splitext(fname)[0]
+            rel  = os.path.relpath(os.path.join(root, fname), PROJECT_ROOT)
+            meta = DOCS_META.get(stem)
+            if meta:
+                cat, title, desc = meta
+            else:
+                cat   = _cat_from_dirpath(root)
+                title = _title_from_stem(stem)
+                desc  = ''
+            entries.append((rel, cat, title, desc, ext))
+    return entries
+
+def _doc_icon(ext):
+    return '📝' if ext == '.md' else '🌐' if ext == '.html' else '📄'
+
+def _doc_link_label(ext):
+    return 'Open Markdown ↗' if ext == '.md' else 'Open HTML ↗' if ext == '.html' else 'Open PDF ↗'
+
+def gen_docs_section(entries):
+    """Generate the full <section id='docs'>…</section> HTML."""
+    count = len(entries)
+    cards = []
+    for rel_path, cat, title, desc, ext in entries:
+        href = '../' + rel_path.replace(os.sep, '/')
+        icon = _doc_icon(ext)
+        link_label = _doc_link_label(ext)
+        desc_html = f'\n      <p class="pdf-desc">{desc}</p>' if desc else ''
+        cards.append(f"""\
+    <div class="pdf-card">
+      <span class="pdf-icon">{icon}</span>
+      <span class="pdf-cat">{cat}</span>
+      <span class="pdf-title">{title}</span>{desc_html}
+      <a href="{href}" class="pdf-open" target="_blank">{link_label}</a>
+    </div>""")
+    cards_html = '\n\n'.join(cards)
+    return f"""\
+<section class="section" id="docs">
+  <div class="section-hd">
+    <h2>Docs &amp; PDFs</h2>
+    <span class="section-meta">{count} document{'s' if count != 1 else ''} · opens in browser</span>
+  </div>
+  <div class="docs-grid">
+
+{cards_html}
+
+  </div>
+</section>"""
+
+def update_index_docs():
+    """Replace the docs section in index.html between the marker comments."""
+    idx_path = os.path.join(BASE_DIR, 'index.html')
+    if not os.path.exists(idx_path):
+        return
+    with open(idx_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    START = '<!-- DOCS_SECTION_START -->'
+    END   = '<!-- DOCS_SECTION_END -->'
+    if START not in content or END not in content:
+        print("  ⚠  index.html missing DOCS_SECTION markers — skipping docs update")
+        return
+
+    new_section = gen_docs_section(scan_docs())
+    before = content[:content.index(START) + len(START)]
+    after  = content[content.index(END):]
+    content = before + '\n' + new_section + '\n' + after
+
+    with open(idx_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    count = len(scan_docs())
+    print(f"  ✓  INDEX docs section updated ({count} docs)")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BUILD FUNCTION
+# ─────────────────────────────────────────────────────────────────────────────
+def build_all(force=False):
+    generated, skipped, uptodate = [], [], []
+
+    for subdir, mdfile, out_html, title, back_link in ALL_FILES:
+        src_dir  = os.path.join(PROJECT_ROOT, subdir)
+        md_path  = os.path.join(src_dir, mdfile)
+        out_path = os.path.join(BASE_DIR, out_html)
+
+        if not os.path.exists(md_path):
+            skipped.append(out_html)
+            print(f"  ✗  SKIP  {out_html}  (source not found: {os.path.relpath(md_path)})")
             continue
 
-    with open(md_path, 'r', encoding='utf-8') as f:
-        raw = f.read()
+        # incremental: skip if output is newer than source
+        if not force and os.path.exists(out_path):
+            if os.path.getmtime(md_path) <= os.path.getmtime(out_path):
+                uptodate.append(out_html)
+                continue
 
-    html = HTML_TEMPLATE.format(
-        title     = title,
-        style     = STYLE,
-        b64       = encode_md(raw),
-        back_link = back_link,
-    )
+        with open(md_path, 'r', encoding='utf-8') as f:
+            raw = f.read()
 
-    with open(out_path, 'w', encoding='utf-8') as f:
-        f.write(html)
+        # img_base: relative URL from frontend/ to the source md directory
+        # e.g. subdir="20-interview/Target" → "../20-interview/Target/"
+        img_base = ('../' + subdir.rstrip('/') + '/').replace('//', '/')
 
-    generated.append(out_html)
-    print(f"  ✓  BUILD {out_html}")
+        html_out = HTML_TEMPLATE.format(
+            title     = title,
+            style     = STYLE,
+            b64       = encode_md(raw),
+            back_link = back_link,
+            img_base  = img_base,
+        )
 
-print(f"\nDone — {len(generated)} built, {len(uptodate)} up to date, {len(skipped)} skipped.")
-if skipped:
-    print("Skipped files:", ', '.join(skipped))
-print("\nTip: edit any .md file and re-run this script — only changed files are rebuilt.")
-print("     python3 frontend/_gen_blogs.py --force   ← rebuild everything")
+        with open(out_path, 'w', encoding='utf-8') as f:
+            f.write(html_out)
+
+        generated.append(out_html)
+        print(f"  ✓  BUILD {out_html}")
+
+    # rebuild docs section in index.html whenever we run
+    update_index_docs()
+
+    if uptodate and not WATCH:
+        print(f"  –  {len(uptodate)} file(s) up to date (use --force to rebuild all)")
+
+    print(f"\n{'–'*60}")
+    print(f"  {len(generated)} built   {len(uptodate)} up to date   {len(skipped)} skipped")
+    if skipped:
+        print("  Skipped:", ', '.join(skipped))
+    return generated, skipped, uptodate
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MAIN
+# ─────────────────────────────────────────────────────────────────────────────
+if WATCH:
+    print("Watching .md files and docs/ for changes... (Ctrl+C to stop)\n")
+    try:
+        while True:
+            build_all(force=False)
+            time.sleep(2)
+    except KeyboardInterrupt:
+        print("\nStopped watching.")
+else:
+    build_all(force=FORCE)
+    if not FORCE:
+        print("\nTip: run with --force to rebuild everything, --watch to auto-rebuild on changes.")

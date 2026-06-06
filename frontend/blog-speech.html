@@ -112,24 +112,73 @@
   .toc-sidebar::-webkit-scrollbar-thumb { background: var(--border); }
 
   .toc-label { font-family: var(--f-mono); font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--faint); margin-bottom: 14px; display: block; }
-  .toc-list { list-style: none; padding: 0; border-left: 1px solid var(--border); }
-  .toc-list li { }
-  .toc-list a {
-    display: block;
+  .toc-list { list-style: none; padding: 0; margin: 0; }
+
+  /* h2 group row */
+  .toc-group { margin-bottom: 2px; }
+  .toc-group-hd {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    cursor: pointer;
+    padding: 5px 0 5px 12px;
+    border-left: 2px solid transparent;
+    margin-left: 0;
+    transition: border-color .15s;
+  }
+  .toc-group-hd:hover { border-left-color: var(--border); }
+  .toc-group-hd a {
     font-family: var(--f-body);
     font-size: 12px;
-    line-height: 1.45;
+    font-weight: 500;
+    line-height: 1.4;
     color: var(--muted);
     text-decoration: none;
-    padding: 4px 0 4px 14px;
+    flex: 1;
+    transition: color .15s;
+  }
+  .toc-group-hd a:hover { color: var(--text); }
+  .toc-group-hd.toc-active { border-left-color: var(--accent); }
+  .toc-group-hd.toc-active a { color: var(--accent); }
+
+  /* collapse toggle arrow */
+  .toc-arrow {
+    font-size: 8px;
+    color: var(--faint);
+    flex-shrink: 0;
+    transform: rotate(0deg);
+    transition: transform .18s ease;
+    user-select: none;
+    line-height: 1;
+  }
+  .toc-group.open > .toc-group-hd .toc-arrow { transform: rotate(90deg); }
+
+  /* h3 sub-list */
+  .toc-sub {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 4px 0;
+    border-left: 1px solid var(--border);
+    margin-left: 18px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .22s ease;
+  }
+  .toc-group.open > .toc-sub { max-height: 1200px; }
+  .toc-sub li a {
+    display: block;
+    font-family: var(--f-body);
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--faint);
+    text-decoration: none;
+    padding: 3px 0 3px 12px;
     border-left: 2px solid transparent;
     margin-left: -1px;
     transition: color .15s, border-color .15s;
   }
-  .toc-list a:hover { color: var(--text); }
-  .toc-list a.toc-active { color: var(--accent); border-left-color: var(--accent); }
-  .toc-list .toc-h3 a { font-size: 11px; padding-left: 24px; color: var(--faint); }
-  .toc-list .toc-h3 a.toc-active { color: var(--accent); border-left-color: var(--accent); }
+  .toc-sub li a:hover { color: var(--text); }
+  .toc-sub li a.toc-active { color: var(--accent); border-left-color: var(--accent); }
 
   /* ── scroll to top ── */
   .scroll-top { position: fixed; bottom: 32px; right: 40px; width: 38px; height: 38px; background: var(--accent); color: white; border: none; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
@@ -277,31 +326,102 @@ window.addEventListener('load', function() {
       document.querySelectorAll('pre code').forEach(function(el) { hljs.highlightElement(el); });
     }
 
-    /* ── TOC sidebar — reads IDs already set by the heading renderer ── */
-    var headings = Array.from(document.querySelectorAll('#content h2, #content h3'));
-    var tocEl    = document.getElementById('toc');
+    /* ── TOC sidebar: grouped by h2, h3s nested + collapsible ── */
+    var allHeadings = Array.from(document.querySelectorAll('#content h2, #content h3'));
+    var tocEl       = document.getElementById('toc');
+
+    /* skip the in-page "Table of Contents" heading itself */
+    var headings = allHeadings.filter(function(h) {
+      return !/table of contents/i.test(h.textContent);
+    });
 
     if (headings.length > 1) {
-      var items = headings.map(function(h) {
-        var isSub = h.tagName === 'H3';
-        return '<li class="' + (isSub ? 'toc-h3' : '') + '"><a href="#' + h.id + '">' +
-               h.textContent.trim().replace(/</g, '&lt;') + '</a></li>';
-      }).join('');
+      /* build group structure: each h2 starts a new group; h3s attach to last h2 */
+      var groups = [];
+      var cur    = null;
+      headings.forEach(function(h) {
+        if (h.tagName === 'H2') {
+          cur = { h: h, children: [] };
+          groups.push(cur);
+        } else if (cur) {
+          cur.children.push(h);
+        }
+      });
 
-      tocEl.innerHTML = '<span class="toc-label">On this page</span><ul class="toc-list">' + items + '</ul>';
+      /* render grouped list */
+      var html = '<span class="toc-label">On this page</span><ul class="toc-list">';
+      groups.forEach(function(g, gi) {
+        var hasSubs = g.children.length > 0;
+        html += '<li class="toc-group" data-gi="' + gi + '">';
+        html += '<div class="toc-group-hd">';
+        if (hasSubs) html += '<span class="toc-arrow">&#9658;</span>';
+        html += '<a href="#' + g.h.id + '">' + g.h.textContent.trim().replace(/</g,'&lt;') + '</a>';
+        html += '</div>';
+        if (hasSubs) {
+          html += '<ul class="toc-sub">';
+          g.children.forEach(function(h) {
+            html += '<li><a href="#' + h.id + '">' + h.textContent.trim().replace(/</g,'&lt;') + '</a></li>';
+          });
+          html += '</ul>';
+        }
+        html += '</li>';
+      });
+      html += '</ul>';
+      tocEl.innerHTML = html;
 
-      var links     = Array.from(tocEl.querySelectorAll('a'));
-      var activeIdx = -1;
+      /* click on group header: toggle open/closed; navigate on link click */
+      tocEl.querySelectorAll('.toc-group-hd').forEach(function(hd) {
+        hd.addEventListener('click', function(e) {
+          /* if they clicked the link itself, let navigation happen normally */
+          if (e.target.tagName === 'A') return;
+          var group = hd.closest('.toc-group');
+          group.classList.toggle('open');
+        });
+      });
+
+      /* ── scroll tracking: highlight active h2 group and h3 sub-item ── */
+      var flatLinks = [];   /* {a, h, groupEl, isH3} for every toc entry */
+      groups.forEach(function(g) {
+        var groupEl = tocEl.querySelector('.toc-group[data-gi="' + groups.indexOf(g) + '"]');
+        var hd = groupEl.querySelector('.toc-group-hd');
+        flatLinks.push({ h: g.h, hd: hd, groupEl: groupEl, isH3: false });
+        g.children.forEach(function(child) {
+          var a = groupEl.querySelector('.toc-sub a[href="#' + child.id + '"]');
+          if (a) flatLinks.push({ h: child, a: a, groupEl: groupEl, isH3: true });
+        });
+      });
+
+      var activeH = null;
 
       function updateToc() {
-        var newIdx = -1;
-        for (var i = headings.length - 1; i >= 0; i--) {
-          if (headings[i].getBoundingClientRect().top <= 110) { newIdx = i; break; }
+        var newH = null;
+        for (var i = flatLinks.length - 1; i >= 0; i--) {
+          if (flatLinks[i].h.getBoundingClientRect().top <= 120) {
+            newH = flatLinks[i];
+            break;
+          }
         }
-        if (newIdx !== activeIdx) {
-          activeIdx = newIdx;
-          links.forEach(function(a, i) { a.classList.toggle('toc-active', i === activeIdx); });
+        if (newH === activeH) return;
+        activeH = newH;
+
+        /* clear all active states */
+        tocEl.querySelectorAll('.toc-active').forEach(function(el) { el.classList.remove('toc-active'); });
+
+        if (!newH) return;
+
+        /* highlight the active item */
+        if (newH.isH3) {
+          if (newH.a) newH.a.classList.add('toc-active');
+        } else {
+          newH.hd.classList.add('toc-active');
         }
+
+        /* auto-open the group containing the active item */
+        groups.forEach(function(g, gi) {
+          var groupEl = tocEl.querySelector('.toc-group[data-gi="' + gi + '"]');
+          var isActive = newH.groupEl === groupEl;
+          if (isActive) groupEl.classList.add('open');
+        });
       }
 
       window.addEventListener('scroll', updateToc, { passive: true });

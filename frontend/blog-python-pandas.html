@@ -326,21 +326,27 @@ window.addEventListener('load', function() {
       document.querySelectorAll('pre code').forEach(function(el) { hljs.highlightElement(el); });
     }
 
-    /* ── TOC sidebar: grouped by h2, h3s nested + collapsible ── */
-    var allHeadings = Array.from(document.querySelectorAll('#content h2, #content h3'));
-    var tocEl       = document.getElementById('toc');
+    /* ── TOC sidebar: grouped + collapsible ── */
+    var tocEl = document.getElementById('toc');
 
-    /* skip the in-page "Table of Contents" heading itself */
-    var headings = allHeadings.filter(function(h) {
+    /* Detect structure: if there are multiple h1s the doc uses h1=category, h2=item
+       (interview files). Otherwise use h2=category, h3=item (blog files). */
+    var h1s    = Array.from(document.querySelectorAll('#content h1'));
+    var multiH1 = h1s.length > 1;
+    var groupTag = multiH1 ? 'H1' : 'H2';
+    var itemTag  = multiH1 ? 'H2' : 'H3';
+    var selector = multiH1 ? '#content h1, #content h2' : '#content h2, #content h3';
+
+    var headings = Array.from(document.querySelectorAll(selector)).filter(function(h) {
       return !/table of contents/i.test(h.textContent);
     });
 
     if (headings.length > 1) {
-      /* build group structure: each h2 starts a new group; h3s attach to last h2 */
+      /* build group structure */
       var groups = [];
       var cur    = null;
       headings.forEach(function(h) {
-        if (h.tagName === 'H2') {
+        if (h.tagName === groupTag) {
           cur = { h: h, children: [] };
           groups.push(cur);
         } else if (cur) {

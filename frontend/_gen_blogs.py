@@ -297,11 +297,34 @@ window.addEventListener('load', function() {{
   try {{
     var MD = decodeB64(_B64);
 
-    /* configure marked v9 */
+    /* GitHub-style slug — matches what the markdown's own TOC links use */
+    function slugify(text) {{
+      return text
+        .replace(/<[^>]+>/g, '')          /* strip any HTML tags */
+        .toLowerCase()
+        .replace(/[^\\w\\s-]/g, '')       /* drop punctuation except word chars, spaces, hyphens */
+        .replace(/[\\s]+/g, '-')          /* spaces → hyphens */
+        .replace(/-+/g, '-')              /* collapse runs of hyphens */
+        .replace(/^-|-$/g, '');           /* trim leading/trailing hyphens */
+    }}
+
+    /* track slugs to deduplicate (GitHub appends -1, -2 … on collision) */
+    var slugCount = {{}};
+    function uniqueSlug(base) {{
+      if (!(base in slugCount)) {{ slugCount[base] = 0; return base; }}
+      slugCount[base]++;
+      return base + '-' + slugCount[base];
+    }}
+
+    /* configure marked v9 with slug-based heading IDs */
     marked.use({{
       gfm: true,
       breaks: false,
       renderer: {{
+        heading: function(text, level) {{
+          var id = uniqueSlug(slugify(text));
+          return '<h' + level + ' id="' + id + '">' + text + '</h' + level + '>';
+        }},
         table: function(header, body) {{
           return '<div class="table-wrap"><table><thead>' + header + '</thead><tbody>' + body + '</tbody></table></div>';
         }}
@@ -319,17 +342,15 @@ window.addEventListener('load', function() {{
       document.querySelectorAll('pre code').forEach(function(el) {{ hljs.highlightElement(el); }});
     }}
 
-    /* ── TOC sidebar ── */
+    /* ── TOC sidebar — reads IDs already set by the heading renderer ── */
     var headings = Array.from(document.querySelectorAll('#content h2, #content h3'));
     var tocEl    = document.getElementById('toc');
 
     if (headings.length > 1) {{
-      headings.forEach(function(h, i) {{ h.id = 'h' + i; }});
-
-      var items = headings.map(function(h, i) {{
+      var items = headings.map(function(h) {{
         var isSub = h.tagName === 'H3';
-        return '<li class="' + (isSub ? 'toc-h3' : '') + '"><a href="#h' + i + '">' +
-               h.textContent.trim().replace(/</g,'&lt;') + '</a></li>';
+        return '<li class="' + (isSub ? 'toc-h3' : '') + '"><a href="#' + h.id + '">' +
+               h.textContent.trim().replace(/</g, '&lt;') + '</a></li>';
       }}).join('');
 
       tocEl.innerHTML = '<span class="toc-label">On this page</span><ul class="toc-list">' + items + '</ul>';

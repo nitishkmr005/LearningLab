@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearningLab — DS / ML / AI Curriculum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Tokens ─────────────────────────────────────────────── */
+    :root {
+      --bg:        #f6f1e7;
+      --bg-card:   #ede6d6;
+      --bg-hover:  #e5dcc8;
+      --bg-dark:   #1c1814;
+      --border:    #d9cfc0;
+      --border-m:  #c9bfaf;
+      --text:      #1c1814;
+      --muted:     #6e6259;
+      --faint:     #a89f94;
+      --accent:    #c85e35;
+      --white:     #fdfaf4;
+      --f-d: 'DM Serif Display', Georgia, serif;
+      --f-b: 'Syne', sans-serif;
+      --f-m: 'JetBrains Mono', 'Fira Code', monospace;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --nav-h: 52px;
+      --snav-h: 44px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { font-family: var(--f-b); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 180px; }
+
+    /* ── Main nav ────────────────────────────────────────────── */
+    .main-nav { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: var(--nav-h); background: var(--bg); border-bottom: 1px solid var(--border); }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .nav-wordmark { font-family: var(--f-d); font-size: 18px; color: var(--text); text-decoration: none; letter-spacing: -0.3px; }
+    .nav-sep { width: 1px; height: 16px; background: var(--border-m); }
+    .nav-tag { font-family: var(--f-m); font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--faint); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-pill { font-family: var(--f-m); font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); cursor: default; }
+    .print-btn { font-family: var(--f-m); font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); background: transparent; cursor: pointer; transition: background .15s, color .15s; }
+    .print-btn:hover { background: var(--text); color: var(--white); border-color: var(--text); }
+
+    /* ── Section nav (sticky under main nav) ─────────────────── */
+    .section-nav { position: sticky; top: var(--nav-h); z-index: 190; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 48px; height: var(--snav-h); gap: 4px; }
+    .snav-item { font-family: var(--f-m); font-size: 10.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); text-decoration: none; padding: 5px 12px; border: 1px solid transparent; transition: all .15s; white-space: nowrap; }
+    .snav-item:hover { color: var(--text); border-color: var(--border); }
+    .snav-item.active { color: var(--accent); border-color: var(--accent); background: rgba(200,94,53,.07); }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .hero { padding: 64px 48px 52px; max-width: 1040px; }
+    .hero-eyebrow { font-family: var(--f-m); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; opacity: 0; animation: fadeUp .6s var(--ease) .1s forwards; }
+    .hero-title { font-family: var(--f-d); font-size: clamp(40px, 5.5vw, 64px); line-height: 1.08; letter-spacing: -1px; color: var(--text); margin-bottom: 22px; opacity: 0; animation: fadeUp .7s var(--ease) .2s forwards; }
+    .hero-title em { font-style: italic; color: var(--accent); }
+    .hero-sub { font-size: 14.5px; line-height: 1.75; color: var(--muted); max-width: 500px; margin-bottom: 32px; opacity: 0; animation: fadeUp .7s var(--ease) .3s forwards; }
+    .hero-filters { display: flex; flex-wrap: wrap; gap: 7px; opacity: 0; animation: fadeUp .7s var(--ease) .4s forwards; }
+    .filter-btn { font-family: var(--f-m); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 6px 14px; border: 1px solid var(--border-m); background: transparent; color: var(--muted); cursor: pointer; transition: all .18s var(--ease); }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--white); }
+
+    /* ── Progress ────────────────────────────────────────────── */
+    .progress-bar-section { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 16px 48px; display: flex; align-items: center; gap: 24px; }
+    .prog-label { font-family: var(--f-m); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--faint); white-space: nowrap; }
+    .prog-track { flex: 1; height: 3px; background: var(--border); overflow: hidden; }
+    .prog-fill  { height: 100%; width: 0%; background: var(--accent); transition: width 1.4s cubic-bezier(.16,1,.3,1) .5s; }
+    .prog-count { font-family: var(--f-m); font-size: 10px; color: var(--muted); white-space: nowrap; }
+    .prog-count strong { color: var(--accent); }
+
+    /* ── Section shell ───────────────────────────────────────── */
+    .section { padding: 0 0 64px; }
+    .section-hd { padding: 44px 48px 20px; display: flex; align-items: baseline; justify-content: space-between; border-top: 2px solid var(--text); margin-top: 0; }
+    .section-hd h2 { font-family: var(--f-d); font-size: 28px; font-weight: 400; letter-spacing: -0.3px; }
+    .section-hd .section-meta { font-family: var(--f-m); font-size: 10px; color: var(--faint); }
+
+    /* ════════════════════════════════════════════════════════════
+       SECTION 1 — TOPICS
+    ════════════════════════════════════════════════════════════ */
+    .topics-grid { padding: 0 48px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+
+    .tc { /* topic card */
+      position: relative; background: var(--bg-card); border: 1px solid var(--border);
+      padding: 20px 22px 18px;
+      display: grid; grid-template-columns: 68px 1fr; gap: 0 16px;
+      overflow: hidden; transition: background .18s var(--ease), border-color .18s;
+      opacity: 0; transform: translateY(12px);
+    }
+    .tc.vis { opacity: 1; transform: none; transition: opacity .45s var(--ease), transform .45s var(--ease), background .18s, border-color .18s; }
+    .tc.hidden { display: none; }
+    .tc:hover { background: var(--bg-hover); border-color: var(--border-m); }
+    .tc::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s var(--ease); }
+    .tc:hover::before { transform: scaleY(1); }
+
+    .tc-num-col { display: flex; flex-direction: column; align-items: flex-end; padding-top: 4px; }
+    .tc-num { font-family: var(--f-d); font-size: 56px; line-height: .9; color: var(--accent); opacity: .12; letter-spacing: -3px; user-select: none; transition: opacity .2s; }
+    .tc:hover .tc-num { opacity: .22; }
+    .tc-num-lbl { font-family: var(--f-m); font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--faint); margin-top: 5px; text-align: right; }
+
+    .tc-body { display: flex; flex-direction: column; gap: 8px; }
+    .tc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .tc-title { font-family: var(--f-d); font-size: 16px; font-weight: 400; line-height: 1.2; color: var(--text); }
+    .tc-status { font-family: var(--f-m); font-size: 8px; letter-spacing: 1.2px; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--accent); color: var(--accent); flex-shrink: 0; opacity: .7; }
+    .tc-status.outline { border-color: var(--faint); color: var(--faint); }
+
+    .tc-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .tag { font-family: var(--f-m); font-size: 8px; letter-spacing: 1px; text-transform: uppercase; padding: 1px 6px; border: 1px solid; }
+    .tag-DS    { color: #6b4c2e; border-color: #c8a880; background: #f0e4d2; }
+    .tag-ML    { color: #3d5038; border-color: #9ab08a; background: #deebd6; }
+    .tag-AI    { color: #2e3f5c; border-color: #8aadcc; background: #d4e4f0; }
+    .tag-GenAI { color: #512e5a; border-color: #b08ac4; background: #ead4f0; }
+
+    .tc-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .tc-links { display: flex; gap: 4px; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; font-family: var(--f-m); font-size: 9.5px; letter-spacing: .2px; text-decoration: none; border: 1px solid var(--border-m); color: var(--muted); background: var(--bg); transition: all .12s; white-space: nowrap; }
+    .chip:hover { background: var(--text); color: var(--white); border-color: var(--text); }
+    .chip.pri { background: var(--accent); color: var(--white); border-color: var(--accent); font-weight: 500; }
+    .chip.pri:hover { background: #a84d28; border-color: #a84d28; }
+    .tc-sections { font-family: var(--f-m); font-size: 9px; letter-spacing: .5px; color: var(--faint); white-space: nowrap; }
+
+    /* ════════════════════════════════════════════════════════════
+       SECTION 2 — INTERVIEW PREP
+    ════════════════════════════════════════════════════════════ */
+    .interview-wrap { padding: 0 48px; }
+
+    .interview-overview-card {
+      background: var(--bg-dark); color: var(--white);
+      padding: 32px 36px; margin-bottom: 3px;
+      display: flex; align-items: center; justify-content: space-between; gap: 32px;
+      border: 1px solid var(--bg-dark);
+      position: relative; overflow: hidden;
+    }
+    .interview-overview-card::before { content: '20'; position: absolute; right: 32px; top: -10px; font-family: var(--f-d); font-size: 120px; color: rgba(255,255,255,.04); letter-spacing: -6px; pointer-events: none; }
+    .ioc-left {}
+    .ioc-eyebrow { font-family: var(--f-m); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 10px; }
+    .ioc-title { font-family: var(--f-d); font-size: 26px; color: var(--white); letter-spacing: -0.3px; margin-bottom: 10px; }
+    .ioc-desc { font-size: 13px; line-height: 1.65; color: rgba(255,255,255,.55); max-width: 520px; }
+    .ioc-btn { font-family: var(--f-m); font-size: 10px; letter-spacing: .8px; text-transform: uppercase; padding: 10px 20px; background: var(--accent); color: var(--white); text-decoration: none; border: 1px solid var(--accent); transition: background .15s; white-space: nowrap; flex-shrink: 0; }
+    .ioc-btn:hover { background: #a84d28; border-color: #a84d28; }
+
+    .interview-subjects { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+    .isub-card { background: var(--bg-card); border: 1px solid var(--border); padding: 20px 18px; display: flex; flex-direction: column; gap: 12px; transition: background .15s; position: relative; overflow: hidden; }
+    .isub-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s var(--ease); }
+    .isub-card:hover { background: var(--bg-hover); }
+    .isub-card:hover::before { transform: scaleY(1); }
+    .isub-icon { font-size: 20px; }
+    .isub-num { font-family: var(--f-m); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--faint); }
+    .isub-title { font-family: var(--f-d); font-size: 15px; line-height: 1.25; color: var(--text); }
+    .isub-link { font-family: var(--f-m); font-size: 9.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: auto; transition: opacity .12s; }
+    .isub-link:hover { opacity: .7; }
+
+    /* ════════════════════════════════════════════════════════════
+       SECTION 3 — DOCS & PDFs
+    ════════════════════════════════════════════════════════════ */
+    .docs-grid { padding: 0 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+    .pdf-card { background: var(--bg-card); border: 1px solid var(--border); padding: 24px 22px; display: flex; flex-direction: column; gap: 10px; transition: background .15s; position: relative; overflow: hidden; }
+    .pdf-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s var(--ease); }
+    .pdf-card:hover { background: var(--bg-hover); }
+    .pdf-card:hover::before { transform: scaleY(1); }
+    .pdf-icon { font-size: 28px; line-height: 1; opacity: .7; }
+    .pdf-cat { font-family: var(--f-m); font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--faint); }
+    .pdf-title { font-family: var(--f-d); font-size: 16px; line-height: 1.3; color: var(--text); }
+    .pdf-desc { font-size: 12.5px; line-height: 1.6; color: var(--muted); flex: 1; }
+    .pdf-open { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-m); font-size: 9.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); text-decoration: none; margin-top: 4px; transition: opacity .12s; }
+    .pdf-open:hover { opacity: .7; }
+
+    /* ════════════════════════════════════════════════════════════
+       SECTION 4 — REFERENCES
+    ════════════════════════════════════════════════════════════ */
+    .refs-wrap { padding: 0 48px; }
+    .refs-desc { font-size: 14px; line-height: 1.7; color: var(--muted); max-width: 600px; margin-bottom: 28px; }
+    .refs-cats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+    .ref-cat-pill { font-family: var(--f-m); font-size: 9.5px; letter-spacing: .6px; text-transform: uppercase; padding: 5px 12px; border: 1px solid var(--border); color: var(--muted); background: var(--bg-card); }
+    .refs-open-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px; font-family: var(--f-m); font-size: 11px; letter-spacing: .8px; text-transform: uppercase; text-decoration: none; background: var(--text); color: var(--white); border: 1px solid var(--text); transition: background .15s, color .15s; }
+    .refs-open-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    footer { border-top: 2px solid var(--text); padding: 24px 48px; display: flex; align-items: center; justify-content: space-between; margin-top: 40px; }
+    .foot-left  { font-family: var(--f-m); font-size: 11px; color: var(--faint); }
+    .foot-left strong { color: var(--accent); font-weight: 400; }
+    .foot-right { font-family: var(--f-m); font-size: 10px; color: var(--faint); letter-spacing: 1px; text-transform: uppercase; }
+
+    /* ── Animations ──────────────────────────────────────────── */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Print ───────────────────────────────────────────────── */
+    @media print {
+      .main-nav, .section-nav, .hero-filters, .progress-bar-section, .print-btn { display: none !important; }
+      .tc { break-inside: avoid; opacity: 1 !important; transform: none !important; }
+      body::before { display: none; }
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .interview-subjects { grid-template-columns: repeat(3, 1fr); }
+      .docs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 760px) {
+      .main-nav, .section-nav, .hero, .progress-bar-section, .section-hd, .refs-wrap, .interview-wrap, .docs-grid { padding-left: 20px; padding-right: 20px; }
+      .topics-grid { padding-left: 20px; padding-right: 20px; grid-template-columns: 1fr; }
+      .tc-num-col { display: none; }
+      .section-nav { gap: 2px; overflow-x: auto; }
+      .interview-subjects { grid-template-columns: 1fr 1fr; }
+      .docs-grid { grid-template-columns: 1fr; }
+      .interview-overview-card { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ MAIN NAV ══════════ -->
+<nav class="main-nav">
+  <div class="nav-left">
+    <a href="#" class="nav-wordmark">LearningLab</a>
+    <div class="nav-sep"></div>
+    <span class="nav-tag">DS · ML · AI · GenAI</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-pill">20 topics</span>
+    <button class="print-btn" onclick="window.print()">Print</button>
+  </div>
+</nav>
+
+<!-- ══════════ SECTION NAV ══════════ -->
+<div class="section-nav" id="sectionNav">
+  <a href="#topics"    class="snav-item active" data-section="topics">Topics (19)</a>
+  <a href="#interview" class="snav-item"         data-section="interview">Interview Prep</a>
+  <a href="#docs"      class="snav-item"         data-section="docs">Docs &amp; PDFs</a>
+  <a href="#references" class="snav-item"        data-section="references">References</a>
+</div>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <p class="hero-eyebrow">Interview-ready · Production-grade · Open curriculum</p>
+  <h1 class="hero-title">The complete<br><em>DS / ML / AI</em><br>curriculum.</h1>
+  <p class="hero-sub">Literature survey blogs, annotated learning scripts, and interview prep — 20 topics across four engineering roles.</p>
+  <div class="hero-filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="DS">Data Scientist</button>
+    <button class="filter-btn" data-filter="ML">ML Engineer</button>
+    <button class="filter-btn" data-filter="AI">AI Engineer</button>
+    <button class="filter-btn" data-filter="GenAI">GenAI Engineer</button>
+  </div>
+</section>
+
+<!-- ══════════ PROGRESS ══════════ -->
+<div class="progress-bar-section">
+  <span class="prog-label">Coverage</span>
+  <div class="prog-track"><div class="prog-fill" id="pFill"></div></div>
+  <span class="prog-count"><strong>19</strong> topic blogs · <strong>6</strong> interview guides</span>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 1 — TOPICS
+══════════════════════════════════════════════════════════ -->
+<section class="section" id="topics">
+  <div class="section-hd">
+    <h2>Topics</h2>
+    <span class="section-meta" id="topicCount">19 topics</span>
+  </div>
+
+  <div class="topics-grid" id="topicsGrid">
+
+    <!-- 01 SQL -->
+    <div class="tc" data-roles="DS ML">
+      <div class="tc-num-col"><span class="tc-num">01</span><span class="tc-num-lbl">SQL</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">SQL for Data Science</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-DS">DS</span><span class="tag tag-ML">ML</span></div>
+        <div class="tc-footer">
+          <div class="tc-links">
+            <a href="blog-sql.html" class="chip pri">Blog</a>
+            <a href="../01-sql/queries/01-setup.sql"                class="chip">01-setup</a>
+            <a href="../01-sql/queries/02-sql-execution-order.sql"  class="chip">02-exec-order</a>
+            <a href="../01-sql/queries/03-joins.sql"                class="chip">03-joins</a>
+            <a href="../01-sql/queries/04-subqueries-ctes.sql"      class="chip">04-ctes</a>
+            <a href="../01-sql/queries/05-window-functions.sql"     class="chip">05-windows</a>
+            <a href="../01-sql/queries/06-set-operations.sql"       class="chip">06-sets</a>
+            <a href="../01-sql/queries/07-null-and-case.sql"        class="chip">07-null-case</a>
+            <a href="../01-sql/queries/08-datetime-string.sql"      class="chip">08-datetime</a>
+            <a href="../01-sql/queries/09-analytical-patterns.sql"  class="chip">09-analytical</a>
+            <a href="../01-sql/queries/10-views-optimization.sql"   class="chip">10-views</a>
+            <a href="../01-sql/queries/11-ml-feature-engineering.sql" class="chip">11-ml-features</a>
+            <a href="../01-sql/queries/12-interview-problems.sql"   class="chip">12-interviews</a>
+          </div>
+          <span class="tc-sections">20 sections · 12 queries</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 Statistics -->
+    <div class="tc" data-roles="DS ML">
+      <div class="tc-num-col"><span class="tc-num">02</span><span class="tc-num-lbl">Stats</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Statistics &amp; Probability</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-DS">DS</span><span class="tag tag-ML">ML</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-statistics.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">31 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 DSA -->
+    <div class="tc" data-roles="DS ML AI">
+      <div class="tc-num-col"><span class="tc-num">03</span><span class="tc-num-lbl">DSA</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Data Structures &amp; Algorithms</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-DS">DS</span><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-dsa.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">22 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 Python/Pandas -->
+    <div class="tc" data-roles="DS ML AI">
+      <div class="tc-num-col"><span class="tc-num">04</span><span class="tc-num-lbl">Python</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Python, NumPy &amp; Pandas</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-DS">DS</span><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-python-pandas.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">24 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 PyTorch -->
+    <div class="tc" data-roles="ML AI">
+      <div class="tc-num-col"><span class="tc-num">05</span><span class="tc-num-lbl">PyTorch</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">PyTorch</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-pytorch.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">17 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 Git -->
+    <div class="tc" data-roles="ML AI">
+      <div class="tc-num-col"><span class="tc-num">06</span><span class="tc-num-lbl">Git</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Git &amp; CI/CD for ML</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-git.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">16 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 Machine Learning -->
+    <div class="tc" data-roles="DS ML">
+      <div class="tc-num-col"><span class="tc-num">07</span><span class="tc-num-lbl">ML</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Classical Machine Learning</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-DS">DS</span><span class="tag tag-ML">ML</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-machine-learning.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">37 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 08 Deep Learning -->
+    <div class="tc" data-roles="DS ML AI">
+      <div class="tc-num-col"><span class="tc-num">08</span><span class="tc-num-lbl">DL</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Deep Learning</span><span class="tc-status outline">outline</span></div>
+        <div class="tc-tags"><span class="tag tag-DS">DS</span><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-deep-learning.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">12 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09 Recommenders -->
+    <div class="tc" data-roles="DS ML AI">
+      <div class="tc-num-col"><span class="tc-num">09</span><span class="tc-num-lbl">RecSys</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Recommender Systems</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-DS">DS</span><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-recommenders.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">32 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 NLP Foundations -->
+    <div class="tc" data-roles="DS ML AI">
+      <div class="tc-num-col"><span class="tc-num">10</span><span class="tc-num-lbl">NLP</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">NLP Foundations</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-DS">DS</span><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-nlp-foundations.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">pre-Transformer NLP stack</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11 Embedding Models -->
+    <div class="tc" data-roles="ML AI">
+      <div class="tc-num-col"><span class="tc-num">11</span><span class="tc-num-lbl">Embed</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Embedding Models</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-embedding.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">24 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12 RAG -->
+    <div class="tc" data-roles="AI GenAI">
+      <div class="tc-num-col"><span class="tc-num">12</span><span class="tc-num-lbl">RAG</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Retrieval-Augmented Generation</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-AI">AI</span><span class="tag tag-GenAI">GenAI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-rag.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">30 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13 Agents -->
+    <div class="tc" data-roles="AI GenAI">
+      <div class="tc-num-col"><span class="tc-num">13</span><span class="tc-num-lbl">Agents</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">AI Agents</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-AI">AI</span><span class="tag tag-GenAI">GenAI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-agents.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">25 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14 LLM -->
+    <div class="tc" data-roles="ML AI GenAI">
+      <div class="tc-num-col"><span class="tc-num">14</span><span class="tc-num-lbl">LLM</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Large Language Models</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span><span class="tag tag-GenAI">GenAI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-llm.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">30 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15 LLM Inferencing -->
+    <div class="tc" data-roles="ML GenAI">
+      <div class="tc-num-col"><span class="tc-num">15</span><span class="tc-num-lbl">Infer</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">LLM Inferencing &amp; Optimization</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-ML">ML</span><span class="tag tag-GenAI">GenAI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-llm-inferencing.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">24 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 16 LLM Evaluation -->
+    <div class="tc" data-roles="AI GenAI">
+      <div class="tc-num-col"><span class="tc-num">16</span><span class="tc-num-lbl">Eval</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">LLM Evaluation</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-AI">AI</span><span class="tag tag-GenAI">GenAI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-llm-evaluation.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">18 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 17 Reinforcement Learning -->
+    <div class="tc" data-roles="ML AI">
+      <div class="tc-num-col"><span class="tc-num">17</span><span class="tc-num-lbl">RL</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Reinforcement Learning</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-reinforcement-learning.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">16 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 18 Speech -->
+    <div class="tc" data-roles="AI GenAI">
+      <div class="tc-num-col"><span class="tc-num">18</span><span class="tc-num-lbl">Speech</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Speech: ASR, TTS &amp; Voice Agents</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-AI">AI</span><span class="tag tag-GenAI">GenAI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-speech.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">17 sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 19 Vision & OCR -->
+    <div class="tc" data-roles="ML AI GenAI">
+      <div class="tc-num-col"><span class="tc-num">19</span><span class="tc-num-lbl">Vision</span></div>
+      <div class="tc-body">
+        <div class="tc-head"><span class="tc-title">Vision &amp; OCR</span><span class="tc-status">blog</span></div>
+        <div class="tc-tags"><span class="tag tag-ML">ML</span><span class="tag tag-AI">AI</span><span class="tag tag-GenAI">GenAI</span></div>
+        <div class="tc-footer">
+          <div class="tc-links"><a href="blog-vision-ocr.html" class="chip pri">Blog</a></div>
+          <span class="tc-sections">18 sections</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /topics-grid -->
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 2 — INTERVIEW PREP
+══════════════════════════════════════════════════════════ -->
+<section class="section" id="interview">
+  <div class="section-hd">
+    <h2>Interview Prep</h2>
+    <span class="section-meta">Topic 20 · 6 guides</span>
+  </div>
+  <div class="interview-wrap">
+
+    <!-- Overview card -->
+    <div class="interview-overview-card">
+      <div class="ioc-left">
+        <p class="ioc-eyebrow">Topic 20 — Master Guide</p>
+        <h3 class="ioc-title">DS / ML / AI Interview Guide</h3>
+        <p class="ioc-desc">80/20 interview prep across all roles: DSA, SQL, statistics, ML algorithms, PyTorch, NLP, embeddings, LLMs, fine-tuning, agents, and system design. 16 topic sections, 350+ questions with detailed answers.</p>
+      </div>
+      <a href="interview-overview.html" class="ioc-btn">Open Guide →</a>
+    </div>
+
+    <!-- 5 subject cards -->
+    <div class="interview-subjects">
+      <div class="isub-card">
+        <span class="isub-icon">🧠</span>
+        <span class="isub-num">Subject 01</span>
+        <span class="isub-title">Deep Learning</span>
+        <a href="interview-deep-learning.html" class="isub-link">Study Q&amp;A →</a>
+      </div>
+      <div class="isub-card">
+        <span class="isub-icon">🌳</span>
+        <span class="isub-num">Subject 02</span>
+        <span class="isub-title">ML Algorithms</span>
+        <a href="interview-ml-algorithms.html" class="isub-link">Study Q&amp;A →</a>
+      </div>
+      <div class="isub-card">
+        <span class="isub-icon">📊</span>
+        <span class="isub-num">Subject 03</span>
+        <span class="isub-title">Statistics</span>
+        <a href="interview-statistics.html" class="isub-link">Study Q&amp;A →</a>
+      </div>
+      <div class="isub-card">
+        <span class="isub-icon">📐</span>
+        <span class="isub-num">Subject 04</span>
+        <span class="isub-title">Model Evaluation</span>
+        <a href="interview-model-eval.html" class="isub-link">Study Q&amp;A →</a>
+      </div>
+      <div class="isub-card">
+        <span class="isub-icon">⚙️</span>
+        <span class="isub-num">Subject 05</span>
+        <span class="isub-title">Feature Engineering</span>
+        <a href="interview-feature-eng.html" class="isub-link">Study Q&amp;A →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 3 — DOCS & PDFs
+══════════════════════════════════════════════════════════ -->
+<section class="section" id="docs">
+  <div class="section-hd">
+    <h2>Docs &amp; PDFs</h2>
+    <span class="section-meta">7 documents · opens in browser</span>
+  </div>
+  <div class="docs-grid">
+
+    <div class="pdf-card">
+      <span class="pdf-icon">📄</span>
+      <span class="pdf-cat">LLM</span>
+      <span class="pdf-title">Inference Engineering</span>
+      <p class="pdf-desc">Deep dive into LLM inference optimization — batching strategies, throughput vs latency trade-offs, hardware considerations.</p>
+      <a href="../docs/llm/inference-engineering.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    </div>
+
+    <div class="pdf-card">
+      <span class="pdf-icon">📄</span>
+      <span class="pdf-cat">LLM</span>
+      <span class="pdf-title">LLM Inference</span>
+      <p class="pdf-desc">Comprehensive reference on LLM inference — KV cache, quantization, speculative decoding, and deployment patterns.</p>
+      <a href="../docs/llm/llm-inference.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    </div>
+
+    <div class="pdf-card">
+      <span class="pdf-icon">📄</span>
+      <span class="pdf-cat">LLM · Fine-tuning</span>
+      <span class="pdf-title">Ultimate Guide to Fine-Tuning LLMs</span>
+      <p class="pdf-desc">End-to-end guide covering data prep, LoRA/QLoRA, full fine-tuning, RLHF, DPO, and production deployment.</p>
+      <a href="../docs/llm/ultimate-guide-to-fine-tuning-llms.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    </div>
+
+    <div class="pdf-card">
+      <span class="pdf-icon">📄</span>
+      <span class="pdf-cat">RAG</span>
+      <span class="pdf-title">RAG Evaluation &amp; Testing in Production</span>
+      <p class="pdf-desc">Practical guide to evaluating RAG pipelines — faithfulness, relevance, retrieval metrics, and CI integration.</p>
+      <a href="../docs/rag/rag-evaluation-testing-in-production.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    </div>
+
+    <div class="pdf-card">
+      <span class="pdf-icon">📄</span>
+      <span class="pdf-cat">Statistics</span>
+      <span class="pdf-title">Daily Dose of Data Science</span>
+      <p class="pdf-desc">Visual explanations of statistics, ML concepts, and Python techniques — daily tips compiled into a reference PDF.</p>
+      <a href="../docs/statistics/daily-dose-of-ds.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    </div>
+
+    <div class="pdf-card">
+      <span class="pdf-icon">📄</span>
+      <span class="pdf-cat">Claude Code</span>
+      <span class="pdf-title">Complete Guide to Building Skills for Claude</span>
+      <p class="pdf-desc">Official guide to building reusable Claude Code skills — skill structure, prompts, tool use, and publishing.</p>
+      <a href="../docs/claude-code/complete-guide-to-building-skill-for-claude.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    </div>
+
+    <div class="pdf-card">
+      <span class="pdf-icon">📄</span>
+      <span class="pdf-cat">Personal</span>
+      <span class="pdf-title">Nitish Harsoor — Résumé 2026</span>
+      <p class="pdf-desc">Current résumé — data science, ML engineering, and AI engineering roles.</p>
+      <a href="../docs/personal/nitish-harsoor-resume-2026.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION 4 — REFERENCES
+══════════════════════════════════════════════════════════ -->
+<section class="section" id="references">
+  <div class="section-hd">
+    <h2>References</h2>
+    <span class="section-meta">26 categories · 150+ curated links</span>
+  </div>
+  <div class="refs-wrap">
+    <p class="refs-desc">All reference URLs sourced from bookmarks — 16 topic-specific sections plus general resources covering AI platforms, MCP, Claude Code, MLOps, visualization, data APIs, and dev tools.</p>
+    <div class="refs-cats">
+      <span class="ref-cat-pill">01 SQL</span>
+      <span class="ref-cat-pill">02 Statistics</span>
+      <span class="ref-cat-pill">03 Python</span>
+      <span class="ref-cat-pill">04 PyTorch</span>
+      <span class="ref-cat-pill">05 Git</span>
+      <span class="ref-cat-pill">06 ML</span>
+      <span class="ref-cat-pill">07 Recommenders</span>
+      <span class="ref-cat-pill">08 Embeddings</span>
+      <span class="ref-cat-pill">09 RAG</span>
+      <span class="ref-cat-pill">10 Agents</span>
+      <span class="ref-cat-pill">11 LLM</span>
+      <span class="ref-cat-pill">12 Inferencing</span>
+      <span class="ref-cat-pill">13 LLM Eval</span>
+      <span class="ref-cat-pill">14 RL</span>
+      <span class="ref-cat-pill">15 Speech</span>
+      <span class="ref-cat-pill">16 Vision</span>
+      <span class="ref-cat-pill">A · General AI</span>
+      <span class="ref-cat-pill">B · MCP</span>
+      <span class="ref-cat-pill">C · Claude Code</span>
+      <span class="ref-cat-pill">D · MLOps</span>
+      <span class="ref-cat-pill">E · AI Tools</span>
+      <span class="ref-cat-pill">F · Frontend</span>
+      <span class="ref-cat-pill">G · Visualization</span>
+      <span class="ref-cat-pill">H · Data APIs</span>
+      <span class="ref-cat-pill">I · Algorithms</span>
+      <span class="ref-cat-pill">J · Dev Tools</span>
+    </div>
+    <a href="references.html" class="refs-open-btn">Open Full References →</a>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <span class="foot-left">LearningLab · <strong>20 topics</strong> · 19 blogs + 6 interview guides</span>
+  <span class="foot-right">DS · ML · AI · GenAI</span>
+</footer>
+
+<!-- ══════════ JS ══════════ -->
+<script>
+  /* progress fill */
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { document.getElementById('pFill').style.width = '95%'; }, 120);
+  });
+
+  /* staggered card entrance */
+  const cards = document.querySelectorAll('.tc');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('vis'), i * 50);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.04 });
+  cards.forEach(c => io.observe(c));
+
+  /* role filter */
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const countEl    = document.getElementById('topicCount');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const role = btn.dataset.filter;
+      let n = 0;
+      cards.forEach(card => {
+        const show = role === 'all' || (card.dataset.roles || '').includes(role);
+        card.classList.toggle('hidden', !show);
+        if (show) n++;
+      });
+      countEl.textContent = n + ' topics';
+    });
+  });
+
+  /* section nav highlight on scroll */
+  const sections  = ['topics','interview','docs','references'].map(id => document.getElementById(id));
+  const snavItems = document.querySelectorAll('.snav-item');
+
+  const sectionIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        snavItems.forEach(a => {
+          a.classList.toggle('active', a.dataset.section === entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => s && sectionIO.observe(s));
+</script>
+</body>
+</html>

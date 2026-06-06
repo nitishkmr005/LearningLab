@@ -1,0 +1,564 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "LearningLab" [ref=e4] [cursor=pointer]:
+        - /url: "#"
+      - generic [ref=e6]: DS · ML · AI · GenAI
+    - generic [ref=e7]:
+      - generic [ref=e8]: 21 topics
+      - button "Switch to dark theme" [ref=e9] [cursor=pointer]: Dark
+      - button "Print" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - link "Topics (20)" [ref=e12] [cursor=pointer]:
+      - /url: "#topics"
+    - link "Interview Prep" [ref=e13] [cursor=pointer]:
+      - /url: "#interview"
+    - link "Docs & PDFs" [ref=e14] [cursor=pointer]:
+      - /url: "#docs"
+    - link "References" [ref=e15] [cursor=pointer]:
+      - /url: "#references"
+  - generic [ref=e16]:
+    - paragraph [ref=e17]: Interview-ready · Production-grade · Open curriculum
+    - heading "The complete DS / ML / AI curriculum." [level=1] [ref=e18]:
+      - text: The complete
+      - emphasis [ref=e19]: DS / ML / AI
+      - text: curriculum.
+    - paragraph [ref=e20]: Literature survey blogs, annotated learning scripts, and interview prep — 21 topics across four engineering roles.
+    - generic [ref=e21]:
+      - button "All" [ref=e22] [cursor=pointer]
+      - button "Data Scientist" [ref=e23] [cursor=pointer]
+      - button "ML Engineer" [ref=e24] [cursor=pointer]
+      - button "AI Engineer" [ref=e25] [cursor=pointer]
+      - button "GenAI Engineer" [ref=e26] [cursor=pointer]
+  - generic [ref=e27]:
+    - generic [ref=e28]: Coverage
+    - generic [ref=e30]:
+      - strong [ref=e31]: "21"
+      - text: topic blogs ·
+      - strong [ref=e32]: "7"
+      - text: interview guides
+  - generic [ref=e33]:
+    - generic [ref=e34]:
+      - heading "Topics" [level=2] [ref=e35]
+      - generic [ref=e36]: 21 topics
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - generic [ref=e40]: "01"
+          - generic [ref=e41]: SQL
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]: SQL for Data Science
+            - generic [ref=e45]: blog
+          - generic [ref=e46]:
+            - generic [ref=e47]: DS
+            - generic [ref=e48]: ML
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - link "Blog" [ref=e51] [cursor=pointer]:
+                - /url: blog-sql.html
+              - link "01-setup" [ref=e52] [cursor=pointer]:
+                - /url: sql-playground.html?script=01-setup.sql
+              - link "02-exec-order" [ref=e53] [cursor=pointer]:
+                - /url: sql-playground.html?script=02-sql-execution-order.sql
+              - link "03-joins" [ref=e54] [cursor=pointer]:
+                - /url: sql-playground.html?script=03-joins.sql
+              - link "04-ctes" [ref=e55] [cursor=pointer]:
+                - /url: sql-playground.html?script=04-subqueries-ctes.sql
+              - link "05-windows" [ref=e56] [cursor=pointer]:
+                - /url: sql-playground.html?script=05-window-functions.sql
+              - link "06-sets" [ref=e57] [cursor=pointer]:
+                - /url: sql-playground.html?script=06-set-operations.sql
+              - link "07-null-case" [ref=e58] [cursor=pointer]:
+                - /url: sql-playground.html?script=07-null-and-case.sql
+              - link "08-datetime" [ref=e59] [cursor=pointer]:
+                - /url: sql-playground.html?script=08-datetime-string.sql
+              - link "09-analytical" [ref=e60] [cursor=pointer]:
+                - /url: sql-playground.html?script=09-analytical-patterns.sql
+              - link "10-views" [ref=e61] [cursor=pointer]:
+                - /url: sql-playground.html?script=10-views-optimization.sql
+              - link "11-ml-features" [ref=e62] [cursor=pointer]:
+                - /url: sql-playground.html?script=11-ml-feature-engineering.sql
+              - link "12-interviews" [ref=e63] [cursor=pointer]:
+                - /url: sql-playground.html?script=12-interview-problems.sql
+            - generic [ref=e64]: 20 sections · 12 queries
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - generic [ref=e67]: "02"
+          - generic [ref=e68]: Stats
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e71]: Statistics & Probability
+            - generic [ref=e72]: blog
+          - generic [ref=e73]:
+            - generic [ref=e74]: DS
+            - generic [ref=e75]: ML
+          - generic [ref=e76]:
+            - link "Blog" [ref=e78] [cursor=pointer]:
+              - /url: blog-statistics.html
+            - generic [ref=e79]: 31 sections
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - generic [ref=e82]: "03"
+          - generic [ref=e83]: DSA
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - generic [ref=e86]: Data Structures & Algorithms
+            - generic [ref=e87]: blog
+          - generic [ref=e88]:
+            - generic [ref=e89]: DS
+            - generic [ref=e90]: ML
+            - generic [ref=e91]: AI
+          - generic [ref=e92]:
+            - link "Blog" [ref=e94] [cursor=pointer]:
+              - /url: blog-dsa.html
+            - generic [ref=e95]: 22 sections
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - generic [ref=e98]: "04"
+          - generic [ref=e99]: Python
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: Python, NumPy & Pandas
+            - generic [ref=e103]: blog
+          - generic [ref=e104]:
+            - generic [ref=e105]: DS
+            - generic [ref=e106]: ML
+            - generic [ref=e107]: AI
+          - generic [ref=e108]:
+            - link "Blog" [ref=e110] [cursor=pointer]:
+              - /url: blog-python-pandas.html
+            - generic [ref=e111]: 24 sections
+      - generic [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]: "05"
+          - generic [ref=e115]: PyTorch
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: PyTorch
+            - generic [ref=e119]: blog
+          - generic [ref=e120]:
+            - generic [ref=e121]: ML
+            - generic [ref=e122]: AI
+          - generic [ref=e123]:
+            - link "Blog" [ref=e125] [cursor=pointer]:
+              - /url: blog-pytorch.html
+            - generic [ref=e126]: 17 sections
+      - generic [ref=e127]:
+        - generic [ref=e128]:
+          - generic [ref=e129]: "06"
+          - generic [ref=e130]: Git
+        - generic [ref=e131]:
+          - generic [ref=e132]:
+            - generic [ref=e133]: Git & CI/CD for ML
+            - generic [ref=e134]: blog
+          - generic [ref=e135]:
+            - generic [ref=e136]: ML
+            - generic [ref=e137]: AI
+          - generic [ref=e138]:
+            - link "Blog" [ref=e140] [cursor=pointer]:
+              - /url: blog-git.html
+            - generic [ref=e141]: 16 sections
+      - generic [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]: "07"
+          - generic [ref=e145]: ML
+        - generic [ref=e146]:
+          - generic [ref=e147]:
+            - generic [ref=e148]: Classical Machine Learning
+            - generic [ref=e149]: blog
+          - generic [ref=e150]:
+            - generic [ref=e151]: DS
+            - generic [ref=e152]: ML
+          - generic [ref=e153]:
+            - link "Blog" [ref=e155] [cursor=pointer]:
+              - /url: blog-machine-learning.html
+            - generic [ref=e156]: 37 sections
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - generic [ref=e159]: "08"
+          - generic [ref=e160]: DL
+        - generic [ref=e161]:
+          - generic [ref=e162]:
+            - generic [ref=e163]: Deep Learning
+            - generic [ref=e164]: outline
+          - generic [ref=e165]:
+            - generic [ref=e166]: DS
+            - generic [ref=e167]: ML
+            - generic [ref=e168]: AI
+          - generic [ref=e169]:
+            - link "Blog" [ref=e171] [cursor=pointer]:
+              - /url: blog-deep-learning.html
+            - generic [ref=e172]: 12 sections
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - generic [ref=e175]: "09"
+          - generic [ref=e176]: RecSys
+        - generic [ref=e177]:
+          - generic [ref=e178]:
+            - generic [ref=e179]: Recommender Systems
+            - generic [ref=e180]: blog
+          - generic [ref=e181]:
+            - generic [ref=e182]: DS
+            - generic [ref=e183]: ML
+            - generic [ref=e184]: AI
+          - generic [ref=e185]:
+            - link "Blog" [ref=e187] [cursor=pointer]:
+              - /url: blog-recommenders.html
+            - generic [ref=e188]: 32 sections
+      - generic [ref=e189]:
+        - generic [ref=e190]:
+          - generic [ref=e191]: "10"
+          - generic [ref=e192]: NLP
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - generic [ref=e195]: NLP Foundations
+            - generic [ref=e196]: blog
+          - generic [ref=e197]:
+            - generic [ref=e198]: DS
+            - generic [ref=e199]: ML
+            - generic [ref=e200]: AI
+          - generic [ref=e201]:
+            - link "Blog" [ref=e203] [cursor=pointer]:
+              - /url: blog-nlp-foundations.html
+            - generic [ref=e204]: pre-Transformer NLP stack
+      - generic [ref=e205]:
+        - generic [ref=e206]:
+          - generic [ref=e207]: "11"
+          - generic [ref=e208]: Embed
+        - generic [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e211]: Embedding Models
+            - generic [ref=e212]: blog
+          - generic [ref=e213]:
+            - generic [ref=e214]: ML
+            - generic [ref=e215]: AI
+          - generic [ref=e216]:
+            - link "Blog" [ref=e218] [cursor=pointer]:
+              - /url: blog-embedding.html
+            - generic [ref=e219]: 24 sections
+      - generic [ref=e220]:
+        - generic [ref=e221]:
+          - generic [ref=e222]: "12"
+          - generic [ref=e223]: RAG
+        - generic [ref=e224]:
+          - generic [ref=e225]:
+            - generic [ref=e226]: Retrieval-Augmented Generation
+            - generic [ref=e227]: blog
+          - generic [ref=e228]:
+            - generic [ref=e229]: AI
+            - generic [ref=e230]: GenAI
+          - generic [ref=e231]:
+            - link "Blog" [ref=e233] [cursor=pointer]:
+              - /url: blog-rag.html
+            - generic [ref=e234]: 30 sections
+      - generic [ref=e235]:
+        - generic [ref=e236]:
+          - generic [ref=e237]: "13"
+          - generic [ref=e238]: Agents
+        - generic [ref=e239]:
+          - generic [ref=e240]:
+            - generic [ref=e241]: AI Agents
+            - generic [ref=e242]: blog
+          - generic [ref=e243]:
+            - generic [ref=e244]: AI
+            - generic [ref=e245]: GenAI
+          - generic [ref=e246]:
+            - link "Blog" [ref=e248] [cursor=pointer]:
+              - /url: blog-agents.html
+            - generic [ref=e249]: 25 sections
+      - generic [ref=e250]:
+        - generic [ref=e251]:
+          - generic [ref=e252]: "14"
+          - generic [ref=e253]: LLM
+        - generic [ref=e254]:
+          - generic [ref=e255]:
+            - generic [ref=e256]: Large Language Models
+            - generic [ref=e257]: blog
+          - generic [ref=e258]:
+            - generic [ref=e259]: ML
+            - generic [ref=e260]: AI
+            - generic [ref=e261]: GenAI
+          - generic [ref=e262]:
+            - link "Blog" [ref=e264] [cursor=pointer]:
+              - /url: blog-llm.html
+            - generic [ref=e265]: 30 sections
+      - generic [ref=e266]:
+        - generic [ref=e267]:
+          - generic [ref=e268]: "15"
+          - generic [ref=e269]: Infer
+        - generic [ref=e270]:
+          - generic [ref=e271]:
+            - generic [ref=e272]: LLM Inferencing & Optimization
+            - generic [ref=e273]: blog
+          - generic [ref=e274]:
+            - generic [ref=e275]: ML
+            - generic [ref=e276]: GenAI
+          - generic [ref=e277]:
+            - link "Blog" [ref=e279] [cursor=pointer]:
+              - /url: blog-llm-inferencing.html
+            - generic [ref=e280]: 24 sections
+      - generic [ref=e281]:
+        - generic [ref=e282]:
+          - generic [ref=e283]: "16"
+          - generic [ref=e284]: Eval
+        - generic [ref=e285]:
+          - generic [ref=e286]:
+            - generic [ref=e287]: LLM Evaluation
+            - generic [ref=e288]: blog
+          - generic [ref=e289]:
+            - generic [ref=e290]: AI
+            - generic [ref=e291]: GenAI
+          - generic [ref=e292]:
+            - link "Blog" [ref=e294] [cursor=pointer]:
+              - /url: blog-llm-evaluation.html
+            - generic [ref=e295]: 18 sections
+      - generic [ref=e296]:
+        - generic [ref=e297]:
+          - generic [ref=e298]: "17"
+          - generic [ref=e299]: RL
+        - generic [ref=e300]:
+          - generic [ref=e301]:
+            - generic [ref=e302]: Reinforcement Learning
+            - generic [ref=e303]: blog
+          - generic [ref=e304]:
+            - generic [ref=e305]: ML
+            - generic [ref=e306]: AI
+          - generic [ref=e307]:
+            - link "Blog" [ref=e309] [cursor=pointer]:
+              - /url: blog-reinforcement-learning.html
+            - generic [ref=e310]: 16 sections
+      - generic [ref=e311]:
+        - generic [ref=e312]:
+          - generic [ref=e313]: "18"
+          - generic [ref=e314]: Speech
+        - generic [ref=e315]:
+          - generic [ref=e316]:
+            - generic [ref=e317]: "Speech: ASR, TTS & Voice Agents"
+            - generic [ref=e318]: blog
+          - generic [ref=e319]:
+            - generic [ref=e320]: AI
+            - generic [ref=e321]: GenAI
+          - generic [ref=e322]:
+            - link "Blog" [ref=e324] [cursor=pointer]:
+              - /url: blog-speech.html
+            - generic [ref=e325]: 17 sections
+      - generic [ref=e326]:
+        - generic [ref=e327]:
+          - generic [ref=e328]: "19"
+          - generic [ref=e329]: Vision
+        - generic [ref=e330]:
+          - generic [ref=e331]:
+            - generic [ref=e332]: Vision & OCR
+            - generic [ref=e333]: blog
+          - generic [ref=e334]:
+            - generic [ref=e335]: ML
+            - generic [ref=e336]: AI
+            - generic [ref=e337]: GenAI
+          - generic [ref=e338]:
+            - link "Blog" [ref=e340] [cursor=pointer]:
+              - /url: blog-vision-ocr.html
+            - generic [ref=e341]: 18 sections
+      - generic [ref=e342]:
+        - generic [ref=e343]:
+          - generic [ref=e344]: "20"
+          - generic [ref=e345]: Multimodal
+        - generic [ref=e346]:
+          - generic [ref=e347]:
+            - generic [ref=e348]: Multimodal AI
+            - generic [ref=e349]: outline
+          - generic [ref=e350]:
+            - generic [ref=e351]: AI
+            - generic [ref=e352]: GenAI
+          - generic [ref=e353]:
+            - link "Blog" [ref=e355] [cursor=pointer]:
+              - /url: blog-multimodal-ai.html
+            - generic [ref=e356]: vision-language · image gen · audio-visual agents
+  - generic [ref=e357]:
+    - generic [ref=e358]:
+      - heading "Interview Prep" [level=2] [ref=e359]
+      - generic [ref=e360]: Topic 20 · 7 guides
+    - generic [ref=e361]:
+      - generic [ref=e362]:
+        - text: "20"
+        - generic [ref=e363]:
+          - paragraph [ref=e364]: Topic 20 — Master Guide
+          - heading "DS / ML / AI Interview Guide" [level=3] [ref=e365]
+          - paragraph [ref=e366]: "80/20 interview prep: the 20% of questions that appear in 80% of DS/ML/AI interviews. Covers SQL, Python & Pandas, Statistics, ML Algorithms, Deep Learning, Recommender Systems, and NLP & LLMs — 7 guides, 100+ questions with full worked answers."
+        - link "Open Guide →" [ref=e367] [cursor=pointer]:
+          - /url: interview-overview.html
+      - generic [ref=e368]:
+        - generic [ref=e369]:
+          - generic [ref=e370]: 🗄️
+          - generic [ref=e371]: Subject 01
+          - generic [ref=e372]: SQL
+          - link "Study Q&A →" [ref=e373] [cursor=pointer]:
+            - /url: interview-sql.html
+        - generic [ref=e374]:
+          - generic [ref=e375]: 🐼
+          - generic [ref=e376]: Subject 02
+          - generic [ref=e377]: Python, Pandas & DSA
+          - link "Study Q&A →" [ref=e378] [cursor=pointer]:
+            - /url: interview-pandas-dsa.html
+        - generic [ref=e379]:
+          - generic [ref=e380]: 📊
+          - generic [ref=e381]: Subject 03
+          - generic [ref=e382]: Statistics
+          - link "Study Q&A →" [ref=e383] [cursor=pointer]:
+            - /url: interview-statistics.html
+        - generic [ref=e384]:
+          - generic [ref=e385]: 🌳
+          - generic [ref=e386]: Subject 04
+          - generic [ref=e387]: ML Algorithms & Evaluation
+          - link "Study Q&A →" [ref=e388] [cursor=pointer]:
+            - /url: interview-ml-algorithms.html
+        - generic [ref=e389]:
+          - generic [ref=e390]: 🧠
+          - generic [ref=e391]: Subject 05
+          - generic [ref=e392]: Deep Learning
+          - link "Study Q&A →" [ref=e393] [cursor=pointer]:
+            - /url: interview-deep-learning.html
+        - generic [ref=e394]:
+          - generic [ref=e395]: 🎯
+          - generic [ref=e396]: Subject 06
+          - generic [ref=e397]: Recommender Systems
+          - link "Study Q&A →" [ref=e398] [cursor=pointer]:
+            - /url: interview-recommenders.html
+        - generic [ref=e399]:
+          - generic [ref=e400]: 💬
+          - generic [ref=e401]: Subject 07
+          - generic [ref=e402]: NLP & Large Language Models
+          - link "Study Q&A →" [ref=e403] [cursor=pointer]:
+            - /url: interview-nlp-llm.html
+  - generic [ref=e404]:
+    - generic [ref=e405]:
+      - heading "Docs & PDFs" [level=2] [ref=e406]
+      - generic [ref=e407]: 9 documents · 6 categories
+    - generic [ref=e408]:
+      - generic [ref=e409]:
+        - generic [ref=e410] [cursor=pointer]:
+          - generic [ref=e411]: ►
+          - generic [ref=e412]: Claude Code
+          - generic [ref=e413]: "2"
+        - generic [ref=e415]:
+          - generic [ref=e416]:
+            - generic [ref=e417]: 📄
+            - generic [ref=e418]: Complete Guide to Building Skills
+            - paragraph [ref=e419]: Official guide — skill structure, prompts, tool use, and publishing Claude Code skills.
+            - link "Read ↗" [ref=e420] [cursor=pointer]:
+              - /url: https://github.com/nitishkmr005/LearningLab/blob/main/docs/claude-code/complete-guide-to-building-skill-for-claude.pdf
+          - generic [ref=e421]:
+            - generic [ref=e422]: 📝
+            - generic [ref=e423]: Skill Building Guide
+            - paragraph [ref=e424]: Condensed reference for building and publishing Claude Code skills.
+            - link "Read ↗" [ref=e425] [cursor=pointer]:
+              - /url: doc-skill-building-guide.html
+      - generic [ref=e426]:
+        - generic [ref=e427] [cursor=pointer]:
+          - generic [ref=e428]: ►
+          - generic [ref=e429]: LLM
+          - generic [ref=e430]: "3"
+        - generic [ref=e431]:
+          - generic [ref=e432]:
+            - generic [ref=e433]: 📄
+            - generic [ref=e434]: Inference Engineering
+            - paragraph [ref=e435]: Deep dive into LLM inference optimization — batching strategies, throughput vs latency, hardware.
+            - link "Read ↗" [ref=e436] [cursor=pointer]:
+              - /url: https://github.com/nitishkmr005/LearningLab/blob/main/docs/llm/inference-engineering.pdf
+          - generic [ref=e437]:
+            - generic [ref=e438]: 📄
+            - generic [ref=e439]: LLM Inference
+            - paragraph [ref=e440]: Comprehensive reference — KV cache, quantization, speculative decoding, deployment patterns.
+            - link "Read ↗" [ref=e441] [cursor=pointer]:
+              - /url: https://github.com/nitishkmr005/LearningLab/blob/main/docs/llm/llm-inference.pdf
+          - generic [ref=e442]:
+            - generic [ref=e443]: 📝
+            - generic [ref=e444]: "Transformer Internals: What Changed Since 2017"
+            - paragraph [ref=e445]: Deep dive into positional embeddings, normalization, attention variants, and MoE from 2017 to today.
+            - link "Read ↗" [ref=e446] [cursor=pointer]:
+              - /url: doc-transformer-internals-what-changed-since-2017.html
+      - generic [ref=e447]:
+        - generic [ref=e448] [cursor=pointer]:
+          - generic [ref=e449]: ►
+          - generic [ref=e450]: LLM · Fine-tuning
+          - generic [ref=e451]: "1"
+        - generic [ref=e453]:
+          - generic [ref=e454]: 📄
+          - generic [ref=e455]: Ultimate Guide to Fine-Tuning LLMs
+          - paragraph [ref=e456]: End-to-end guide — data prep, LoRA/QLoRA, full fine-tuning, RLHF, DPO, production deployment.
+          - link "Read ↗" [ref=e457] [cursor=pointer]:
+            - /url: https://github.com/nitishkmr005/LearningLab/blob/main/docs/llm/ultimate-guide-to-fine-tuning-llms.pdf
+      - generic [ref=e458]:
+        - generic [ref=e459] [cursor=pointer]:
+          - generic [ref=e460]: ►
+          - generic [ref=e461]: Personal
+          - generic [ref=e462]: "1"
+        - generic [ref=e464]:
+          - generic [ref=e465]: 📄
+          - generic [ref=e466]: Nitish Harsoor — Résumé 2026
+          - paragraph [ref=e467]: Current résumé — data science, ML engineering, and AI engineering roles.
+          - link "Read ↗" [ref=e468] [cursor=pointer]:
+            - /url: https://github.com/nitishkmr005/LearningLab/blob/main/docs/personal/nitish-harsoor-resume-2026.pdf
+      - generic [ref=e469]:
+        - generic [ref=e470] [cursor=pointer]:
+          - generic [ref=e471]: ►
+          - generic [ref=e472]: RAG
+          - generic [ref=e473]: "1"
+        - generic [ref=e475]:
+          - generic [ref=e476]: 📄
+          - generic [ref=e477]: RAG Evaluation & Testing in Production
+          - paragraph [ref=e478]: Practical guide to evaluating RAG pipelines — faithfulness, relevance, retrieval metrics.
+          - link "Read ↗" [ref=e479] [cursor=pointer]:
+            - /url: https://github.com/nitishkmr005/LearningLab/blob/main/docs/rag/rag-evaluation-testing-in-production.pdf
+      - generic [ref=e480]:
+        - generic [ref=e481] [cursor=pointer]:
+          - generic [ref=e482]: ►
+          - generic [ref=e483]: Statistics
+          - generic [ref=e484]: "1"
+        - generic [ref=e486]:
+          - generic [ref=e487]: 📄
+          - generic [ref=e488]: Daily Dose of Data Science
+          - paragraph [ref=e489]: Visual explanations of statistics, ML concepts, and Python techniques — compiled reference PDF.
+          - link "Read ↗" [ref=e490] [cursor=pointer]:
+            - /url: https://github.com/nitishkmr005/LearningLab/blob/main/docs/statistics/daily-dose-of-ds.pdf
+  - generic [ref=e491]:
+    - generic [ref=e492]:
+      - heading "References" [level=2] [ref=e493]
+      - generic [ref=e494]: 26 categories · 150+ curated links
+    - generic [ref=e495]:
+      - paragraph [ref=e496]: All reference URLs sourced from bookmarks — 16 topic-specific sections plus general resources covering AI platforms, MCP, Claude Code, MLOps, visualization, data APIs, and dev tools.
+      - generic [ref=e497]:
+        - generic [ref=e498]: 01 SQL
+        - generic [ref=e499]: 02 Statistics
+        - generic [ref=e500]: 03 Python
+        - generic [ref=e501]: 04 PyTorch
+        - generic [ref=e502]: 05 Git
+        - generic [ref=e503]: 06 ML
+        - generic [ref=e504]: 07 Recommenders
+        - generic [ref=e505]: 08 Embeddings
+        - generic [ref=e506]: 09 RAG
+        - generic [ref=e507]: 10 Agents
+        - generic [ref=e508]: 11 LLM
+        - generic [ref=e509]: 12 Inferencing
+        - generic [ref=e510]: 13 LLM Eval
+        - generic [ref=e511]: 14 RL
+        - generic [ref=e512]: 15 Speech
+        - generic [ref=e513]: 16 Vision
+        - generic [ref=e514]: A · General AI
+        - generic [ref=e515]: B · MCP
+        - generic [ref=e516]: C · Claude Code
+        - generic [ref=e517]: D · MLOps
+        - generic [ref=e518]: E · AI Tools
+        - generic [ref=e519]: F · Frontend
+        - generic [ref=e520]: G · Visualization
+        - generic [ref=e521]: H · Data APIs
+        - generic [ref=e522]: I · Algorithms
+        - generic [ref=e523]: J · Dev Tools
+      - link "Open Full References →" [ref=e524] [cursor=pointer]:
+        - /url: references.html
+  - contentinfo [ref=e525]:
+    - generic [ref=e526]:
+      - text: LearningLab ·
+      - strong [ref=e527]: 21 topics
+      - text: · 21 blogs + 7 interview guides
+    - generic [ref=e528]: DS · ML · AI · GenAI

@@ -29,6 +29,19 @@
       --nav-h: 52px;
       --snav-h: 44px;
     }
+    :root[data-theme="dark"] {
+      --bg:        #13110f;
+      --bg-card:   #221d18;
+      --bg-hover:  #2a241f;
+      --bg-dark:   #0d0b09;
+      --border:    #3a3129;
+      --border-m:  #4a4036;
+      --text:      #f2e9d9;
+      --muted:     #c1b6a8;
+      --faint:     #8f8375;
+      --accent:    #ef8b57;
+      --white:     #fdfaf4;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; font-size: 16px; }
     body { font-family: var(--f-b); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -44,6 +57,8 @@
     .nav-pill { font-family: var(--f-m); font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); cursor: default; }
     .print-btn { font-family: var(--f-m); font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); background: transparent; cursor: pointer; transition: background .15s, color .15s; }
     .print-btn:hover { background: var(--text); color: var(--white); border-color: var(--text); }
+    .theme-toggle { font-family: var(--f-m); font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); background: transparent; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+    .theme-toggle:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
 
     /* ── Section nav (sticky under main nav) ─────────────────── */
     .section-nav { position: sticky; top: var(--nav-h); z-index: 190; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 48px; height: var(--snav-h); gap: 4px; }
@@ -221,6 +236,14 @@
   </style>
 </head>
 <body>
+<script>
+  (function() {
+    var savedTheme = localStorage.getItem('learninglab-theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
 
 <!-- ══════════ MAIN NAV ══════════ -->
 <nav class="main-nav">
@@ -231,6 +254,7 @@
   </div>
   <div class="nav-right">
     <span class="nav-pill">21 topics</span>
+    <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
     <button class="print-btn" onclick="window.print()">Print</button>
   </div>
 </nav>
@@ -884,6 +908,30 @@
       hd.closest('.doc-cat-section').classList.toggle('open');
     });
   });
+
+  /* theme toggle */
+  const themeToggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+
+  function syncThemeToggle() {
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    themeToggle.textContent = isDark ? 'Light' : 'Dark';
+    themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      root.removeAttribute('data-theme');
+      localStorage.setItem('learninglab-theme', 'light');
+    } else {
+      root.setAttribute('data-theme', 'dark');
+      localStorage.setItem('learninglab-theme', 'dark');
+    }
+    syncThemeToggle();
+  });
+
+  syncThemeToggle();
 </script>
 </body>
 </html>

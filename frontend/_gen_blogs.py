@@ -77,6 +77,16 @@ STYLE = r"""
     --f-mono:   'JetBrains Mono', 'Fira Code', monospace;
     --nav-h:    52px;
   }
+  :root[data-theme="dark"] {
+    --bg:       #13110f;
+    --bg-mid:   #221d18;
+    --bg-code:  #0d0b09;
+    --text:     #f2e9d9;
+    --muted:    #c1b6a8;
+    --faint:    #8f8375;
+    --accent:   #ef8b57;
+    --border:   #3a3129;
+  }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 16px; scroll-behavior: smooth; }
   body { font-family: var(--f-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; line-height: 1.7; }
@@ -91,6 +101,13 @@ STYLE = r"""
   .nav-back { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .15s; }
   .nav-back:hover { color: var(--accent); }
   .nav-title { font-family: var(--f-serif); font-size: 15px; color: var(--muted); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .theme-toggle {
+    font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); background: transparent;
+    cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+  }
+  .theme-toggle:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
 
   /* ── two-column layout ── */
   .page-layout {
@@ -122,6 +139,7 @@ STYLE = r"""
   article code { font-family: var(--f-mono); font-size: 13px; background: var(--bg-mid); padding: 1px 6px; border-radius: 3px; color: #9b3f1f; }
   article pre { background: var(--bg-code); padding: 20px 24px; margin: 20px 0; overflow-x: auto; border-left: 3px solid var(--accent); }
   article pre code { font-family: var(--f-mono); font-size: 13px; background: transparent; color: #d4c9b8; padding: 0; border-radius: 0; }
+  :root[data-theme="dark"] article pre code { color: #e8dccb; }
 
   .hljs { background: transparent; color: #d4c9b8; }
   .hljs-keyword, .hljs-built_in { color: #e8956d; }
@@ -275,12 +293,23 @@ HTML_TEMPLATE = """\
   <script defer src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <style>{style}</style>
+  <script>
+    (function() {{
+      var savedTheme = localStorage.getItem('learninglab-theme');
+      if (savedTheme === 'dark') {{
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }}
+    }})();
+  </script>
 </head>
 <body>
 
 <nav>
   <a href="{back_link}" class="nav-back">← Back to LearningLab</a>
-  <span class="nav-title">{title}</span>
+  <div class="nav-right">
+    <span class="nav-title">{title}</span>
+    <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
+  </div>
 </nav>
 
 <div class="page-layout">
@@ -366,6 +395,28 @@ function restoreMath(html, store) {{
 /* ── Wait for all deferred scripts, then render ── */
 window.addEventListener('load', function() {{
   var contentEl = document.getElementById('content');
+  var themeToggle = document.getElementById('themeToggle');
+  var root = document.documentElement;
+
+  function syncThemeToggle() {{
+    var isDark = root.getAttribute('data-theme') === 'dark';
+    themeToggle.textContent = isDark ? 'Light' : 'Dark';
+    themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+  }}
+
+  themeToggle.addEventListener('click', function() {{
+    var isDark = root.getAttribute('data-theme') === 'dark';
+    if (isDark) {{
+      root.removeAttribute('data-theme');
+      localStorage.setItem('learninglab-theme', 'light');
+    }} else {{
+      root.setAttribute('data-theme', 'dark');
+      localStorage.setItem('learninglab-theme', 'dark');
+    }}
+    syncThemeToggle();
+  }});
+
+  syncThemeToggle();
 
   if (typeof marked === 'undefined') {{
     contentEl.innerHTML = '<p style="color:#c85e35;padding:40px 0;">Could not load marked.js — check your internet connection and reload.</p>';

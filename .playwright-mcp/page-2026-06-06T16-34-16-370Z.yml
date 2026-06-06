@@ -1,0 +1,2431 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "← Back to LearningLab" [ref=e3] [cursor=pointer]:
+      - /url: index.html#interview
+    - generic [ref=e4]:
+      - generic [ref=e5]: Python, Pandas & DSA — Interview Q&A
+      - button "Switch to dark theme" [ref=e6] [cursor=pointer]: Dark
+  - generic [ref=e7]:
+    - article [ref=e8]:
+      - heading "Pandas & DSA — Interview Q&A" [level=1] [ref=e9]
+      - blockquote [ref=e10]:
+        - paragraph [ref=e11]: Covers the pandas operations that appear in DS take-homes and live coding, and the algorithmic patterns most relevant to data engineering and ML pipelines. Not competitive programming — practical interview-level coding.
+      - separator [ref=e12]
+      - heading "Table of Contents" [level=2] [ref=e13]
+      - paragraph [ref=e14]:
+        - strong [ref=e15]: "Pandas:"
+      - list [ref=e16]:
+        - listitem [ref=e17]:
+          - 'link "Q1: What is the difference between a DataFrame and a Series?" [ref=e18] [cursor=pointer]':
+            - /url: "#q1-what-is-the-difference-between-a-dataframe-and-a-series"
+        - listitem [ref=e19]:
+          - 'link "Q2: What is the difference between .loc and .iloc?" [ref=e20] [cursor=pointer]':
+            - /url: "#q2-what-is-the-difference-between-loc-and-iloc"
+            - text: "Q2: What is the difference between"
+            - code [ref=e21]: .loc
+            - text: and
+            - code [ref=e22]: .iloc
+            - text: "?"
+        - listitem [ref=e23]:
+          - 'link "Q3: How do you handle missing values in pandas?" [ref=e24] [cursor=pointer]':
+            - /url: "#q3-how-do-you-handle-missing-values-in-pandas"
+        - listitem [ref=e25]:
+          - 'link "Q4: How does groupby work? What is the split-apply-combine pattern?" [ref=e26] [cursor=pointer]':
+            - /url: "#q4-how-does-groupby-work-what-is-the-split-apply-combine-pattern"
+            - text: "Q4: How does"
+            - code [ref=e27]: groupby
+            - text: work? What is the split-apply-combine pattern?
+        - listitem [ref=e28]:
+          - 'link "Q5: What is the difference between merge, join, and concat?" [ref=e29] [cursor=pointer]':
+            - /url: "#q5-what-is-the-difference-between-merge-join-and-concat"
+            - text: "Q5: What is the difference between"
+            - code [ref=e30]: merge
+            - text: ","
+            - code [ref=e31]: join
+            - text: ", and"
+            - code [ref=e32]: concat
+            - text: "?"
+        - listitem [ref=e33]:
+          - 'link "Q6: How do you apply a function to a DataFrame? (apply, map, vectorized ops)" [ref=e34] [cursor=pointer]':
+            - /url: "#q6-how-do-you-apply-a-function-to-a-dataframe-apply-map-vectorized-ops"
+            - text: "Q6: How do you apply a function to a DataFrame? ("
+            - code [ref=e35]: apply
+            - text: ","
+            - code [ref=e36]: map
+            - text: ", vectorized ops)"
+        - listitem [ref=e37]:
+          - 'link "Q7: What is the difference between a pandas copy and a view?" [ref=e38] [cursor=pointer]':
+            - /url: "#q7-what-is-the-difference-between-a-pandas-copy-and-a-view"
+        - listitem [ref=e39]:
+          - 'link "Q8: How do you filter rows in a DataFrame efficiently?" [ref=e40] [cursor=pointer]':
+            - /url: "#q8-how-do-you-filter-rows-in-a-dataframe-efficiently"
+        - listitem [ref=e41]:
+          - 'link "Q9: What is the difference between agg, transform, and filter in pandas groupby?" [ref=e42] [cursor=pointer]':
+            - /url: "#q9-what-is-the-difference-between-agg-transform-and-filter-in-pandas-groupby"
+            - text: "Q9: What is the difference between"
+            - code [ref=e43]: agg
+            - text: ","
+            - code [ref=e44]: transform
+            - text: ", and"
+            - code [ref=e45]: filter
+            - text: in pandas groupby?
+        - listitem [ref=e46]:
+          - 'link "Q10: How do window-style transforms work in pandas?" [ref=e47] [cursor=pointer]':
+            - /url: "#q10-how-do-window-style-transforms-work-in-pandas"
+        - listitem [ref=e48]:
+          - 'link "Q11: What is the difference between pivot, pivot_table, and crosstab?" [ref=e49] [cursor=pointer]':
+            - /url: "#q11-what-is-the-difference-between-pivot-pivot_table-and-crosstab"
+            - text: "Q11: What is the difference between"
+            - code [ref=e50]: pivot
+            - text: ","
+            - code [ref=e51]: pivot_table
+            - text: ", and"
+            - code [ref=e52]: crosstab
+            - text: "?"
+      - paragraph [ref=e53]:
+        - strong [ref=e54]: "NumPy:"
+      - list [ref=e55]:
+        - listitem [ref=e56]:
+          - 'link "Q12: Why is NumPy faster than pure Python lists for numerical work?" [ref=e57] [cursor=pointer]':
+            - /url: "#q12-why-is-numpy-faster-than-pure-python-lists-for-numerical-work"
+        - listitem [ref=e58]:
+          - 'link "Q13: What is broadcasting in NumPy?" [ref=e59] [cursor=pointer]':
+            - /url: "#q13-what-is-broadcasting-in-numpy"
+        - listitem [ref=e60]:
+          - 'link "Q14: What is the difference between NumPy views and copies?" [ref=e61] [cursor=pointer]':
+            - /url: "#q14-what-is-the-difference-between-numpy-views-and-copies"
+      - paragraph [ref=e62]:
+        - strong [ref=e63]: "DSA:"
+      - list [ref=e64]:
+        - listitem [ref=e65]:
+          - 'link "Q15: What is Big O notation? Time complexities of common Python data structures." [ref=e66] [cursor=pointer]':
+            - /url: "#q15-what-is-big-o-notation-time-complexities-of-common-python-data-structures"
+        - listitem [ref=e67]:
+          - 'link "Q16: What is a hash map and why is it O(1) lookup?" [ref=e68] [cursor=pointer]':
+            - /url: "#q16-what-is-a-hash-map-and-why-is-it-o1-lookup"
+        - listitem [ref=e69]:
+          - 'link "Q17: What is binary search and when do you use it?" [ref=e70] [cursor=pointer]':
+            - /url: "#q17-what-is-binary-search-and-when-do-you-use-it"
+        - listitem [ref=e71]:
+          - 'link "Q18: What is the sliding window technique?" [ref=e72] [cursor=pointer]':
+            - /url: "#q18-what-is-the-sliding-window-technique"
+        - listitem [ref=e73]:
+          - 'link "Q19: What is the two-pointer technique?" [ref=e74] [cursor=pointer]':
+            - /url: "#q19-what-is-the-two-pointer-technique"
+        - listitem [ref=e75]:
+          - 'link "Q20: What is the difference between BFS and DFS?" [ref=e76] [cursor=pointer]':
+            - /url: "#q20-what-is-the-difference-between-bfs-and-dfs"
+        - listitem [ref=e77]:
+          - 'link "Q21: What is dynamic programming? When do you use it?" [ref=e78] [cursor=pointer]':
+            - /url: "#q21-what-is-dynamic-programming-when-do-you-use-it"
+      - separator [ref=e79]
+      - 'heading "Q1: What is the difference between a DataFrame and a Series?" [level=2] [ref=e80]'
+      - paragraph [ref=e81]:
+        - strong [ref=e82]: "Series:"
+        - text: A one-dimensional labeled array — like a single column of a table, with an index.
+      - code [ref=e84]: "import pandas as pd s = pd.Series([10, 20, 30], index=['a', 'b', 'c']) # a 10 # b 20 # c 30"
+      - paragraph [ref=e85]: "Output:"
+      - table [ref=e87]:
+        - rowgroup [ref=e88]:
+          - row "index value" [ref=e89]:
+            - columnheader "index" [ref=e90]
+            - columnheader "value" [ref=e91]
+        - rowgroup [ref=e92]:
+          - row "a 10" [ref=e93]:
+            - cell "a" [ref=e94]
+            - cell "10" [ref=e95]
+          - row "b 20" [ref=e96]:
+            - cell "b" [ref=e97]
+            - cell "20" [ref=e98]
+          - row "c 30" [ref=e99]:
+            - cell "c" [ref=e100]
+            - cell "30" [ref=e101]
+      - paragraph [ref=e102]:
+        - strong [ref=e103]: "DataFrame:"
+        - text: A two-dimensional labeled table. Each column is a Series sharing the same index.
+      - code [ref=e105]: "df = pd.DataFrame({ 'name': ['Alice', 'Bob', 'Carol'], 'salary': [90000, 75000, 110000], 'dept': ['Eng', 'Mkt', 'Eng'] })"
+      - table [ref=e107]:
+        - rowgroup [ref=e108]:
+          - row "name salary dept" [ref=e109]:
+            - columnheader [ref=e110]
+            - columnheader "name" [ref=e111]
+            - columnheader "salary" [ref=e112]
+            - columnheader "dept" [ref=e113]
+        - rowgroup [ref=e114]:
+          - row "0 Alice 90000 Eng" [ref=e115]:
+            - cell "0" [ref=e116]
+            - cell "Alice" [ref=e117]
+            - cell "90000" [ref=e118]
+            - cell "Eng" [ref=e119]
+          - row "1 Bob 75000 Mkt" [ref=e120]:
+            - cell "1" [ref=e121]
+            - cell "Bob" [ref=e122]
+            - cell "75000" [ref=e123]
+            - cell "Mkt" [ref=e124]
+          - row "2 Carol 110000 Eng" [ref=e125]:
+            - cell "2" [ref=e126]
+            - cell "Carol" [ref=e127]
+            - cell "110000" [ref=e128]
+            - cell "Eng" [ref=e129]
+      - paragraph [ref=e130]:
+        - strong [ref=e131]: "Relationship:"
+      - code [ref=e133]: "df['salary'] # → Series (one column) df[['salary', 'dept']] # → DataFrame (two columns; double brackets) df.shape # (3, 3) — (rows, cols) df.dtypes # dtype of each column df.describe() # summary stats for numeric columns"
+      - paragraph [ref=e134]:
+        - text: Output of
+        - code [ref=e135]: df['salary']
+        - text: ":"
+      - table [ref=e137]:
+        - rowgroup [ref=e138]:
+          - row "salary" [ref=e139]:
+            - columnheader [ref=e140]
+            - columnheader "salary" [ref=e141]
+        - rowgroup [ref=e142]:
+          - row "0 90000" [ref=e143]:
+            - cell "0" [ref=e144]
+            - cell "90000" [ref=e145]
+          - row "1 75000" [ref=e146]:
+            - cell "1" [ref=e147]
+            - cell "75000" [ref=e148]
+          - row "2 110000" [ref=e149]:
+            - cell "2" [ref=e150]
+            - cell "110000" [ref=e151]
+      - paragraph [ref=e152]:
+        - text: Output of
+        - code [ref=e153]: df[['salary', 'dept']]
+        - text: ":"
+      - table [ref=e155]:
+        - rowgroup [ref=e156]:
+          - row "salary dept" [ref=e157]:
+            - columnheader [ref=e158]
+            - columnheader "salary" [ref=e159]
+            - columnheader "dept" [ref=e160]
+        - rowgroup [ref=e161]:
+          - row "0 90000 Eng" [ref=e162]:
+            - cell "0" [ref=e163]
+            - cell "90000" [ref=e164]
+            - cell "Eng" [ref=e165]
+          - row "1 75000 Mkt" [ref=e166]:
+            - cell "1" [ref=e167]
+            - cell "75000" [ref=e168]
+            - cell "Mkt" [ref=e169]
+          - row "2 110000 Eng" [ref=e170]:
+            - cell "2" [ref=e171]
+            - cell "110000" [ref=e172]
+            - cell "Eng" [ref=e173]
+      - paragraph [ref=e174]:
+        - strong [ref=e175]: "Intuition:"
+        - text: A DataFrame is a dictionary of Series objects that all share the same row index. When you select one column, you get back a Series.
+      - separator [ref=e176]
+      - 'heading "Q2: What is the difference between .loc and .iloc?" [level=2] [ref=e177]':
+        - text: "Q2: What is the difference between"
+        - code [ref=e178]: .loc
+        - text: and
+        - code [ref=e179]: .iloc
+        - text: "?"
+      - paragraph [ref=e180]: "Both select rows and columns, but use different addressing:"
+      - table [ref=e182]:
+        - rowgroup [ref=e183]:
+          - row ".loc .iloc" [ref=e184]:
+            - columnheader [ref=e185]
+            - columnheader ".loc" [ref=e186]:
+              - code [ref=e187]: .loc
+            - columnheader ".iloc" [ref=e188]:
+              - code [ref=e189]: .iloc
+        - rowgroup [ref=e190]:
+          - row "Addressing Label-based (index names, column names) Integer position-based (0, 1, 2, …)" [ref=e191]:
+            - cell "Addressing" [ref=e192]:
+              - strong [ref=e193]: Addressing
+            - cell "Label-based (index names, column names)" [ref=e194]
+            - cell "Integer position-based (0, 1, 2, …)" [ref=e195]
+          - row "Slice end Inclusive Exclusive (like Python lists)" [ref=e196]:
+            - cell "Slice end" [ref=e197]:
+              - strong [ref=e198]: Slice end
+            - cell "Inclusive" [ref=e199]:
+              - strong [ref=e200]: Inclusive
+            - cell "Exclusive (like Python lists)" [ref=e201]:
+              - strong [ref=e202]: Exclusive
+              - text: (like Python lists)
+      - code [ref=e204]: "df = pd.DataFrame({ 'name': ['Alice', 'Bob', 'Carol'], 'salary': [90000, 75000, 110000] }, index=['a', 'b', 'c']) # .loc — use labels df.loc['a'] # row with index label 'a' df.loc['a':'b'] # rows 'a' and 'b' — INCLUSIVE of 'b' df.loc['a', 'salary'] # scalar: 90000 df.loc[:, 'salary'] # all rows, salary column # .iloc — use integer positions df.iloc[0] # first row (index label 'a') df.iloc[0:2] # rows 0 and 1 — EXCLUSIVE of 2 (NOT row 2) df.iloc[0, 1] # row 0, column at position 1 → 90000 df.iloc[:, 1] # all rows, second column"
+      - paragraph [ref=e205]: "Input:"
+      - table [ref=e207]:
+        - rowgroup [ref=e208]:
+          - row "index name salary" [ref=e209]:
+            - columnheader "index" [ref=e210]
+            - columnheader "name" [ref=e211]
+            - columnheader "salary" [ref=e212]
+        - rowgroup [ref=e213]:
+          - row "a Alice 90000" [ref=e214]:
+            - cell "a" [ref=e215]
+            - cell "Alice" [ref=e216]
+            - cell "90000" [ref=e217]
+          - row "b Bob 75000" [ref=e218]:
+            - cell "b" [ref=e219]
+            - cell "Bob" [ref=e220]
+            - cell "75000" [ref=e221]
+          - row "c Carol 110000" [ref=e222]:
+            - cell "c" [ref=e223]
+            - cell "Carol" [ref=e224]
+            - cell "110000" [ref=e225]
+      - paragraph [ref=e226]:
+        - text: Output of
+        - code [ref=e227]: df.loc['a':'b']
+        - text: ":"
+      - table [ref=e229]:
+        - rowgroup [ref=e230]:
+          - row "index name salary" [ref=e231]:
+            - columnheader "index" [ref=e232]
+            - columnheader "name" [ref=e233]
+            - columnheader "salary" [ref=e234]
+        - rowgroup [ref=e235]:
+          - row "a Alice 90000" [ref=e236]:
+            - cell "a" [ref=e237]
+            - cell "Alice" [ref=e238]
+            - cell "90000" [ref=e239]
+          - row "b Bob 75000" [ref=e240]:
+            - cell "b" [ref=e241]
+            - cell "Bob" [ref=e242]
+            - cell "75000" [ref=e243]
+      - paragraph [ref=e244]:
+        - text: Output of
+        - code [ref=e245]: df.iloc[0:2]
+        - text: ":"
+      - table [ref=e247]:
+        - rowgroup [ref=e248]:
+          - row "index name salary" [ref=e249]:
+            - columnheader "index" [ref=e250]
+            - columnheader "name" [ref=e251]
+            - columnheader "salary" [ref=e252]
+        - rowgroup [ref=e253]:
+          - row "a Alice 90000" [ref=e254]:
+            - cell "a" [ref=e255]
+            - cell "Alice" [ref=e256]
+            - cell "90000" [ref=e257]
+          - row "b Bob 75000" [ref=e258]:
+            - cell "b" [ref=e259]
+            - cell "Bob" [ref=e260]
+            - cell "75000" [ref=e261]
+      - paragraph [ref=e262]:
+        - text: Output of
+        - code [ref=e263]: df.loc[:, 'salary']
+        - text: ":"
+      - table [ref=e265]:
+        - rowgroup [ref=e266]:
+          - row "index salary" [ref=e267]:
+            - columnheader "index" [ref=e268]
+            - columnheader "salary" [ref=e269]
+        - rowgroup [ref=e270]:
+          - row "a 90000" [ref=e271]:
+            - cell "a" [ref=e272]
+            - cell "90000" [ref=e273]
+          - row "b 75000" [ref=e274]:
+            - cell "b" [ref=e275]
+            - cell "75000" [ref=e276]
+          - row "c 110000" [ref=e277]:
+            - cell "c" [ref=e278]
+            - cell "110000" [ref=e279]
+      - paragraph [ref=e280]:
+        - strong [ref=e281]: "Classic gotcha:"
+        - text: "If your index is integers (0, 1, 2):"
+      - list [ref=e282]:
+        - listitem [ref=e283]:
+          - code [ref=e284]: df.loc[0:2]
+          - text: → returns rows 0, 1, AND 2 (inclusive)
+        - listitem [ref=e285]:
+          - code [ref=e286]: df.iloc[0:2]
+          - text: → returns rows 0 and 1 only (exclusive)
+      - paragraph [ref=e287]: They behave differently even for integer-labeled indexes.
+      - paragraph [ref=e288]:
+        - strong [ref=e289]:
+          - text: Boolean indexing (most common in practice — uses
+          - code [ref=e290]: .loc
+          - text: "):"
+      - code [ref=e292]: "df.loc[df['salary'] > 80000] # all high earners df.loc[df['dept'] == 'Eng', 'salary'] # salaries of Eng employees only df.loc[(df['dept'] == 'Eng') & (df['salary'] > 85000)] # AND condition"
+      - paragraph [ref=e293]: "Example input for boolean indexing:"
+      - table [ref=e295]:
+        - rowgroup [ref=e296]:
+          - row "name salary dept" [ref=e297]:
+            - columnheader [ref=e298]
+            - columnheader "name" [ref=e299]
+            - columnheader "salary" [ref=e300]
+            - columnheader "dept" [ref=e301]
+        - rowgroup [ref=e302]:
+          - row "0 Alice 90000 Eng" [ref=e303]:
+            - cell "0" [ref=e304]
+            - cell "Alice" [ref=e305]
+            - cell "90000" [ref=e306]
+            - cell "Eng" [ref=e307]
+          - row "1 Bob 75000 Mkt" [ref=e308]:
+            - cell "1" [ref=e309]
+            - cell "Bob" [ref=e310]
+            - cell "75000" [ref=e311]
+            - cell "Mkt" [ref=e312]
+          - row "2 Carol 110000 Eng" [ref=e313]:
+            - cell "2" [ref=e314]
+            - cell "Carol" [ref=e315]
+            - cell "110000" [ref=e316]
+            - cell "Eng" [ref=e317]
+      - paragraph [ref=e318]:
+        - text: Output of
+        - code [ref=e319]: df.loc[df['salary'] > 80000]
+        - text: ":"
+      - table [ref=e321]:
+        - rowgroup [ref=e322]:
+          - row "name salary dept" [ref=e323]:
+            - columnheader [ref=e324]
+            - columnheader "name" [ref=e325]
+            - columnheader "salary" [ref=e326]
+            - columnheader "dept" [ref=e327]
+        - rowgroup [ref=e328]:
+          - row "0 Alice 90000 Eng" [ref=e329]:
+            - cell "0" [ref=e330]
+            - cell "Alice" [ref=e331]
+            - cell "90000" [ref=e332]
+            - cell "Eng" [ref=e333]
+          - row "2 Carol 110000 Eng" [ref=e334]:
+            - cell "2" [ref=e335]
+            - cell "Carol" [ref=e336]
+            - cell "110000" [ref=e337]
+            - cell "Eng" [ref=e338]
+      - paragraph [ref=e339]:
+        - text: Output of
+        - code [ref=e340]: df.loc[df['dept'] == 'Eng', 'salary']
+        - text: ":"
+      - table [ref=e342]:
+        - rowgroup [ref=e343]:
+          - row "salary" [ref=e344]:
+            - columnheader [ref=e345]
+            - columnheader "salary" [ref=e346]
+        - rowgroup [ref=e347]:
+          - row "0 90000" [ref=e348]:
+            - cell "0" [ref=e349]
+            - cell "90000" [ref=e350]
+          - row "2 110000" [ref=e351]:
+            - cell "2" [ref=e352]
+            - cell "110000" [ref=e353]
+      - paragraph [ref=e354]:
+        - strong [ref=e355]: "Rule of thumb:"
+        - text: Use
+        - code [ref=e356]: .iloc
+        - text: for positional access (first N rows, loop indices). Use
+        - code [ref=e357]: .loc
+        - text: for semantic access (filter by value, select by label).
+      - separator [ref=e358]
+      - 'heading "Q3: How do you handle missing values in pandas?" [level=2] [ref=e359]'
+      - paragraph [ref=e360]: "Input:"
+      - table [ref=e362]:
+        - rowgroup [ref=e363]:
+          - row "name salary dept price" [ref=e364]:
+            - columnheader [ref=e365]
+            - columnheader "name" [ref=e366]
+            - columnheader "salary" [ref=e367]
+            - columnheader "dept" [ref=e368]
+            - columnheader "price" [ref=e369]
+        - rowgroup [ref=e370]:
+          - row "0 Alice 90000 Eng 100.0" [ref=e371]:
+            - cell "0" [ref=e372]
+            - cell "Alice" [ref=e373]
+            - cell "90000" [ref=e374]
+            - cell "Eng" [ref=e375]
+            - cell "100.0" [ref=e376]
+          - row "1 Bob NaN Mkt NaN" [ref=e377]:
+            - cell "1" [ref=e378]
+            - cell "Bob" [ref=e379]
+            - cell "NaN" [ref=e380]
+            - cell "Mkt" [ref=e381]
+            - cell "NaN" [ref=e382]
+          - row "2 Carol 110000 NaN 120.0" [ref=e383]:
+            - cell "2" [ref=e384]
+            - cell "Carol" [ref=e385]
+            - cell "110000" [ref=e386]
+            - cell "NaN" [ref=e387]
+            - cell "120.0" [ref=e388]
+          - row "3 Dave 80000 Sales 140.0" [ref=e389]:
+            - cell "3" [ref=e390]
+            - cell "Dave" [ref=e391]
+            - cell "80000" [ref=e392]
+            - cell "Sales" [ref=e393]
+            - cell "140.0" [ref=e394]
+      - paragraph [ref=e395]:
+        - strong [ref=e396]: "Step 1 — Detect missing values:"
+      - code [ref=e398]: "df.isnull() # boolean DataFrame: True where NaN df.isnull().sum() # count NaN per column df.isnull().sum() / len(df) * 100 # percent missing per column df.isnull().any(axis=1) # True for any row that has at least one NaN"
+      - paragraph [ref=e399]:
+        - text: Output of
+        - code [ref=e400]: df.isnull().sum()
+        - text: ":"
+      - table [ref=e402]:
+        - rowgroup [ref=e403]:
+          - row "column missing_count" [ref=e404]:
+            - columnheader "column" [ref=e405]
+            - columnheader "missing_count" [ref=e406]
+        - rowgroup [ref=e407]:
+          - row "name 0" [ref=e408]:
+            - cell "name" [ref=e409]
+            - cell "0" [ref=e410]
+          - row "salary 1" [ref=e411]:
+            - cell "salary" [ref=e412]
+            - cell "1" [ref=e413]
+          - row "dept 1" [ref=e414]:
+            - cell "dept" [ref=e415]
+            - cell "1" [ref=e416]
+          - row "price 1" [ref=e417]:
+            - cell "price" [ref=e418]
+            - cell "1" [ref=e419]
+      - paragraph [ref=e420]:
+        - text: Output of
+        - code [ref=e421]: df.isnull().sum() / len(df) * 100
+        - text: ":"
+      - table [ref=e423]:
+        - rowgroup [ref=e424]:
+          - row "column missing_pct" [ref=e425]:
+            - columnheader "column" [ref=e426]
+            - columnheader "missing_pct" [ref=e427]
+        - rowgroup [ref=e428]:
+          - row "name 0.0" [ref=e429]:
+            - cell "name" [ref=e430]
+            - cell "0.0" [ref=e431]
+          - row "salary 25.0" [ref=e432]:
+            - cell "salary" [ref=e433]
+            - cell "25.0" [ref=e434]
+          - row "dept 25.0" [ref=e435]:
+            - cell "dept" [ref=e436]
+            - cell "25.0" [ref=e437]
+          - row "price 25.0" [ref=e438]:
+            - cell "price" [ref=e439]
+            - cell "25.0" [ref=e440]
+      - paragraph [ref=e441]:
+        - strong [ref=e442]: "Step 2 — Drop missing values:"
+      - code [ref=e444]: "df.dropna() # drop any row with at least one NaN df.dropna(subset=['salary']) # only drop rows where salary is NaN df.dropna(thresh=3) # keep rows with at least 3 non-NaN values df.dropna(axis=1) # drop any column with at least one NaN"
+      - paragraph [ref=e445]:
+        - text: Output of
+        - code [ref=e446]: df.dropna(subset=['salary'])
+        - text: ":"
+      - table [ref=e448]:
+        - rowgroup [ref=e449]:
+          - row "name salary dept price" [ref=e450]:
+            - columnheader [ref=e451]
+            - columnheader "name" [ref=e452]
+            - columnheader "salary" [ref=e453]
+            - columnheader "dept" [ref=e454]
+            - columnheader "price" [ref=e455]
+        - rowgroup [ref=e456]:
+          - row "0 Alice 90000 Eng 100.0" [ref=e457]:
+            - cell "0" [ref=e458]
+            - cell "Alice" [ref=e459]
+            - cell "90000" [ref=e460]
+            - cell "Eng" [ref=e461]
+            - cell "100.0" [ref=e462]
+          - row "2 Carol 110000 NaN 120.0" [ref=e463]:
+            - cell "2" [ref=e464]
+            - cell "Carol" [ref=e465]
+            - cell "110000" [ref=e466]
+            - cell "NaN" [ref=e467]
+            - cell "120.0" [ref=e468]
+          - row "3 Dave 80000 Sales 140.0" [ref=e469]:
+            - cell "3" [ref=e470]
+            - cell "Dave" [ref=e471]
+            - cell "80000" [ref=e472]
+            - cell "Sales" [ref=e473]
+            - cell "140.0" [ref=e474]
+      - paragraph [ref=e475]:
+        - strong [ref=e476]: "Step 3 — Fill missing values:"
+      - code [ref=e478]: "df['salary'].fillna(df['salary'].mean()) # fill with column mean df['salary'].fillna(df['salary'].median()) # fill with median (robust to outliers) df['dept'].fillna('Unknown') # fill categorical with a placeholder df['price'].fillna(method='ffill') # forward fill: use previous valid value df['price'].fillna(method='bfill') # backward fill: use next valid value"
+      - paragraph [ref=e479]:
+        - text: Output of
+        - code [ref=e480]: df['salary'].fillna(df['salary'].mean())
+        - text: ":"
+      - table [ref=e482]:
+        - rowgroup [ref=e483]:
+          - row "salary_filled" [ref=e484]:
+            - columnheader [ref=e485]
+            - columnheader "salary_filled" [ref=e486]
+        - rowgroup [ref=e487]:
+          - row "0 90000.0" [ref=e488]:
+            - cell "0" [ref=e489]
+            - cell "90000.0" [ref=e490]
+          - row "1 93333.3" [ref=e491]:
+            - cell "1" [ref=e492]
+            - cell "93333.3" [ref=e493]
+          - row "2 110000.0" [ref=e494]:
+            - cell "2" [ref=e495]
+            - cell "110000.0" [ref=e496]
+          - row "3 80000.0" [ref=e497]:
+            - cell "3" [ref=e498]
+            - cell "80000.0" [ref=e499]
+      - paragraph [ref=e500]:
+        - text: Output of
+        - code [ref=e501]: df['dept'].fillna('Unknown')
+        - text: ":"
+      - table [ref=e503]:
+        - rowgroup [ref=e504]:
+          - row "dept_filled" [ref=e505]:
+            - columnheader [ref=e506]
+            - columnheader "dept_filled" [ref=e507]
+        - rowgroup [ref=e508]:
+          - row "0 Eng" [ref=e509]:
+            - cell "0" [ref=e510]
+            - cell "Eng" [ref=e511]
+          - row "1 Mkt" [ref=e512]:
+            - cell "1" [ref=e513]
+            - cell "Mkt" [ref=e514]
+          - row "2 Unknown" [ref=e515]:
+            - cell "2" [ref=e516]
+            - cell "Unknown" [ref=e517]
+          - row "3 Sales" [ref=e518]:
+            - cell "3" [ref=e519]
+            - cell "Sales" [ref=e520]
+      - paragraph [ref=e521]:
+        - strong [ref=e522]: "Capture missingness as a feature:"
+      - code [ref=e524]: "# The fact that a value is missing can itself be informative df['salary_was_missing'] = df['salary'].isnull().astype(int) df['salary'] = df['salary'].fillna(df['salary'].median())"
+      - paragraph [ref=e525]: "Output:"
+      - table [ref=e527]:
+        - rowgroup [ref=e528]:
+          - row "name salary salary_was_missing" [ref=e529]:
+            - columnheader [ref=e530]
+            - columnheader "name" [ref=e531]
+            - columnheader "salary" [ref=e532]
+            - columnheader "salary_was_missing" [ref=e533]
+        - rowgroup [ref=e534]:
+          - row "0 Alice 90000.0 0" [ref=e535]:
+            - cell "0" [ref=e536]
+            - cell "Alice" [ref=e537]
+            - cell "90000.0" [ref=e538]
+            - cell "0" [ref=e539]
+          - row "1 Bob 90000.0 1" [ref=e540]:
+            - cell "1" [ref=e541]
+            - cell "Bob" [ref=e542]
+            - cell "90000.0" [ref=e543]
+            - cell "1" [ref=e544]
+          - row "2 Carol 110000.0 0" [ref=e545]:
+            - cell "2" [ref=e546]
+            - cell "Carol" [ref=e547]
+            - cell "110000.0" [ref=e548]
+            - cell "0" [ref=e549]
+          - row "3 Dave 80000.0 0" [ref=e550]:
+            - cell "3" [ref=e551]
+            - cell "Dave" [ref=e552]
+            - cell "80000.0" [ref=e553]
+            - cell "0" [ref=e554]
+      - paragraph [ref=e555]:
+        - strong [ref=e556]: "Interpolation (for time series):"
+      - code [ref=e558]: "df['price'].interpolate(method='linear') # estimate missing value from neighbors df['price'].interpolate(method='time') # time-aware interpolation"
+      - paragraph [ref=e559]:
+        - text: Output of
+        - code [ref=e560]: df['price'].interpolate(method='linear')
+        - text: ":"
+      - table [ref=e562]:
+        - rowgroup [ref=e563]:
+          - row "price_interpolated" [ref=e564]:
+            - columnheader [ref=e565]
+            - columnheader "price_interpolated" [ref=e566]
+        - rowgroup [ref=e567]:
+          - row "0 100.0" [ref=e568]:
+            - cell "0" [ref=e569]
+            - cell "100.0" [ref=e570]
+          - row "1 110.0" [ref=e571]:
+            - cell "1" [ref=e572]
+            - cell "110.0" [ref=e573]
+          - row "2 120.0" [ref=e574]:
+            - cell "2" [ref=e575]
+            - cell "120.0" [ref=e576]
+          - row "3 140.0" [ref=e577]:
+            - cell "3" [ref=e578]
+            - cell "140.0" [ref=e579]
+      - paragraph [ref=e580]:
+        - strong [ref=e581]: "Decision guide:"
+      - list [ref=e582]:
+        - listitem [ref=e583]: < 5% missing and random → mean/median fill is fine
+        - listitem [ref=e584]: 5–20% missing → consider a missingness indicator + fill
+        - listitem [ref=e585]:
+          - blockquote [ref=e586]:
+            - paragraph [ref=e587]: 20% missing → the feature may be uninformative; consider dropping it
+        - listitem [ref=e588]: Missingness is patterned (e.g., lab test not ordered = patient is healthy) → always capture as a binary indicator
+      - separator [ref=e589]
+      - 'heading "Q4: How does groupby work? What is the split-apply-combine pattern?" [level=2] [ref=e590]':
+        - text: "Q4: How does"
+        - code [ref=e591]: groupby
+        - text: work? What is the split-apply-combine pattern?
+      - paragraph [ref=e592]:
+        - strong [ref=e593]: "Intuition:"
+        - code [ref=e594]: groupby
+        - text: "follows a three-step pattern:"
+      - list [ref=e595]:
+        - listitem [ref=e596]:
+          - strong [ref=e597]: Split
+          - text: — divide the DataFrame into groups based on a column
+        - listitem [ref=e598]:
+          - strong [ref=e599]: Apply
+          - text: — run a function on each group independently
+        - listitem [ref=e600]:
+          - strong [ref=e601]: Combine
+          - text: — stitch the results back into a single output
+      - paragraph [ref=e602]: "Input:"
+      - table [ref=e604]:
+        - rowgroup [ref=e605]:
+          - row "dept salary age" [ref=e606]:
+            - columnheader [ref=e607]
+            - columnheader "dept" [ref=e608]
+            - columnheader "salary" [ref=e609]
+            - columnheader "age" [ref=e610]
+        - rowgroup [ref=e611]:
+          - row "0 Eng 90000 25" [ref=e612]:
+            - cell "0" [ref=e613]
+            - cell "Eng" [ref=e614]
+            - cell "90000" [ref=e615]
+            - cell "25" [ref=e616]
+          - row "1 Mkt 75000 30" [ref=e617]:
+            - cell "1" [ref=e618]
+            - cell "Mkt" [ref=e619]
+            - cell "75000" [ref=e620]
+            - cell "30" [ref=e621]
+          - row "2 Eng 110000 35" [ref=e622]:
+            - cell "2" [ref=e623]
+            - cell "Eng" [ref=e624]
+            - cell "110000" [ref=e625]
+            - cell "35" [ref=e626]
+          - row "3 Mkt 80000 28" [ref=e627]:
+            - cell "3" [ref=e628]
+            - cell "Mkt" [ref=e629]
+            - cell "80000" [ref=e630]
+            - cell "28" [ref=e631]
+          - row "4 Eng 95000 32" [ref=e632]:
+            - cell "4" [ref=e633]
+            - cell "Eng" [ref=e634]
+            - cell "95000" [ref=e635]
+            - cell "32" [ref=e636]
+      - code [ref=e638]: "df = pd.DataFrame({ 'dept': ['Eng', 'Mkt', 'Eng', 'Mkt', 'Eng'], 'salary': [90000, 75000, 110000, 80000, 95000], 'age': [25, 30, 35, 28, 32] }) # Basic aggregation df.groupby('dept')['salary'].mean() # dept # Eng 98333.3 # Mkt 77500.0 # Multiple functions at once df.groupby('dept').agg({ 'salary': ['mean', 'max', 'count'], 'age': 'median' }) # Named aggregations (pandas ≥ 0.25) df.groupby('dept').agg( avg_salary=('salary', 'mean'), max_salary=('salary', 'max'), headcount=('salary', 'count') ) # Custom function via apply df.groupby('dept')['salary'].apply(lambda x: x.max() - x.min()) # salary range per department"
+      - paragraph [ref=e639]:
+        - text: Output of
+        - code [ref=e640]: df.groupby('dept')['salary'].mean()
+        - text: ":"
+      - table [ref=e642]:
+        - rowgroup [ref=e643]:
+          - row "dept salary" [ref=e644]:
+            - columnheader "dept" [ref=e645]
+            - columnheader "salary" [ref=e646]
+        - rowgroup [ref=e647]:
+          - row "Eng 98333.3" [ref=e648]:
+            - cell "Eng" [ref=e649]
+            - cell "98333.3" [ref=e650]
+          - row "Mkt 77500.0" [ref=e651]:
+            - cell "Mkt" [ref=e652]
+            - cell "77500.0" [ref=e653]
+      - paragraph [ref=e654]: "Output of named aggregation:"
+      - table [ref=e656]:
+        - rowgroup [ref=e657]:
+          - row "dept avg_salary max_salary headcount" [ref=e658]:
+            - columnheader "dept" [ref=e659]
+            - columnheader "avg_salary" [ref=e660]
+            - columnheader "max_salary" [ref=e661]
+            - columnheader "headcount" [ref=e662]
+        - rowgroup [ref=e663]:
+          - row "Eng 98333.3 110000 3" [ref=e664]:
+            - cell "Eng" [ref=e665]
+            - cell "98333.3" [ref=e666]
+            - cell "110000" [ref=e667]
+            - cell "3" [ref=e668]
+          - row "Mkt 77500.0 80000 2" [ref=e669]:
+            - cell "Mkt" [ref=e670]
+            - cell "77500.0" [ref=e671]
+            - cell "80000" [ref=e672]
+            - cell "2" [ref=e673]
+      - paragraph [ref=e674]:
+        - text: Output of
+        - code [ref=e675]: "df.groupby('dept').agg({'salary': ['mean', 'max', 'count'], 'age': 'median'})"
+        - text: ":"
+      - table [ref=e677]:
+        - rowgroup [ref=e678]:
+          - row "dept salary_mean salary_max salary_count age_median" [ref=e679]:
+            - columnheader "dept" [ref=e680]
+            - columnheader "salary_mean" [ref=e681]
+            - columnheader "salary_max" [ref=e682]
+            - columnheader "salary_count" [ref=e683]
+            - columnheader "age_median" [ref=e684]
+        - rowgroup [ref=e685]:
+          - row "Eng 98333.3 110000 3 32.0" [ref=e686]:
+            - cell "Eng" [ref=e687]
+            - cell "98333.3" [ref=e688]
+            - cell "110000" [ref=e689]
+            - cell "3" [ref=e690]
+            - cell "32.0" [ref=e691]
+          - row "Mkt 77500.0 80000 2 29.0" [ref=e692]:
+            - cell "Mkt" [ref=e693]
+            - cell "77500.0" [ref=e694]
+            - cell "80000" [ref=e695]
+            - cell "2" [ref=e696]
+            - cell "29.0" [ref=e697]
+      - paragraph [ref=e698]: "Output of salary range per department:"
+      - table [ref=e700]:
+        - rowgroup [ref=e701]:
+          - row "dept salary_range" [ref=e702]:
+            - columnheader "dept" [ref=e703]
+            - columnheader "salary_range" [ref=e704]
+        - rowgroup [ref=e705]:
+          - row "Eng 20000" [ref=e706]:
+            - cell "Eng" [ref=e707]
+            - cell "20000" [ref=e708]
+          - row "Mkt 5000" [ref=e709]:
+            - cell "Mkt" [ref=e710]
+            - cell "5000" [ref=e711]
+      - paragraph [ref=e712]:
+        - strong [ref=e713]: "Common interview follow-up — flatten multi-index column names:"
+      - code [ref=e715]:
+        - text: "res = df.groupby('dept').agg({ 'salary': ['mean', 'max', 'count'], 'age': 'median' }) # Flatten column names res.columns = ["
+        - generic [ref=e716]:
+          - text: f"
+          - generic [ref=e717]: "{col[0]}"
+          - text: _
+          - generic [ref=e718]: "{col[1]}"
+          - text: "\""
+        - text: for col in res.columns] res = res.reset_index()
+      - paragraph [ref=e719]:
+        - text: Output after flattening and
+        - code [ref=e720]: reset_index()
+        - text: ":"
+      - table [ref=e722]:
+        - rowgroup [ref=e723]:
+          - row "dept salary_mean salary_max salary_count age_median" [ref=e724]:
+            - columnheader [ref=e725]
+            - columnheader "dept" [ref=e726]
+            - columnheader "salary_mean" [ref=e727]
+            - columnheader "salary_max" [ref=e728]
+            - columnheader "salary_count" [ref=e729]
+            - columnheader "age_median" [ref=e730]
+        - rowgroup [ref=e731]:
+          - row "0 Eng 98333.3 110000 3 32.0" [ref=e732]:
+            - cell "0" [ref=e733]
+            - cell "Eng" [ref=e734]
+            - cell "98333.3" [ref=e735]
+            - cell "110000" [ref=e736]
+            - cell "3" [ref=e737]
+            - cell "32.0" [ref=e738]
+          - row "1 Mkt 77500.0 80000 2 29.0" [ref=e739]:
+            - cell "1" [ref=e740]
+            - cell "Mkt" [ref=e741]
+            - cell "77500.0" [ref=e742]
+            - cell "80000" [ref=e743]
+            - cell "2" [ref=e744]
+            - cell "29.0" [ref=e745]
+      - paragraph [ref=e746]:
+        - strong [ref=e747]: "transform — adds group stats as a new column (same shape as original):"
+      - code [ref=e749]: "# Add department average salary as a column next to each employee row df['dept_avg'] = df.groupby('dept')['salary'].transform('mean') # Add each employee's salary as a fraction of their department average df['salary_vs_dept'] = df['salary'] / df.groupby('dept')['salary'].transform('mean')"
+      - paragraph [ref=e750]:
+        - text: Output after
+        - code [ref=e751]: transform
+        - text: ":"
+      - table [ref=e753]:
+        - rowgroup [ref=e754]:
+          - row "dept salary age dept_avg salary_vs_dept" [ref=e755]:
+            - columnheader [ref=e756]
+            - columnheader "dept" [ref=e757]
+            - columnheader "salary" [ref=e758]
+            - columnheader "age" [ref=e759]
+            - columnheader "dept_avg" [ref=e760]
+            - columnheader "salary_vs_dept" [ref=e761]
+        - rowgroup [ref=e762]:
+          - row "0 Eng 90000 25 98333.3 0.92" [ref=e763]:
+            - cell "0" [ref=e764]
+            - cell "Eng" [ref=e765]
+            - cell "90000" [ref=e766]
+            - cell "25" [ref=e767]
+            - cell "98333.3" [ref=e768]
+            - cell "0.92" [ref=e769]
+          - row "1 Mkt 75000 30 77500.0 0.97" [ref=e770]:
+            - cell "1" [ref=e771]
+            - cell "Mkt" [ref=e772]
+            - cell "75000" [ref=e773]
+            - cell "30" [ref=e774]
+            - cell "77500.0" [ref=e775]
+            - cell "0.97" [ref=e776]
+          - row "2 Eng 110000 35 98333.3 1.12" [ref=e777]:
+            - cell "2" [ref=e778]
+            - cell "Eng" [ref=e779]
+            - cell "110000" [ref=e780]
+            - cell "35" [ref=e781]
+            - cell "98333.3" [ref=e782]
+            - cell "1.12" [ref=e783]
+          - row "3 Mkt 80000 28 77500.0 1.03" [ref=e784]:
+            - cell "3" [ref=e785]
+            - cell "Mkt" [ref=e786]
+            - cell "80000" [ref=e787]
+            - cell "28" [ref=e788]
+            - cell "77500.0" [ref=e789]
+            - cell "1.03" [ref=e790]
+          - row "4 Eng 95000 32 98333.3 0.97" [ref=e791]:
+            - cell "4" [ref=e792]
+            - cell "Eng" [ref=e793]
+            - cell "95000" [ref=e794]
+            - cell "32" [ref=e795]
+            - cell "98333.3" [ref=e796]
+            - cell "0.97" [ref=e797]
+      - paragraph [ref=e798]:
+        - strong [ref=e799]: "groupby + multiple columns:"
+      - code [ref=e801]: "df.groupby(['dept', 'level'])['salary'].mean() # multi-level index result df.groupby(['dept', 'level']).agg({'salary': 'mean'}).reset_index() # flat result"
+      - separator [ref=e802]
+      - 'heading "Q5: What is the difference between merge, join, and concat?" [level=2] [ref=e803]':
+        - text: "Q5: What is the difference between"
+        - code [ref=e804]: merge
+        - text: ","
+        - code [ref=e805]: join
+        - text: ", and"
+        - code [ref=e806]: concat
+        - text: "?"
+      - paragraph [ref=e807]: "All three combine DataFrames but in different ways:"
+      - paragraph [ref=e808]:
+        - strong [ref=e809]:
+          - code [ref=e810]: pd.concat
+        - text: "— Stack DataFrames by rows or columns (no key matching):"
+      - code [ref=e812]: "# Append rows (like SQL UNION ALL) pd.concat([df1, df2], axis=0, ignore_index=True) # Place DataFrames side by side (axis=1) pd.concat([df1, df2], axis=1)"
+      - paragraph [ref=e813]: "Use when: combining DataFrames with the same schema, or adding feature columns."
+      - paragraph [ref=e814]: "Example input:"
+      - paragraph [ref=e815]:
+        - code [ref=e816]: df1
+      - table [ref=e818]:
+        - rowgroup [ref=e819]:
+          - row "user_id sales" [ref=e820]:
+            - columnheader [ref=e821]
+            - columnheader "user_id" [ref=e822]
+            - columnheader "sales" [ref=e823]
+        - rowgroup [ref=e824]:
+          - row "0 1 100" [ref=e825]:
+            - cell "0" [ref=e826]
+            - cell "1" [ref=e827]
+            - cell "100" [ref=e828]
+          - row "1 2 150" [ref=e829]:
+            - cell "1" [ref=e830]
+            - cell "2" [ref=e831]
+            - cell "150" [ref=e832]
+      - paragraph [ref=e833]:
+        - code [ref=e834]: df2
+      - table [ref=e836]:
+        - rowgroup [ref=e837]:
+          - row "user_id sales" [ref=e838]:
+            - columnheader [ref=e839]
+            - columnheader "user_id" [ref=e840]
+            - columnheader "sales" [ref=e841]
+        - rowgroup [ref=e842]:
+          - row "0 3 120" [ref=e843]:
+            - cell "0" [ref=e844]
+            - cell "3" [ref=e845]
+            - cell "120" [ref=e846]
+          - row "1 4 180" [ref=e847]:
+            - cell "1" [ref=e848]
+            - cell "4" [ref=e849]
+            - cell "180" [ref=e850]
+      - paragraph [ref=e851]:
+        - text: Output of
+        - code [ref=e852]: pd.concat([df1, df2], axis=0, ignore_index=True)
+        - text: ":"
+      - table [ref=e854]:
+        - rowgroup [ref=e855]:
+          - row "user_id sales" [ref=e856]:
+            - columnheader [ref=e857]
+            - columnheader "user_id" [ref=e858]
+            - columnheader "sales" [ref=e859]
+        - rowgroup [ref=e860]:
+          - row "0 1 100" [ref=e861]:
+            - cell "0" [ref=e862]
+            - cell "1" [ref=e863]
+            - cell "100" [ref=e864]
+          - row "1 2 150" [ref=e865]:
+            - cell "1" [ref=e866]
+            - cell "2" [ref=e867]
+            - cell "150" [ref=e868]
+          - row "2 3 120" [ref=e869]:
+            - cell "2" [ref=e870]
+            - cell "3" [ref=e871]
+            - cell "120" [ref=e872]
+          - row "3 4 180" [ref=e873]:
+            - cell "3" [ref=e874]
+            - cell "4" [ref=e875]
+            - cell "180" [ref=e876]
+      - paragraph [ref=e877]:
+        - strong [ref=e878]:
+          - code [ref=e879]: pd.merge
+        - text: "— Join on a common column (like SQL JOIN):"
+      - code [ref=e881]: "# Equivalent to: SELECT * FROM employees JOIN departments ON employees.dept_id = departments.dept_id pd.merge(employees, departments, on='dept_id', how='inner') # Different column names in each table pd.merge(employees, departments, left_on='dept_id', right_on='id', how='left') # Merge on multiple keys pd.merge(df1, df2, on=['user_id', 'date'], how='inner') # how: 'inner', 'left', 'right', 'outer' — same semantics as SQL JOINs"
+      - paragraph [ref=e882]: "Use when: combining DataFrames on a meaningful shared key column."
+      - paragraph [ref=e883]: "Example input:"
+      - paragraph [ref=e884]:
+        - code [ref=e885]: employees
+      - table [ref=e887]:
+        - rowgroup [ref=e888]:
+          - row "emp_id name dept_id" [ref=e889]:
+            - columnheader [ref=e890]
+            - columnheader "emp_id" [ref=e891]
+            - columnheader "name" [ref=e892]
+            - columnheader "dept_id" [ref=e893]
+        - rowgroup [ref=e894]:
+          - row "0 1 Alice 10" [ref=e895]:
+            - cell "0" [ref=e896]
+            - cell "1" [ref=e897]
+            - cell "Alice" [ref=e898]
+            - cell "10" [ref=e899]
+          - row "1 2 Bob 20" [ref=e900]:
+            - cell "1" [ref=e901]
+            - cell "2" [ref=e902]
+            - cell "Bob" [ref=e903]
+            - cell "20" [ref=e904]
+      - paragraph [ref=e905]:
+        - code [ref=e906]: departments
+      - table [ref=e908]:
+        - rowgroup [ref=e909]:
+          - row "dept_id dept_name" [ref=e910]:
+            - columnheader [ref=e911]
+            - columnheader "dept_id" [ref=e912]
+            - columnheader "dept_name" [ref=e913]
+        - rowgroup [ref=e914]:
+          - row "0 10 Engineering" [ref=e915]:
+            - cell "0" [ref=e916]
+            - cell "10" [ref=e917]
+            - cell "Engineering" [ref=e918]
+          - row "1 20 Marketing" [ref=e919]:
+            - cell "1" [ref=e920]
+            - cell "20" [ref=e921]
+            - cell "Marketing" [ref=e922]
+      - paragraph [ref=e923]:
+        - text: Output of
+        - code [ref=e924]: pd.merge(employees, departments, on='dept_id', how='inner')
+        - text: ":"
+      - table [ref=e926]:
+        - rowgroup [ref=e927]:
+          - row "emp_id name dept_id dept_name" [ref=e928]:
+            - columnheader [ref=e929]
+            - columnheader "emp_id" [ref=e930]
+            - columnheader "name" [ref=e931]
+            - columnheader "dept_id" [ref=e932]
+            - columnheader "dept_name" [ref=e933]
+        - rowgroup [ref=e934]:
+          - row "0 1 Alice 10 Engineering" [ref=e935]:
+            - cell "0" [ref=e936]
+            - cell "1" [ref=e937]
+            - cell "Alice" [ref=e938]
+            - cell "10" [ref=e939]
+            - cell "Engineering" [ref=e940]
+          - row "1 2 Bob 20 Marketing" [ref=e941]:
+            - cell "1" [ref=e942]
+            - cell "2" [ref=e943]
+            - cell "Bob" [ref=e944]
+            - cell "20" [ref=e945]
+            - cell "Marketing" [ref=e946]
+      - paragraph [ref=e947]:
+        - strong [ref=e948]:
+          - code [ref=e949]: df.join
+        - text: "— Shortcut for merging on the DataFrame index:"
+      - code [ref=e951]: "# Both DataFrames must have the same index (e.g., user_id as index) df1.join(df2, how='left')"
+      - paragraph [ref=e952]: "Use when: both DataFrames are already indexed by the same key."
+      - paragraph [ref=e953]:
+        - text: Output of
+        - code [ref=e954]: df1.join(df2, how='left')
+        - text: "for same-index tables:"
+      - table [ref=e956]:
+        - rowgroup [ref=e957]:
+          - row "user_id sales city" [ref=e958]:
+            - columnheader "user_id" [ref=e959]
+            - columnheader "sales" [ref=e960]
+            - columnheader "city" [ref=e961]
+        - rowgroup [ref=e962]:
+          - row "1 100 BLR" [ref=e963]:
+            - cell "1" [ref=e964]
+            - cell "100" [ref=e965]
+            - cell "BLR" [ref=e966]
+          - row "2 150 SF" [ref=e967]:
+            - cell "2" [ref=e968]
+            - cell "150" [ref=e969]
+            - cell "SF" [ref=e970]
+      - paragraph [ref=e971]:
+        - strong [ref=e972]: "Quick reference:"
+      - table [ref=e974]:
+        - rowgroup [ref=e975]:
+          - row "When to use" [ref=e976]:
+            - columnheader [ref=e977]
+            - columnheader "When to use" [ref=e978]
+        - rowgroup [ref=e979]:
+          - row "concat Stacking rows (appending data) or columns (adding features)" [ref=e980]:
+            - cell "concat" [ref=e981]:
+              - code [ref=e982]: concat
+            - cell "Stacking rows (appending data) or columns (adding features)" [ref=e983]
+          - row "merge SQL-style JOIN on any key column — most explicit and general" [ref=e984]:
+            - cell "merge" [ref=e985]:
+              - code [ref=e986]: merge
+            - cell "SQL-style JOIN on any key column — most explicit and general" [ref=e987]
+          - row "join Quick join when both DataFrames share the same index" [ref=e988]:
+            - cell "join" [ref=e989]:
+              - code [ref=e990]: join
+            - cell "Quick join when both DataFrames share the same index" [ref=e991]
+      - separator [ref=e992]
+      - 'heading "Q6: How do you apply a function to a DataFrame? (apply, map, vectorized ops)" [level=2] [ref=e993]':
+        - text: "Q6: How do you apply a function to a DataFrame? ("
+        - code [ref=e994]: apply
+        - text: ","
+        - code [ref=e995]: map
+        - text: ", vectorized ops)"
+      - paragraph [ref=e996]:
+        - strong [ref=e997]: "Vectorized operations — always prefer these (fastest, uses NumPy under the hood):"
+      - code [ref=e999]: "df['salary'] * 1.1 # 10% raise for everyone df['salary'] / df['age'] # salary per year of age df['name'].str.upper() # string vectorized ops (df['salary'] > 80000).astype(int) # boolean → integer column"
+      - paragraph [ref=e1000]: "Example input:"
+      - table [ref=e1002]:
+        - rowgroup [ref=e1003]:
+          - row "name salary age dept" [ref=e1004]:
+            - columnheader [ref=e1005]
+            - columnheader "name" [ref=e1006]
+            - columnheader "salary" [ref=e1007]
+            - columnheader "age" [ref=e1008]
+            - columnheader "dept" [ref=e1009]
+        - rowgroup [ref=e1010]:
+          - row "0 Alice 90000 30 Eng" [ref=e1011]:
+            - cell "0" [ref=e1012]
+            - cell "Alice" [ref=e1013]
+            - cell "90000" [ref=e1014]
+            - cell "30" [ref=e1015]
+            - cell "Eng" [ref=e1016]
+          - row "1 Bob 75000 25 Mkt" [ref=e1017]:
+            - cell "1" [ref=e1018]
+            - cell "Bob" [ref=e1019]
+            - cell "75000" [ref=e1020]
+            - cell "25" [ref=e1021]
+            - cell "Mkt" [ref=e1022]
+          - row "2 Carol 110000 40 Eng" [ref=e1023]:
+            - cell "2" [ref=e1024]
+            - cell "Carol" [ref=e1025]
+            - cell "110000" [ref=e1026]
+            - cell "40" [ref=e1027]
+            - cell "Eng" [ref=e1028]
+      - paragraph [ref=e1029]:
+        - text: Output of
+        - code [ref=e1030]: df['salary'] * 1.1
+        - text: ":"
+      - table [ref=e1032]:
+        - rowgroup [ref=e1033]:
+          - row "raised_salary" [ref=e1034]:
+            - columnheader [ref=e1035]
+            - columnheader "raised_salary" [ref=e1036]
+        - rowgroup [ref=e1037]:
+          - row "0 99000.0" [ref=e1038]:
+            - cell "0" [ref=e1039]
+            - cell "99000.0" [ref=e1040]
+          - row "1 82500.0" [ref=e1041]:
+            - cell "1" [ref=e1042]
+            - cell "82500.0" [ref=e1043]
+          - row "2 121000.0" [ref=e1044]:
+            - cell "2" [ref=e1045]
+            - cell "121000.0" [ref=e1046]
+      - paragraph [ref=e1047]:
+        - text: Output of
+        - code [ref=e1048]: df['name'].str.upper()
+        - text: ":"
+      - table [ref=e1050]:
+        - rowgroup [ref=e1051]:
+          - row "upper_name" [ref=e1052]:
+            - columnheader [ref=e1053]
+            - columnheader "upper_name" [ref=e1054]
+        - rowgroup [ref=e1055]:
+          - row "0 ALICE" [ref=e1056]:
+            - cell "0" [ref=e1057]
+            - cell "ALICE" [ref=e1058]
+          - row "1 BOB" [ref=e1059]:
+            - cell "1" [ref=e1060]
+            - cell "BOB" [ref=e1061]
+          - row "2 CAROL" [ref=e1062]:
+            - cell "2" [ref=e1063]
+            - cell "CAROL" [ref=e1064]
+      - paragraph [ref=e1065]:
+        - strong [ref=e1066]:
+          - code [ref=e1067]: Series.map
+        - text: "— element-wise on a single Series (recode values or apply a function):"
+      - code [ref=e1069]: "df['dept'].map({'Eng': 'Engineering', 'Mkt': 'Marketing'}) # dictionary lookup df['salary'].map(lambda x: round(x, -3)) # round to nearest 1000"
+      - paragraph [ref=e1070]:
+        - text: "Note:"
+        - code [ref=e1071]: map
+        - text: with a dict silently converts unmatched values to NaN — use
+        - code [ref=e1072]: .fillna
+        - text: after if needed.
+      - paragraph [ref=e1073]:
+        - text: Output of
+        - code [ref=e1074]: "df['dept'].map({'Eng': 'Engineering', 'Mkt': 'Marketing'})"
+        - text: ":"
+      - table [ref=e1076]:
+        - rowgroup [ref=e1077]:
+          - row "mapped_dept" [ref=e1078]:
+            - columnheader [ref=e1079]
+            - columnheader "mapped_dept" [ref=e1080]
+        - rowgroup [ref=e1081]:
+          - row "0 Engineering" [ref=e1082]:
+            - cell "0" [ref=e1083]
+            - cell "Engineering" [ref=e1084]
+          - row "1 Marketing" [ref=e1085]:
+            - cell "1" [ref=e1086]
+            - cell "Marketing" [ref=e1087]
+          - row "2 Engineering" [ref=e1088]:
+            - cell "2" [ref=e1089]
+            - cell "Engineering" [ref=e1090]
+      - paragraph [ref=e1091]:
+        - strong [ref=e1092]:
+          - code [ref=e1093]: DataFrame.apply
+        - text: "— apply a function along an axis (row or column):"
+      - code [ref=e1095]: "# Along columns (axis=0, default) — function receives each column as a Series df.apply(lambda col: col.max() - col.min()) # value range per column # Along rows (axis=1) — function receives each row as a Series df.apply(lambda row: row['salary'] * 1.1 if row['dept'] == 'Eng' else row['salary'], axis=1)"
+      - paragraph [ref=e1096]:
+        - text: Output of
+        - code [ref=e1097]: "df.apply(lambda row: row['salary'] * 1.1 if row['dept'] == 'Eng' else row['salary'], axis=1)"
+        - text: ":"
+      - table [ref=e1099]:
+        - rowgroup [ref=e1100]:
+          - row "adjusted_salary" [ref=e1101]:
+            - columnheader [ref=e1102]
+            - columnheader "adjusted_salary" [ref=e1103]
+        - rowgroup [ref=e1104]:
+          - row "0 99000.0" [ref=e1105]:
+            - cell "0" [ref=e1106]
+            - cell "99000.0" [ref=e1107]
+          - row "1 75000.0" [ref=e1108]:
+            - cell "1" [ref=e1109]
+            - cell "75000.0" [ref=e1110]
+          - row "2 121000.0" [ref=e1111]:
+            - cell "2" [ref=e1112]
+            - cell "121000.0" [ref=e1113]
+      - paragraph [ref=e1114]:
+        - strong [ref=e1115]:
+          - code [ref=e1116]: apply
+          - text: "vs vectorized — performance reality:"
+      - code [ref=e1118]: "# Slow: Python loop via apply (avoids NumPy) df['salary'].apply(lambda x: x * 1.1) # ~10x slower on large DataFrames # Fast: vectorized (NumPy C loop) df['salary'] * 1.1"
+      - paragraph [ref=e1119]:
+        - strong [ref=e1120]: "Rule:"
+        - text: Try vectorized first (arithmetic, string methods,
+        - code [ref=e1121]: .where
+        - text: ","
+        - code [ref=e1122]: .clip
+        - text: ). Use
+        - code [ref=e1123]: .map
+        - text: for simple element-wise recoding. Use
+        - code [ref=e1124]: .apply
+        - text: for complex multi-column or conditional logic that can't be vectorized. Avoid
+        - code [ref=e1125]: .applymap
+        - text: on large DataFrames — it's the slowest option.
+      - separator [ref=e1126]
+      - 'heading "Q7: What is the difference between a pandas copy and a view?" [level=2] [ref=e1127]'
+      - paragraph [ref=e1128]:
+        - strong [ref=e1129]: "View:"
+        - text: A DataFrame that references the SAME underlying data as the original. Modifying the view may modify the original — this is the source of the infamous
+        - code [ref=e1130]: SettingWithCopyWarning
+        - text: .
+      - paragraph [ref=e1131]:
+        - strong [ref=e1132]: "Copy:"
+        - text: A completely independent DataFrame with its own data. Modifying it never touches the original.
+      - code [ref=e1134]: "df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]}) # This MAY be a view (pandas decides internally based on operation type) subset = df[df['a'] > 1] subset['b'] = 99 # SettingWithCopyWarning! — may or may not change df # Explicit copy — always safe subset = df[df['a'] > 1].copy() subset['b'] = 99 # guaranteed: df is unchanged"
+      - paragraph [ref=e1135]: "Input:"
+      - table [ref=e1137]:
+        - rowgroup [ref=e1138]:
+          - row "a b" [ref=e1139]:
+            - columnheader [ref=e1140]
+            - columnheader "a" [ref=e1141]
+            - columnheader "b" [ref=e1142]
+        - rowgroup [ref=e1143]:
+          - row "0 1 4" [ref=e1144]:
+            - cell "0" [ref=e1145]
+            - cell "1" [ref=e1146]
+            - cell "4" [ref=e1147]
+          - row "1 2 5" [ref=e1148]:
+            - cell "1" [ref=e1149]
+            - cell "2" [ref=e1150]
+            - cell "5" [ref=e1151]
+          - row "2 3 6" [ref=e1152]:
+            - cell "2" [ref=e1153]
+            - cell "3" [ref=e1154]
+            - cell "6" [ref=e1155]
+      - paragraph [ref=e1156]:
+        - text: Output of safe copy after
+        - code [ref=e1157]: subset['b'] = 99
+        - text: ":"
+      - table [ref=e1159]:
+        - rowgroup [ref=e1160]:
+          - row "a b" [ref=e1161]:
+            - columnheader [ref=e1162]
+            - columnheader "a" [ref=e1163]
+            - columnheader "b" [ref=e1164]
+        - rowgroup [ref=e1165]:
+          - row "1 2 99" [ref=e1166]:
+            - cell "1" [ref=e1167]
+            - cell "2" [ref=e1168]
+            - cell "99" [ref=e1169]
+          - row "2 3 99" [ref=e1170]:
+            - cell "2" [ref=e1171]
+            - cell "3" [ref=e1172]
+            - cell "99" [ref=e1173]
+      - paragraph [ref=e1174]:
+        - text: Original
+        - code [ref=e1175]: df
+        - text: "remains:"
+      - table [ref=e1177]:
+        - rowgroup [ref=e1178]:
+          - row "a b" [ref=e1179]:
+            - columnheader [ref=e1180]
+            - columnheader "a" [ref=e1181]
+            - columnheader "b" [ref=e1182]
+        - rowgroup [ref=e1183]:
+          - row "0 1 4" [ref=e1184]:
+            - cell "0" [ref=e1185]
+            - cell "1" [ref=e1186]
+            - cell "4" [ref=e1187]
+          - row "1 2 5" [ref=e1188]:
+            - cell "1" [ref=e1189]
+            - cell "2" [ref=e1190]
+            - cell "5" [ref=e1191]
+          - row "2 3 6" [ref=e1192]:
+            - cell "2" [ref=e1193]
+            - cell "3" [ref=e1194]
+            - cell "6" [ref=e1195]
+      - paragraph [ref=e1196]:
+        - strong [ref=e1197]: "Common bug pattern:"
+      - code [ref=e1199]: "high_earners = df[df['salary'] > 80000] high_earners['bonus'] = high_earners['salary'] * 0.1 # SettingWithCopyWarning! # Fix: high_earners = df[df['salary'] > 80000].copy() high_earners['bonus'] = high_earners['salary'] * 0.1 # safe"
+      - paragraph [ref=e1200]: "Output after the safe version:"
+      - table [ref=e1202]:
+        - rowgroup [ref=e1203]:
+          - row "salary bonus" [ref=e1204]:
+            - columnheader [ref=e1205]
+            - columnheader "salary" [ref=e1206]
+            - columnheader "bonus" [ref=e1207]
+        - rowgroup [ref=e1208]:
+          - row "0 90000 9000.0" [ref=e1209]:
+            - cell "0" [ref=e1210]
+            - cell "90000" [ref=e1211]
+            - cell "9000.0" [ref=e1212]
+          - row "2 110000 11000.0" [ref=e1213]:
+            - cell "2" [ref=e1214]
+            - cell "110000" [ref=e1215]
+            - cell "11000.0" [ref=e1216]
+      - paragraph [ref=e1217]:
+        - strong [ref=e1218]: "In pandas 2.0+ Copy-on-Write:"
+        - text: pandas 2.0 introduces Copy-on-Write semantics — modifying any subset always produces an independent copy, eliminating this class of bugs. But
+        - code [ref=e1219]: .copy()
+        - text: still makes intent explicit and is backward-compatible.
+      - paragraph [ref=e1220]:
+        - strong [ref=e1221]: "Rule:"
+        - text: Always call
+        - code [ref=e1222]: .copy()
+        - text: when you plan to modify a filtered subset. The cost is minimal; the protection is complete.
+      - separator [ref=e1223]
+      - 'heading "Q8: How do you filter rows in a DataFrame efficiently?" [level=2] [ref=e1224]'
+      - paragraph [ref=e1225]:
+        - strong [ref=e1226]: "Most common interview pattern:"
+        - text: build a boolean mask, then pass it to
+        - code [ref=e1227]: .loc[...]
+        - text: . This is explicit, composable, and easy to debug.
+      - code [ref=e1229]: "df = pd.DataFrame({ 'name': ['Alice', 'Bob', 'Carol', 'Dave'], 'dept': ['Eng', 'Mkt', 'Eng', 'Sales'], 'salary': [120000, 75000, 95000, 68000], 'city': ['BLR', 'SF', 'BLR', 'NYC'] }) df.loc[df['salary'] > 80000]"
+      - paragraph [ref=e1230]: "Output:"
+      - table [ref=e1232]:
+        - rowgroup [ref=e1233]:
+          - row "name dept salary city" [ref=e1234]:
+            - columnheader [ref=e1235]
+            - columnheader "name" [ref=e1236]
+            - columnheader "dept" [ref=e1237]
+            - columnheader "salary" [ref=e1238]
+            - columnheader "city" [ref=e1239]
+        - rowgroup [ref=e1240]:
+          - row "0 Alice Eng 120000 BLR" [ref=e1241]:
+            - cell "0" [ref=e1242]
+            - cell "Alice" [ref=e1243]
+            - cell "Eng" [ref=e1244]
+            - cell "120000" [ref=e1245]
+            - cell "BLR" [ref=e1246]
+          - row "2 Carol Eng 95000 BLR" [ref=e1247]:
+            - cell "2" [ref=e1248]
+            - cell "Carol" [ref=e1249]
+            - cell "Eng" [ref=e1250]
+            - cell "95000" [ref=e1251]
+            - cell "BLR" [ref=e1252]
+      - paragraph [ref=e1253]:
+        - strong [ref=e1254]: "Common filters:"
+      - code [ref=e1256]: "df.loc[df['dept'] == 'Eng'] # equality df.loc[df['dept'].isin(['Eng', 'Sales'])] # membership df.loc[df['salary'].between(70000, 100000)] # range inclusive df.loc[df['city'].ne('BLR')] # not equal df.loc[df['dept'].eq('Eng') & df['salary'].gt(90000)] # AND df.loc[df['dept'].eq('Eng') | df['city'].eq('NYC')] # OR df.loc[df['city'].isna()] # missing values"
+      - paragraph [ref=e1257]:
+        - text: Output of
+        - code [ref=e1258]: df.loc[df['dept'].isin(['Eng', 'Sales'])]
+        - text: ":"
+      - table [ref=e1260]:
+        - rowgroup [ref=e1261]:
+          - row "name dept salary city" [ref=e1262]:
+            - columnheader [ref=e1263]
+            - columnheader "name" [ref=e1264]
+            - columnheader "dept" [ref=e1265]
+            - columnheader "salary" [ref=e1266]
+            - columnheader "city" [ref=e1267]
+        - rowgroup [ref=e1268]:
+          - row "0 Alice Eng 120000 BLR" [ref=e1269]:
+            - cell "0" [ref=e1270]
+            - cell "Alice" [ref=e1271]
+            - cell "Eng" [ref=e1272]
+            - cell "120000" [ref=e1273]
+            - cell "BLR" [ref=e1274]
+          - row "2 Carol Eng 95000 BLR" [ref=e1275]:
+            - cell "2" [ref=e1276]
+            - cell "Carol" [ref=e1277]
+            - cell "Eng" [ref=e1278]
+            - cell "95000" [ref=e1279]
+            - cell "BLR" [ref=e1280]
+          - row "3 Dave Sales 68000 NYC" [ref=e1281]:
+            - cell "3" [ref=e1282]
+            - cell "Dave" [ref=e1283]
+            - cell "Sales" [ref=e1284]
+            - cell "68000" [ref=e1285]
+            - cell "NYC" [ref=e1286]
+      - paragraph [ref=e1287]:
+        - strong [ref=e1288]: "Combined-condition example:"
+      - code [ref=e1290]: df.loc[(df['dept'] == 'Eng') & (df['salary'] >= 95000), ['name', 'salary']]
+      - paragraph [ref=e1291]: "Output:"
+      - table [ref=e1293]:
+        - rowgroup [ref=e1294]:
+          - row "name salary" [ref=e1295]:
+            - columnheader [ref=e1296]
+            - columnheader "name" [ref=e1297]
+            - columnheader "salary" [ref=e1298]
+        - rowgroup [ref=e1299]:
+          - row "0 Alice 120000" [ref=e1300]:
+            - cell "0" [ref=e1301]
+            - cell "Alice" [ref=e1302]
+            - cell "120000" [ref=e1303]
+          - row "2 Carol 95000" [ref=e1304]:
+            - cell "2" [ref=e1305]
+            - cell "Carol" [ref=e1306]
+            - cell "95000" [ref=e1307]
+      - paragraph [ref=e1308]:
+        - strong [ref=e1309]:
+          - code [ref=e1310]: query
+          - text: syntax
+        - text: "can be faster to write in interviews:"
+      - code [ref=e1312]: df.query("dept == 'Eng' and salary >= 95000")[['name', 'salary']]
+      - paragraph [ref=e1313]: "Output:"
+      - table [ref=e1315]:
+        - rowgroup [ref=e1316]:
+          - row "name salary" [ref=e1317]:
+            - columnheader [ref=e1318]
+            - columnheader "name" [ref=e1319]
+            - columnheader "salary" [ref=e1320]
+        - rowgroup [ref=e1321]:
+          - row "0 Alice 120000" [ref=e1322]:
+            - cell "0" [ref=e1323]
+            - cell "Alice" [ref=e1324]
+            - cell "120000" [ref=e1325]
+          - row "2 Carol 95000" [ref=e1326]:
+            - cell "2" [ref=e1327]
+            - cell "Carol" [ref=e1328]
+            - cell "95000" [ref=e1329]
+      - paragraph [ref=e1330]:
+        - strong [ref=e1331]: "Rule:"
+        - text: Use
+        - code [ref=e1332]: .loc[mask, cols]
+        - text: in production code and interviews. It is clearer than chained indexing like
+        - code [ref=e1333]: df[df['salary'] > 80000]['name']
+        - text: .
+      - separator [ref=e1334]
+      - 'heading "Q9: What is the difference between agg, transform, and filter in pandas groupby?" [level=2] [ref=e1335]':
+        - text: "Q9: What is the difference between"
+        - code [ref=e1336]: agg
+        - text: ","
+        - code [ref=e1337]: transform
+        - text: ", and"
+        - code [ref=e1338]: filter
+        - text: in pandas groupby?
+      - paragraph [ref=e1339]: "These three are constantly confused. The difference is the output shape:"
+      - table [ref=e1341]:
+        - rowgroup [ref=e1342]:
+          - row "Method Returns Best use" [ref=e1343]:
+            - columnheader "Method" [ref=e1344]
+            - columnheader "Returns" [ref=e1345]
+            - columnheader "Best use" [ref=e1346]
+        - rowgroup [ref=e1347]:
+          - row "agg One row per group Summaries like mean, max, count" [ref=e1348]:
+            - cell "agg" [ref=e1349]:
+              - code [ref=e1350]: agg
+            - cell "One row per group" [ref=e1351]
+            - cell "Summaries like mean, max, count" [ref=e1352]
+          - row "transform Same number of rows as input Add group-derived values back to each row" [ref=e1353]:
+            - cell "transform" [ref=e1354]:
+              - code [ref=e1355]: transform
+            - cell "Same number of rows as input" [ref=e1356]
+            - cell "Add group-derived values back to each row" [ref=e1357]
+          - row "filter Subset of original rows Keep or drop whole groups based on a condition" [ref=e1358]:
+            - cell "filter" [ref=e1359]:
+              - code [ref=e1360]: filter
+            - cell "Subset of original rows" [ref=e1361]
+            - cell "Keep or drop whole groups based on a condition" [ref=e1362]
+      - paragraph [ref=e1363]:
+        - strong [ref=e1364]: "Pandas vs SQL for aggregation and window-style operations:"
+      - table [ref=e1366]:
+        - rowgroup [ref=e1367]:
+          - row "Pandas code Full SQL query Output shape When to use" [ref=e1368]:
+            - columnheader "Pandas code" [ref=e1369]
+            - columnheader "Full SQL query" [ref=e1370]
+            - columnheader "Output shape" [ref=e1371]
+            - columnheader "When to use" [ref=e1372]
+        - rowgroup [ref=e1373]:
+          - row "df.groupby('dept').agg(avg_salary=('salary', 'mean'), headcount=('salary', 'size')) SELECT dept, AVG(salary) AS avg_salary, COUNT(*) AS headcount FROM employees GROUP BY dept; One row per group Group-level summary table" [ref=e1374]:
+            - cell "df.groupby('dept').agg(avg_salary=('salary', 'mean'), headcount=('salary', 'size'))" [ref=e1375]:
+              - code [ref=e1376]: df.groupby('dept').agg(avg_salary=('salary', 'mean'), headcount=('salary', 'size'))
+            - cell "SELECT dept, AVG(salary) AS avg_salary, COUNT(*) AS headcount FROM employees GROUP BY dept;" [ref=e1377]:
+              - code [ref=e1378]: SELECT dept, AVG(salary) AS avg_salary, COUNT(*) AS headcount FROM employees GROUP BY dept;
+            - cell "One row per group" [ref=e1379]
+            - cell "Group-level summary table" [ref=e1380]
+          - row "df['dept_avg'] = df.groupby('dept')['salary'].transform('mean') df['vs_dept_avg'] = df['salary'] - df['dept_avg'] SELECT dept, salary, AVG(salary) OVER (PARTITION BY dept) AS dept_avg, salary - AVG(salary) OVER (PARTITION BY dept) AS vs_dept_avg FROM employees; Same rows as input Add per-group stats back to each row" [ref=e1381]:
+            - cell "df['dept_avg'] = df.groupby('dept')['salary'].transform('mean') df['vs_dept_avg'] = df['salary'] - df['dept_avg']" [ref=e1382]:
+              - code [ref=e1383]: df['dept_avg'] = df.groupby('dept')['salary'].transform('mean')
+              - code [ref=e1384]: df['vs_dept_avg'] = df['salary'] - df['dept_avg']
+            - cell "SELECT dept, salary, AVG(salary) OVER (PARTITION BY dept) AS dept_avg, salary - AVG(salary) OVER (PARTITION BY dept) AS vs_dept_avg FROM employees;" [ref=e1385]:
+              - code [ref=e1386]: SELECT dept, salary, AVG(salary) OVER (PARTITION BY dept) AS dept_avg, salary - AVG(salary) OVER (PARTITION BY dept) AS vs_dept_avg FROM employees;
+            - cell "Same rows as input" [ref=e1387]
+            - cell "Add per-group stats back to each row" [ref=e1388]
+          - 'row "df.groupby(''dept'').filter(lambda g: len(g) >= 2) WITH counts AS ( SELECT dept, salary, COUNT(*) OVER (PARTITION BY dept) AS dept_count FROM employees ) SELECT dept, salary FROM counts WHERE dept_count >= 2; Subset of original rows Keep or drop whole groups based on a rule" [ref=e1389]':
+            - 'cell "df.groupby(''dept'').filter(lambda g: len(g) >= 2)" [ref=e1390]':
+              - code [ref=e1391]: "df.groupby('dept').filter(lambda g: len(g) >= 2)"
+            - cell "WITH counts AS ( SELECT dept, salary, COUNT(*) OVER (PARTITION BY dept) AS dept_count FROM employees ) SELECT dept, salary FROM counts WHERE dept_count >= 2;" [ref=e1392]:
+              - code [ref=e1393]: WITH counts AS ( SELECT dept, salary, COUNT(*) OVER (PARTITION BY dept) AS dept_count FROM employees ) SELECT dept, salary FROM counts WHERE dept_count >= 2;
+            - cell "Subset of original rows" [ref=e1394]
+            - cell "Keep or drop whole groups based on a rule" [ref=e1395]
+          - row "df['prev_sales'] = df.groupby('user_id')['sales'].shift(1) SELECT user_id, date, sales, LAG(sales, 1) OVER (PARTITION BY user_id ORDER BY date) AS prev_sales FROM sales_data; Same rows as input Previous-row value within each group" [ref=e1396]:
+            - cell "df['prev_sales'] = df.groupby('user_id')['sales'].shift(1)" [ref=e1397]:
+              - code [ref=e1398]: df['prev_sales'] = df.groupby('user_id')['sales'].shift(1)
+            - cell "SELECT user_id, date, sales, LAG(sales, 1) OVER (PARTITION BY user_id ORDER BY date) AS prev_sales FROM sales_data;" [ref=e1399]:
+              - code [ref=e1400]: SELECT user_id, date, sales, LAG(sales, 1) OVER (PARTITION BY user_id ORDER BY date) AS prev_sales FROM sales_data;
+            - cell "Same rows as input" [ref=e1401]
+            - cell "Previous-row value within each group" [ref=e1402]
+          - row "df['running_sales'] = df.groupby('user_id')['sales'].cumsum() SELECT user_id, date, sales, SUM(sales) OVER (PARTITION BY user_id ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_sales FROM sales_data; Same rows as input Running totals" [ref=e1403]:
+            - cell "df['running_sales'] = df.groupby('user_id')['sales'].cumsum()" [ref=e1404]:
+              - code [ref=e1405]: df['running_sales'] = df.groupby('user_id')['sales'].cumsum()
+            - cell "SELECT user_id, date, sales, SUM(sales) OVER (PARTITION BY user_id ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_sales FROM sales_data;" [ref=e1406]:
+              - code [ref=e1407]: SELECT user_id, date, sales, SUM(sales) OVER (PARTITION BY user_id ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_sales FROM sales_data;
+            - cell "Same rows as input" [ref=e1408]
+            - cell "Running totals" [ref=e1409]
+          - row "df['rank_in_user'] = df.groupby('user_id')['sales'].rank(method='dense', ascending=False) SELECT user_id, date, sales, DENSE_RANK() OVER (PARTITION BY user_id ORDER BY sales DESC) AS rank_in_user FROM sales_data; Same rows as input Rank rows within each group" [ref=e1410]:
+            - cell "df['rank_in_user'] = df.groupby('user_id')['sales'].rank(method='dense', ascending=False)" [ref=e1411]:
+              - code [ref=e1412]: df['rank_in_user'] = df.groupby('user_id')['sales'].rank(method='dense', ascending=False)
+            - cell "SELECT user_id, date, sales, DENSE_RANK() OVER (PARTITION BY user_id ORDER BY sales DESC) AS rank_in_user FROM sales_data;" [ref=e1413]:
+              - code [ref=e1414]: SELECT user_id, date, sales, DENSE_RANK() OVER (PARTITION BY user_id ORDER BY sales DESC) AS rank_in_user FROM sales_data;
+            - cell "Same rows as input" [ref=e1415]
+            - cell "Rank rows within each group" [ref=e1416]
+          - 'row "df[''rolling_2d_avg''] = df.groupby(''user_id'')[''sales''].transform(lambda s: s.rolling(2, min_periods=1).mean()) SELECT user_id, date, sales, AVG(sales) OVER (PARTITION BY user_id ORDER BY date ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS rolling_2d_avg FROM sales_data; Same rows as input Rolling or moving metrics" [ref=e1417]':
+            - 'cell "df[''rolling_2d_avg''] = df.groupby(''user_id'')[''sales''].transform(lambda s: s.rolling(2, min_periods=1).mean())" [ref=e1418]':
+              - code [ref=e1419]: "df['rolling_2d_avg'] = df.groupby('user_id')['sales'].transform(lambda s: s.rolling(2, min_periods=1).mean())"
+            - cell "SELECT user_id, date, sales, AVG(sales) OVER (PARTITION BY user_id ORDER BY date ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS rolling_2d_avg FROM sales_data;" [ref=e1420]:
+              - code [ref=e1421]: SELECT user_id, date, sales, AVG(sales) OVER (PARTITION BY user_id ORDER BY date ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS rolling_2d_avg FROM sales_data;
+            - cell "Same rows as input" [ref=e1422]
+            - cell "Rolling or moving metrics" [ref=e1423]
+          - row "df.pivot_table(index='dept', columns='city', values='sales', aggfunc='mean', fill_value=0) SELECT dept, COALESCE(AVG(CASE WHEN city = 'BLR' THEN sales END), 0) AS BLR, COALESCE(AVG(CASE WHEN city = 'SF' THEN sales END), 0) AS SF FROM sales GROUP BY dept; One row per index value Spreadsheet-style summary matrix" [ref=e1424]:
+            - cell "df.pivot_table(index='dept', columns='city', values='sales', aggfunc='mean', fill_value=0)" [ref=e1425]:
+              - code [ref=e1426]: df.pivot_table(index='dept', columns='city', values='sales', aggfunc='mean', fill_value=0)
+            - cell "SELECT dept, COALESCE(AVG(CASE WHEN city = 'BLR' THEN sales END), 0) AS BLR, COALESCE(AVG(CASE WHEN city = 'SF' THEN sales END), 0) AS SF FROM sales GROUP BY dept;" [ref=e1427]:
+              - code [ref=e1428]: SELECT dept, COALESCE(AVG(CASE WHEN city = 'BLR' THEN sales END), 0) AS BLR, COALESCE(AVG(CASE WHEN city = 'SF' THEN sales END), 0) AS SF FROM sales GROUP BY dept;
+            - cell "One row per index value" [ref=e1429]
+            - cell "Spreadsheet-style summary matrix" [ref=e1430]
+          - row "pd.crosstab(df['dept'], df['city']) SELECT dept, SUM(CASE WHEN city = 'BLR' THEN 1 ELSE 0 END) AS BLR, SUM(CASE WHEN city = 'SF' THEN 1 ELSE 0 END) AS SF FROM sales GROUP BY dept; One row per index value Frequency table" [ref=e1431]:
+            - cell "pd.crosstab(df['dept'], df['city'])" [ref=e1432]:
+              - code [ref=e1433]: pd.crosstab(df['dept'], df['city'])
+            - cell "SELECT dept, SUM(CASE WHEN city = 'BLR' THEN 1 ELSE 0 END) AS BLR, SUM(CASE WHEN city = 'SF' THEN 1 ELSE 0 END) AS SF FROM sales GROUP BY dept;" [ref=e1434]:
+              - code [ref=e1435]: SELECT dept, SUM(CASE WHEN city = 'BLR' THEN 1 ELSE 0 END) AS BLR, SUM(CASE WHEN city = 'SF' THEN 1 ELSE 0 END) AS SF FROM sales GROUP BY dept;
+            - cell "One row per index value" [ref=e1436]
+            - cell "Frequency table" [ref=e1437]
+      - paragraph [ref=e1438]:
+        - strong [ref=e1439]: "Rule of thumb:"
+        - text: if pandas reduces rows, think
+        - code [ref=e1440]: GROUP BY
+        - text: . If pandas preserves rows and adds context columns, think window function. If pandas reshapes into a matrix, think grouped conditional aggregation.
+      - code [ref=e1442]: "df = pd.DataFrame({ 'dept': ['Eng', 'Eng', 'Mkt', 'Mkt', 'Sales'], 'salary': [120000, 95000, 70000, 80000, 68000] })"
+      - paragraph [ref=e1443]:
+        - strong [ref=e1444]:
+          - code [ref=e1445]: agg
+          - text: "example:"
+      - code [ref=e1447]: df.groupby('dept').agg(avg_salary=('salary', 'mean'), headcount=('salary', 'size'))
+      - paragraph [ref=e1448]: "Output:"
+      - table [ref=e1450]:
+        - rowgroup [ref=e1451]:
+          - row "dept avg_salary headcount" [ref=e1452]:
+            - columnheader "dept" [ref=e1453]
+            - columnheader "avg_salary" [ref=e1454]
+            - columnheader "headcount" [ref=e1455]
+        - rowgroup [ref=e1456]:
+          - row "Eng 107500.0 2" [ref=e1457]:
+            - cell "Eng" [ref=e1458]
+            - cell "107500.0" [ref=e1459]
+            - cell "2" [ref=e1460]
+          - row "Mkt 75000.0 2" [ref=e1461]:
+            - cell "Mkt" [ref=e1462]
+            - cell "75000.0" [ref=e1463]
+            - cell "2" [ref=e1464]
+          - row "Sales 68000.0 1" [ref=e1465]:
+            - cell "Sales" [ref=e1466]
+            - cell "68000.0" [ref=e1467]
+            - cell "1" [ref=e1468]
+      - paragraph [ref=e1469]:
+        - strong [ref=e1470]:
+          - code [ref=e1471]: transform
+          - text: "example:"
+      - code [ref=e1473]: df['dept_avg'] = df.groupby('dept')['salary'].transform('mean') df['vs_dept_avg'] = df['salary'] - df['dept_avg'] df
+      - paragraph [ref=e1474]: "Output:"
+      - table [ref=e1476]:
+        - rowgroup [ref=e1477]:
+          - row "dept salary dept_avg vs_dept_avg" [ref=e1478]:
+            - columnheader [ref=e1479]
+            - columnheader "dept" [ref=e1480]
+            - columnheader "salary" [ref=e1481]
+            - columnheader "dept_avg" [ref=e1482]
+            - columnheader "vs_dept_avg" [ref=e1483]
+        - rowgroup [ref=e1484]:
+          - row "0 Eng 120000 107500.0 12500.0" [ref=e1485]:
+            - cell "0" [ref=e1486]
+            - cell "Eng" [ref=e1487]
+            - cell "120000" [ref=e1488]
+            - cell "107500.0" [ref=e1489]
+            - cell "12500.0" [ref=e1490]
+          - row "1 Eng 95000 107500.0 -12500.0" [ref=e1491]:
+            - cell "1" [ref=e1492]
+            - cell "Eng" [ref=e1493]
+            - cell "95000" [ref=e1494]
+            - cell "107500.0" [ref=e1495]
+            - cell "-12500.0" [ref=e1496]
+          - row "2 Mkt 70000 75000.0 -5000.0" [ref=e1497]:
+            - cell "2" [ref=e1498]
+            - cell "Mkt" [ref=e1499]
+            - cell "70000" [ref=e1500]
+            - cell "75000.0" [ref=e1501]
+            - cell "-5000.0" [ref=e1502]
+          - row "3 Mkt 80000 75000.0 5000.0" [ref=e1503]:
+            - cell "3" [ref=e1504]
+            - cell "Mkt" [ref=e1505]
+            - cell "80000" [ref=e1506]
+            - cell "75000.0" [ref=e1507]
+            - cell "5000.0" [ref=e1508]
+          - row "4 Sales 68000 68000.0 0.0" [ref=e1509]:
+            - cell "4" [ref=e1510]
+            - cell "Sales" [ref=e1511]
+            - cell "68000" [ref=e1512]
+            - cell "68000.0" [ref=e1513]
+            - cell "0.0" [ref=e1514]
+      - paragraph [ref=e1515]:
+        - strong [ref=e1516]:
+          - code [ref=e1517]: filter
+          - text: "example:"
+      - code [ref=e1519]: "df.groupby('dept').filter(lambda g: len(g) >= 2)"
+      - paragraph [ref=e1520]: "Output:"
+      - table [ref=e1522]:
+        - rowgroup [ref=e1523]:
+          - row "dept salary" [ref=e1524]:
+            - columnheader [ref=e1525]
+            - columnheader "dept" [ref=e1526]
+            - columnheader "salary" [ref=e1527]
+        - rowgroup [ref=e1528]:
+          - row "0 Eng 120000" [ref=e1529]:
+            - cell "0" [ref=e1530]
+            - cell "Eng" [ref=e1531]
+            - cell "120000" [ref=e1532]
+          - row "1 Eng 95000" [ref=e1533]:
+            - cell "1" [ref=e1534]
+            - cell "Eng" [ref=e1535]
+            - cell "95000" [ref=e1536]
+          - row "2 Mkt 70000" [ref=e1537]:
+            - cell "2" [ref=e1538]
+            - cell "Mkt" [ref=e1539]
+            - cell "70000" [ref=e1540]
+          - row "3 Mkt 80000" [ref=e1541]:
+            - cell "3" [ref=e1542]
+            - cell "Mkt" [ref=e1543]
+            - cell "80000" [ref=e1544]
+      - paragraph [ref=e1545]:
+        - strong [ref=e1546]: "Interview answer:"
+        - code [ref=e1547]: agg
+        - text: reduces,
+        - code [ref=e1548]: transform
+        - text: broadcasts,
+        - code [ref=e1549]: filter
+        - text: keeps or drops entire groups.
+      - separator [ref=e1550]
+      - 'heading "Q10: How do window-style transforms work in pandas?" [level=2] [ref=e1551]'
+      - paragraph [ref=e1552]:
+        - text: Window-style operations compute a value from nearby rows while preserving row-level granularity. In pandas interviews, this usually means
+        - code [ref=e1553]: shift
+        - text: ", cumulative functions, or"
+        - code [ref=e1554]: rolling
+        - text: combined with
+        - code [ref=e1555]: groupby
+        - text: .
+      - code [ref=e1557]: "df = pd.DataFrame({ 'user_id': [1, 1, 1, 2, 2], 'date': pd.to_datetime(['2025-01-01', '2025-01-02', '2025-01-03', '2025-01-01', '2025-01-02']), 'sales': [10, 15, 7, 20, 25] }).sort_values(['user_id', 'date']) df['prev_sales'] = df.groupby('user_id')['sales'].shift(1) df['running_sales'] = df.groupby('user_id')['sales'].cumsum() df['rolling_2d_avg'] = ( df.groupby('user_id')['sales'] .transform(lambda s: s.rolling(2, min_periods=1).mean()) ) df"
+      - paragraph [ref=e1558]: "Output:"
+      - table [ref=e1560]:
+        - rowgroup [ref=e1561]:
+          - row "user_id date sales prev_sales running_sales rolling_2d_avg" [ref=e1562]:
+            - columnheader [ref=e1563]
+            - columnheader "user_id" [ref=e1564]
+            - columnheader "date" [ref=e1565]
+            - columnheader "sales" [ref=e1566]
+            - columnheader "prev_sales" [ref=e1567]
+            - columnheader "running_sales" [ref=e1568]
+            - columnheader "rolling_2d_avg" [ref=e1569]
+        - rowgroup [ref=e1570]:
+          - row "0 1 2025-01-01 10 NaN 10 10.0" [ref=e1571]:
+            - cell "0" [ref=e1572]
+            - cell "1" [ref=e1573]
+            - cell "2025-01-01" [ref=e1574]
+            - cell "10" [ref=e1575]
+            - cell "NaN" [ref=e1576]
+            - cell "10" [ref=e1577]
+            - cell "10.0" [ref=e1578]
+          - row "1 1 2025-01-02 15 10.0 25 12.5" [ref=e1579]:
+            - cell "1" [ref=e1580]
+            - cell "1" [ref=e1581]
+            - cell "2025-01-02" [ref=e1582]
+            - cell "15" [ref=e1583]
+            - cell "10.0" [ref=e1584]
+            - cell "25" [ref=e1585]
+            - cell "12.5" [ref=e1586]
+          - row "2 1 2025-01-03 7 15.0 32 11.0" [ref=e1587]:
+            - cell "2" [ref=e1588]
+            - cell "1" [ref=e1589]
+            - cell "2025-01-03" [ref=e1590]
+            - cell "7" [ref=e1591]
+            - cell "15.0" [ref=e1592]
+            - cell "32" [ref=e1593]
+            - cell "11.0" [ref=e1594]
+          - row "3 2 2025-01-01 20 NaN 20 20.0" [ref=e1595]:
+            - cell "3" [ref=e1596]
+            - cell "2" [ref=e1597]
+            - cell "2025-01-01" [ref=e1598]
+            - cell "20" [ref=e1599]
+            - cell "NaN" [ref=e1600]
+            - cell "20" [ref=e1601]
+            - cell "20.0" [ref=e1602]
+          - row "4 2 2025-01-02 25 20.0 45 22.5" [ref=e1603]:
+            - cell "4" [ref=e1604]
+            - cell "2" [ref=e1605]
+            - cell "2025-01-02" [ref=e1606]
+            - cell "25" [ref=e1607]
+            - cell "20.0" [ref=e1608]
+            - cell "45" [ref=e1609]
+            - cell "22.5" [ref=e1610]
+      - paragraph [ref=e1611]:
+        - strong [ref=e1612]: "Other frequently asked patterns:"
+      - code [ref=e1614]: df['rank_in_user'] = df.groupby('user_id')['sales'].rank(method='dense', ascending=False) df['pct_change'] = df.groupby('user_id')['sales'].pct_change()
+      - paragraph [ref=e1615]: "Output:"
+      - table [ref=e1617]:
+        - rowgroup [ref=e1618]:
+          - row "user_id date sales rank_in_user pct_change" [ref=e1619]:
+            - columnheader [ref=e1620]
+            - columnheader "user_id" [ref=e1621]
+            - columnheader "date" [ref=e1622]
+            - columnheader "sales" [ref=e1623]
+            - columnheader "rank_in_user" [ref=e1624]
+            - columnheader "pct_change" [ref=e1625]
+        - rowgroup [ref=e1626]:
+          - row "0 1 2025-01-01 10 2.0 NaN" [ref=e1627]:
+            - cell "0" [ref=e1628]
+            - cell "1" [ref=e1629]
+            - cell "2025-01-01" [ref=e1630]
+            - cell "10" [ref=e1631]
+            - cell "2.0" [ref=e1632]
+            - cell "NaN" [ref=e1633]
+          - row "1 1 2025-01-02 15 1.0 0.50" [ref=e1634]:
+            - cell "1" [ref=e1635]
+            - cell "1" [ref=e1636]
+            - cell "2025-01-02" [ref=e1637]
+            - cell "15" [ref=e1638]
+            - cell "1.0" [ref=e1639]
+            - cell "0.50" [ref=e1640]
+          - row "2 1 2025-01-03 7 3.0 -0.53" [ref=e1641]:
+            - cell "2" [ref=e1642]
+            - cell "1" [ref=e1643]
+            - cell "2025-01-03" [ref=e1644]
+            - cell "7" [ref=e1645]
+            - cell "3.0" [ref=e1646]
+            - cell "-0.53" [ref=e1647]
+          - row "3 2 2025-01-01 20 2.0 NaN" [ref=e1648]:
+            - cell "3" [ref=e1649]
+            - cell "2" [ref=e1650]
+            - cell "2025-01-01" [ref=e1651]
+            - cell "20" [ref=e1652]
+            - cell "2.0" [ref=e1653]
+            - cell "NaN" [ref=e1654]
+          - row "4 2 2025-01-02 25 1.0 0.25" [ref=e1655]:
+            - cell "4" [ref=e1656]
+            - cell "2" [ref=e1657]
+            - cell "2025-01-02" [ref=e1658]
+            - cell "25" [ref=e1659]
+            - cell "1.0" [ref=e1660]
+            - cell "0.25" [ref=e1661]
+      - paragraph [ref=e1662]:
+        - strong [ref=e1663]: "Rule:"
+        - code [ref=e1664]: agg
+        - text: collapses rows. Window transforms like
+        - code [ref=e1665]: shift
+        - text: ","
+        - code [ref=e1666]: cumsum
+        - text: ","
+        - code [ref=e1667]: rank
+        - text: ", and"
+        - code [ref=e1668]: rolling(...).mean()
+        - text: keep rows and add context columns.
+      - separator [ref=e1669]
+      - 'heading "Q11: What is the difference between pivot, pivot_table, and crosstab?" [level=2] [ref=e1670]':
+        - text: "Q11: What is the difference between"
+        - code [ref=e1671]: pivot
+        - text: ","
+        - code [ref=e1672]: pivot_table
+        - text: ", and"
+        - code [ref=e1673]: crosstab
+        - text: "?"
+      - paragraph [ref=e1674]: "All three reshape data, but they solve different interview problems:"
+      - table [ref=e1676]:
+        - rowgroup [ref=e1677]:
+          - row "Method Use case Handles duplicates? Aggregation?" [ref=e1678]:
+            - columnheader "Method" [ref=e1679]
+            - columnheader "Use case" [ref=e1680]
+            - columnheader "Handles duplicates?" [ref=e1681]
+            - columnheader "Aggregation?" [ref=e1682]
+        - rowgroup [ref=e1683]:
+          - row "pivot Pure reshape No No" [ref=e1684]:
+            - cell "pivot" [ref=e1685]:
+              - code [ref=e1686]: pivot
+            - cell "Pure reshape" [ref=e1687]
+            - cell "No" [ref=e1688]
+            - cell "No" [ref=e1689]
+          - row "pivot_table Spreadsheet-style summary Yes Yes" [ref=e1690]:
+            - cell "pivot_table" [ref=e1691]:
+              - code [ref=e1692]: pivot_table
+            - cell "Spreadsheet-style summary" [ref=e1693]
+            - cell "Yes" [ref=e1694]
+            - cell "Yes" [ref=e1695]
+          - row "pd.crosstab Frequency table Yes Counts by default" [ref=e1696]:
+            - cell "pd.crosstab" [ref=e1697]:
+              - code [ref=e1698]: pd.crosstab
+            - cell "Frequency table" [ref=e1699]
+            - cell "Yes" [ref=e1700]
+            - cell "Counts by default" [ref=e1701]
+      - code [ref=e1703]: "df = pd.DataFrame({ 'dept': ['Eng', 'Eng', 'Mkt', 'Mkt', 'Mkt'], 'city': ['BLR', 'SF', 'BLR', 'SF', 'SF'], 'sales': [100, 120, 80, 90, 110] })"
+      - paragraph [ref=e1704]:
+        - strong [ref=e1705]:
+          - code [ref=e1706]: pivot
+          - text: example
+        - text: works only if each
+        - code [ref=e1707]: (dept, city)
+        - text: "pair is unique:"
+      - code [ref=e1709]: unique_df = df.drop_duplicates(['dept', 'city'], keep='first') unique_df.pivot(index='dept', columns='city', values='sales')
+      - paragraph [ref=e1710]: "Output:"
+      - table [ref=e1712]:
+        - rowgroup [ref=e1713]:
+          - row "dept BLR SF" [ref=e1714]:
+            - columnheader "dept" [ref=e1715]
+            - columnheader "BLR" [ref=e1716]
+            - columnheader "SF" [ref=e1717]
+        - rowgroup [ref=e1718]:
+          - row "Eng 100 120" [ref=e1719]:
+            - cell "Eng" [ref=e1720]
+            - cell "100" [ref=e1721]
+            - cell "120" [ref=e1722]
+          - row "Mkt 80 90" [ref=e1723]:
+            - cell "Mkt" [ref=e1724]
+            - cell "80" [ref=e1725]
+            - cell "90" [ref=e1726]
+      - paragraph [ref=e1727]:
+        - strong [ref=e1728]:
+          - code [ref=e1729]: pivot_table
+          - text: example
+        - text: handles duplicate
+        - code [ref=e1730]: Mkt-SF
+        - text: "rows by aggregating:"
+      - code [ref=e1732]: df.pivot_table(index='dept', columns='city', values='sales', aggfunc='mean', fill_value=0)
+      - paragraph [ref=e1733]: "Output:"
+      - table [ref=e1735]:
+        - rowgroup [ref=e1736]:
+          - row "dept BLR SF" [ref=e1737]:
+            - columnheader "dept" [ref=e1738]
+            - columnheader "BLR" [ref=e1739]
+            - columnheader "SF" [ref=e1740]
+        - rowgroup [ref=e1741]:
+          - row "Eng 100 120" [ref=e1742]:
+            - cell "Eng" [ref=e1743]
+            - cell "100" [ref=e1744]
+            - cell "120" [ref=e1745]
+          - row "Mkt 80 100" [ref=e1746]:
+            - cell "Mkt" [ref=e1747]
+            - cell "80" [ref=e1748]
+            - cell "100" [ref=e1749]
+      - paragraph [ref=e1750]:
+        - strong [ref=e1751]:
+          - code [ref=e1752]: crosstab
+          - text: example
+        - text: "counts combinations:"
+      - code [ref=e1754]: pd.crosstab(df['dept'], df['city'])
+      - paragraph [ref=e1755]: "Output:"
+      - table [ref=e1757]:
+        - rowgroup [ref=e1758]:
+          - row "dept BLR SF" [ref=e1759]:
+            - columnheader "dept" [ref=e1760]
+            - columnheader "BLR" [ref=e1761]
+            - columnheader "SF" [ref=e1762]
+        - rowgroup [ref=e1763]:
+          - row "Eng 1 1" [ref=e1764]:
+            - cell "Eng" [ref=e1765]
+            - cell "1" [ref=e1766]
+            - cell "1" [ref=e1767]
+          - row "Mkt 1 2" [ref=e1768]:
+            - cell "Mkt" [ref=e1769]
+            - cell "1" [ref=e1770]
+            - cell "2" [ref=e1771]
+      - paragraph [ref=e1772]:
+        - strong [ref=e1773]: "Interview answer:"
+        - text: use
+        - code [ref=e1774]: pivot
+        - text: when keys are unique,
+        - code [ref=e1775]: pivot_table
+        - text: when duplicates need aggregation, and
+        - code [ref=e1776]: crosstab
+        - text: for count matrices.
+      - separator [ref=e1777]
+      - 'heading "Q12: Why is NumPy faster than pure Python lists for numerical work?" [level=2] [ref=e1778]'
+      - paragraph [ref=e1779]:
+        - strong [ref=e1780]: "Core answer:"
+        - text: NumPy arrays are homogeneous, contiguous blocks of memory and their operations run in optimized C loops. Python lists store pointers to Python objects, so each arithmetic step has much higher overhead.
+      - code [ref=e1782]: import numpy as np arr = np.array([1, 2, 3, 4]) arr * 10
+      - paragraph [ref=e1783]: "Output:"
+      - table [ref=e1785]:
+        - rowgroup [ref=e1786]:
+          - row "index value" [ref=e1787]:
+            - columnheader "index" [ref=e1788]
+            - columnheader "value" [ref=e1789]
+        - rowgroup [ref=e1790]:
+          - row "0 10" [ref=e1791]:
+            - cell "0" [ref=e1792]
+            - cell "10" [ref=e1793]
+          - row "1 20" [ref=e1794]:
+            - cell "1" [ref=e1795]
+            - cell "20" [ref=e1796]
+          - row "2 30" [ref=e1797]:
+            - cell "2" [ref=e1798]
+            - cell "30" [ref=e1799]
+          - row "3 40" [ref=e1800]:
+            - cell "3" [ref=e1801]
+            - cell "40" [ref=e1802]
+      - paragraph [ref=e1803]:
+        - strong [ref=e1804]: "Why lists are slower:"
+      - code [ref=e1806]: "[x * 10 for x in [1, 2, 3, 4]]"
+      - paragraph [ref=e1807]: "Output:"
+      - table [ref=e1809]:
+        - rowgroup [ref=e1810]:
+          - row "index value" [ref=e1811]:
+            - columnheader "index" [ref=e1812]
+            - columnheader "value" [ref=e1813]
+        - rowgroup [ref=e1814]:
+          - row "0 10" [ref=e1815]:
+            - cell "0" [ref=e1816]
+            - cell "10" [ref=e1817]
+          - row "1 20" [ref=e1818]:
+            - cell "1" [ref=e1819]
+            - cell "20" [ref=e1820]
+          - row "2 30" [ref=e1821]:
+            - cell "2" [ref=e1822]
+            - cell "30" [ref=e1823]
+          - row "3 40" [ref=e1824]:
+            - cell "3" [ref=e1825]
+            - cell "40" [ref=e1826]
+      - paragraph [ref=e1827]: The output is the same, but NumPy avoids Python-level looping and scales much better on large arrays.
+      - paragraph [ref=e1828]:
+        - strong [ref=e1829]: "Interview soundbite:"
+        - text: NumPy is fast because it stores same-type values densely in memory and pushes the loop into compiled code.
+      - separator [ref=e1830]
+      - 'heading "Q13: What is broadcasting in NumPy?" [level=2] [ref=e1831]'
+      - paragraph [ref=e1832]: Broadcasting lets NumPy apply arithmetic between arrays of different but compatible shapes without manually copying data.
+      - code [ref=e1834]: import numpy as np X = np.array([ [1, 2, 3], [4, 5, 6] ]) bias = np.array([10, 20, 30]) X + bias
+      - paragraph [ref=e1835]: "Output:"
+      - table [ref=e1837]:
+        - rowgroup [ref=e1838]:
+          - row "0 1 2" [ref=e1839]:
+            - columnheader [ref=e1840]
+            - columnheader "0" [ref=e1841]
+            - columnheader "1" [ref=e1842]
+            - columnheader "2" [ref=e1843]
+        - rowgroup [ref=e1844]:
+          - row "0 11 22 33" [ref=e1845]:
+            - cell "0" [ref=e1846]
+            - cell "11" [ref=e1847]
+            - cell "22" [ref=e1848]
+            - cell "33" [ref=e1849]
+          - row "1 14 25 36" [ref=e1850]:
+            - cell "1" [ref=e1851]
+            - cell "14" [ref=e1852]
+            - cell "25" [ref=e1853]
+            - cell "36" [ref=e1854]
+      - paragraph [ref=e1855]:
+        - text: NumPy treats
+        - code [ref=e1856]: bias
+        - text: "as if it were copied across each row:"
+      - code [ref=e1858]: np.array([ [10, 20, 30], [10, 20, 30] ])
+      - paragraph [ref=e1859]:
+        - strong [ref=e1860]: "Another common example:"
+      - code [ref=e1862]: X.mean(axis=0)
+      - paragraph [ref=e1863]: "Output:"
+      - table [ref=e1865]:
+        - rowgroup [ref=e1866]:
+          - row "index mean" [ref=e1867]:
+            - columnheader "index" [ref=e1868]
+            - columnheader "mean" [ref=e1869]
+        - rowgroup [ref=e1870]:
+          - row "0 2.5" [ref=e1871]:
+            - cell "0" [ref=e1872]
+            - cell "2.5" [ref=e1873]
+          - row "1 3.5" [ref=e1874]:
+            - cell "1" [ref=e1875]
+            - cell "3.5" [ref=e1876]
+          - row "2 4.5" [ref=e1877]:
+            - cell "2" [ref=e1878]
+            - cell "4.5" [ref=e1879]
+      - paragraph [ref=e1880]:
+        - strong [ref=e1881]: "Interview answer:"
+        - text: broadcasting expands dimensions conceptually, not physically, as long as trailing dimensions match or one side is 1.
+      - separator [ref=e1882]
+      - 'heading "Q14: What is the difference between NumPy views and copies?" [level=2] [ref=e1883]'
+      - paragraph [ref=e1884]: This is one of the highest-signal NumPy questions because it affects both correctness and memory usage.
+      - paragraph [ref=e1885]:
+        - strong [ref=e1886]: Slicing usually returns a view
+        - text: — it shares memory with the original array.
+      - code [ref=e1888]: import numpy as np arr = np.array([10, 20, 30, 40]) view = arr[1:3] view[0] = 999 arr
+      - paragraph [ref=e1889]: "Output:"
+      - table [ref=e1891]:
+        - rowgroup [ref=e1892]:
+          - row "index value" [ref=e1893]:
+            - columnheader "index" [ref=e1894]
+            - columnheader "value" [ref=e1895]
+        - rowgroup [ref=e1896]:
+          - row "0 10" [ref=e1897]:
+            - cell "0" [ref=e1898]
+            - cell "10" [ref=e1899]
+          - row "1 999" [ref=e1900]:
+            - cell "1" [ref=e1901]
+            - cell "999" [ref=e1902]
+          - row "2 30" [ref=e1903]:
+            - cell "2" [ref=e1904]
+            - cell "30" [ref=e1905]
+          - row "3 40" [ref=e1906]:
+            - cell "3" [ref=e1907]
+            - cell "40" [ref=e1908]
+      - paragraph [ref=e1909]:
+        - text: Because
+        - code [ref=e1910]: view
+        - text: shares memory, editing
+        - code [ref=e1911]: view
+        - text: changed
+        - code [ref=e1912]: arr
+        - text: .
+      - paragraph [ref=e1913]:
+        - strong [ref=e1914]: Fancy indexing returns a copy
+        - text: — it does not share memory.
+      - code [ref=e1916]: arr = np.array([10, 20, 30, 40]) copy_arr = arr[[1, 3]] copy_arr[0] = 999 arr
+      - paragraph [ref=e1917]: "Output:"
+      - table [ref=e1919]:
+        - rowgroup [ref=e1920]:
+          - row "index value" [ref=e1921]:
+            - columnheader "index" [ref=e1922]
+            - columnheader "value" [ref=e1923]
+        - rowgroup [ref=e1924]:
+          - row "0 10" [ref=e1925]:
+            - cell "0" [ref=e1926]
+            - cell "10" [ref=e1927]
+          - row "1 20" [ref=e1928]:
+            - cell "1" [ref=e1929]
+            - cell "20" [ref=e1930]
+          - row "2 30" [ref=e1931]:
+            - cell "2" [ref=e1932]
+            - cell "30" [ref=e1933]
+          - row "3 40" [ref=e1934]:
+            - cell "3" [ref=e1935]
+            - cell "40" [ref=e1936]
+      - paragraph [ref=e1937]:
+        - strong [ref=e1938]: "Rule:"
+        - text: plain slicing like
+        - code [ref=e1939]: arr[1:3]
+        - text: is usually a view; boolean or integer array indexing usually makes a copy.
+      - separator [ref=e1940]
+      - 'heading "Q15: What is Big O notation? Time complexities of common Python data structures." [level=2] [ref=e1941]'
+      - paragraph [ref=e1942]:
+        - strong [ref=e1943]: Big O
+        - text: describes how runtime grows relative to input size n, ignoring constant factors and lower-order terms.
+      - paragraph [ref=e1944]:
+        - strong [ref=e1945]: "Common complexities (best to worst):"
+      - table [ref=e1947]:
+        - rowgroup [ref=e1948]:
+          - row "Notation Name Example" [ref=e1949]:
+            - columnheader "Notation" [ref=e1950]
+            - columnheader "Name" [ref=e1951]
+            - columnheader "Example" [ref=e1952]
+        - rowgroup [ref=e1953]:
+          - row "O(1) Constant dict lookup, list append to end" [ref=e1954]:
+            - cell "O(1)" [ref=e1955]
+            - cell "Constant" [ref=e1956]
+            - cell "dict lookup, list append to end" [ref=e1957]
+          - row "O(log n) Logarithmic binary search in sorted array" [ref=e1958]:
+            - cell "O(log n)" [ref=e1959]
+            - cell "Logarithmic" [ref=e1960]
+            - cell "binary search in sorted array" [ref=e1961]
+          - row "O(n) Linear scan every element once" [ref=e1962]:
+            - cell "O(n)" [ref=e1963]
+            - cell "Linear" [ref=e1964]
+            - cell "scan every element once" [ref=e1965]
+          - row "O(n log n) Linearithmic sorting (Python's Timsort, merge sort)" [ref=e1966]:
+            - cell "O(n log n)" [ref=e1967]
+            - cell "Linearithmic" [ref=e1968]
+            - cell "sorting (Python's Timsort, merge sort)" [ref=e1969]
+          - row "O(n²) Quadratic nested loops over n elements" [ref=e1970]:
+            - cell "O(n²)" [ref=e1971]
+            - cell "Quadratic" [ref=e1972]
+            - cell "nested loops over n elements" [ref=e1973]
+          - row "O(2ⁿ) Exponential naive Fibonacci recursion" [ref=e1974]:
+            - cell "O(2ⁿ)" [ref=e1975]
+            - cell "Exponential" [ref=e1976]
+            - cell "naive Fibonacci recursion" [ref=e1977]
+      - paragraph [ref=e1978]:
+        - strong [ref=e1979]: "Python data structure complexities:"
+      - table [ref=e1981]:
+        - rowgroup [ref=e1982]:
+          - row "Operation list dict / set heapq" [ref=e1983]:
+            - columnheader "Operation" [ref=e1984]
+            - columnheader "list" [ref=e1985]:
+              - code [ref=e1986]: list
+            - columnheader "dict / set" [ref=e1987]:
+              - code [ref=e1988]: dict
+              - text: /
+              - code [ref=e1989]: set
+            - columnheader "heapq" [ref=e1990]:
+              - code [ref=e1991]: heapq
+        - rowgroup [ref=e1992]:
+          - row "Access by index O(1) — —" [ref=e1993]:
+            - cell "Access by index" [ref=e1994]
+            - cell "O(1)" [ref=e1995]
+            - cell "—" [ref=e1996]
+            - cell "—" [ref=e1997]
+          - row "Search / in-check O(n) O(1) avg O(n)" [ref=e1998]:
+            - cell "Search / in-check" [ref=e1999]
+            - cell "O(n)" [ref=e2000]:
+              - strong [ref=e2001]: O(n)
+            - cell "O(1) avg" [ref=e2002]:
+              - strong [ref=e2003]: O(1)
+              - text: avg
+            - cell "O(n)" [ref=e2004]
+          - row "Insert at end O(1) amortized O(1) avg O(log n)" [ref=e2005]:
+            - cell "Insert at end" [ref=e2006]
+            - cell "O(1) amortized" [ref=e2007]
+            - cell "O(1) avg" [ref=e2008]
+            - cell "O(log n)" [ref=e2009]
+          - row "Insert at front O(n) O(1) —" [ref=e2010]:
+            - cell "Insert at front" [ref=e2011]
+            - cell "O(n)" [ref=e2012]:
+              - strong [ref=e2013]: O(n)
+            - cell "O(1)" [ref=e2014]
+            - cell "—" [ref=e2015]
+          - row "Delete by value O(n) O(1) avg O(log n)" [ref=e2016]:
+            - cell "Delete by value" [ref=e2017]
+            - cell "O(n)" [ref=e2018]
+            - cell "O(1) avg" [ref=e2019]
+            - cell "O(log n)" [ref=e2020]
+          - row "Min / Max O(n) O(n) O(1)" [ref=e2021]:
+            - cell "Min / Max" [ref=e2022]
+            - cell "O(n)" [ref=e2023]
+            - cell "O(n)" [ref=e2024]
+            - cell "O(1)" [ref=e2025]:
+              - strong [ref=e2026]: O(1)
+      - paragraph [ref=e2027]:
+        - strong [ref=e2028]: "Key practical insight:"
+      - code [ref=e2030]: "# Searching in a list is O(n) — slow in a hot loop if user_id in flagged_users_list: # scans entire list # Converting to a set makes lookup O(1) flagged_set = set(flagged_users_list) if user_id in flagged_set: # hash lookup — constant time"
+      - paragraph [ref=e2031]:
+        - strong [ref=e2032]: "For ML pipelines:"
+        - text: Choosing the right data structure at the feature engineering step often matters more than algorithm choice. A dict-based lookup table instead of a repeated dataframe filter can cut pipeline time significantly.
+      - separator [ref=e2033]
+      - 'heading "Q16: What is a hash map and why is it O(1) lookup?" [level=2] [ref=e2034]'
+      - paragraph [ref=e2035]:
+        - strong [ref=e2036]: "Intuition:"
+        - text: A hash map (Python
+        - code [ref=e2037]: dict
+        - text: ) is like a filing cabinet with labeled drawers. Instead of searching every drawer, you compute which drawer a key belongs to using a hash function — one computation, one lookup.
+      - paragraph [ref=e2038]:
+        - strong [ref=e2039]: "How it works:"
+      - list [ref=e2040]:
+        - listitem [ref=e2041]:
+          - text: Compute
+          - code [ref=e2042]: bucket = hash(key) % num_buckets
+          - text: — maps any key to an integer bucket index
+        - listitem [ref=e2043]:
+          - text: Store the
+          - code [ref=e2044]: (key, value)
+          - text: pair in that bucket
+        - listitem [ref=e2045]: "On lookup: compute the same hash → go directly to that bucket → return value"
+      - code [ref=e2047]: "# Python dict is a hash map freq = {} for word in words: freq[word] = freq.get(word, 0) + 1 # O(1) per word # collections.Counter does the same from collections import Counter Counter(['a', 'b', 'a', 'c', 'b', 'a']) # Counter({'a': 3, 'b': 2, 'c': 1})"
+      - paragraph [ref=e2048]:
+        - strong [ref=e2049]: "Classic interview problem — Two Sum (shows the hash map pattern):"
+      - code [ref=e2051]: "def two_sum(nums, target): seen = {} # value → index for i, n in enumerate(nums): complement = target - n if complement in seen: # O(1) lookup return [seen[complement], i] seen[n] = i # O(n) total — vs O(n²) with nested loops"
+      - paragraph [ref=e2052]:
+        - strong [ref=e2053]: "Other common patterns:"
+      - code [ref=e2055]:
+        - text: "# Grouping (like a manual groupby) from collections import defaultdict groups = defaultdict(list) for item in data: groups[item['category']].append(item) # LRU cache / memoization from functools import lru_cache"
+        - generic [ref=e2056]:
+          - text: "@lru_cache("
+          - generic [ref=e2057]: maxsize=128
+          - text: )
+        - text: "def expensive(n): ..."
+      - paragraph [ref=e2058]:
+        - strong [ref=e2059]: "Hash collision:"
+        - text: Two different keys can hash to the same bucket. Python handles this with open addressing (probing nearby buckets). Average case remains O(1); worst case is O(n) but practically rare.
+      - separator [ref=e2060]
+      - 'heading "Q17: What is binary search and when do you use it?" [level=2] [ref=e2061]'
+      - paragraph [ref=e2062]:
+        - strong [ref=e2063]: "Intuition:"
+        - text: Searching a sorted phone book — you don't start from page 1. You open the middle, decide which half to search, and cut the space in half each step. Binary search does exactly this, requiring
+        - strong [ref=e2064]: O(log n)
+        - text: comparisons instead of O(n).
+      - paragraph [ref=e2065]:
+        - strong [ref=e2066]: "Requirement:"
+        - text: The array must be sorted. Binary search on an unsorted array is incorrect.
+      - paragraph [ref=e2067]:
+        - strong [ref=e2068]: "Algorithm:"
+      - code [ref=e2070]: "def binary_search(arr, target): lo, hi = 0, len(arr) - 1 while lo <= hi: mid = (lo + hi) // 2 if arr[mid] == target: return mid # found at index mid elif arr[mid] < target: lo = mid + 1 # target is in the right half else: hi = mid - 1 # target is in the left half return -1 # not found # Example: arr = [1, 3, 5, 7, 9], target = 7 # Iteration 1: mid=2, arr[2]=5 < 7 → lo=3 # Iteration 2: mid=3, arr[3]=7 == 7 → return 3"
+      - paragraph [ref=e2071]:
+        - strong [ref=e2072]:
+          - text: Python's
+          - code [ref=e2073]: bisect
+          - text: "module (use this in production):"
+      - code [ref=e2075]: "import bisect arr = [10, 20, 30, 40, 50] bisect.bisect_left(arr, 30) # 2 — leftmost position where 30 can be inserted bisect.bisect_right(arr, 30) # 3 — rightmost position bisect.insort(arr, 25) # insert 25 in sorted position: [10, 20, 25, 30, 40, 50]"
+      - paragraph [ref=e2076]:
+        - strong [ref=e2077]: "Complexity:"
+        - text: O(log n). For n = 1,000,000 → at most 20 iterations.
+      - paragraph [ref=e2078]:
+        - strong [ref=e2079]: "When to use binary search in DS/ML work:"
+      - list [ref=e2080]:
+        - listitem [ref=e2081]: Finding the optimal threshold for a classifier (e.g., "find the threshold where precision = 0.9")
+        - listitem [ref=e2082]: Searching a sorted list of feature values for a decision tree split point
+        - listitem [ref=e2083]:
+          - code [ref=e2084]: bisect.insort
+          - text: to maintain a sorted running list during streaming feature computation
+      - separator [ref=e2085]
+      - 'heading "Q18: What is the sliding window technique?" [level=2] [ref=e2086]'
+      - paragraph [ref=e2087]:
+        - strong [ref=e2088]: "Intuition:"
+        - text: When analyzing a contiguous subarray, instead of recomputing from scratch each step, slide the window by adding one element on the right and removing one on the left. Update the running result incrementally → O(n) instead of O(n×k).
+      - paragraph [ref=e2089]:
+        - strong [ref=e2090]: "Fixed-size window — max sum of K consecutive elements:"
+      - code [ref=e2092]: "def max_sum_window(arr, k): window_sum = sum(arr[:k]) # compute the first window max_sum = window_sum for i in range(k, len(arr)): window_sum += arr[i] - arr[i - k] # slide: add new element, drop old max_sum = max(max_sum, window_sum) return max_sum # arr = [2, 1, 5, 1, 3, 2], k = 3 # windows: [2,1,5]=8, [1,5,1]=7, [5,1,3]=9, [1,3,2]=6 → max = 9"
+      - paragraph [ref=e2093]: "Brute force would recompute each window sum: O(n × k). Sliding window: O(n)."
+      - paragraph [ref=e2094]:
+        - strong [ref=e2095]: "Variable-size window — longest substring without repeating characters:"
+      - code [ref=e2097]: "def longest_unique_substring(s): seen = {} # char → last seen index lo = 0 # left edge of window max_len = 0 for hi, char in enumerate(s): if char in seen and seen[char] >= lo: lo = seen[char] + 1 # shrink window: push left edge past the duplicate seen[char] = hi max_len = max(max_len, hi - lo + 1) return max_len # \"abcabcbb\" → 3 (\"abc\")"
+      - paragraph [ref=e2098]:
+        - strong [ref=e2099]: "When to use sliding window:"
+      - list [ref=e2100]:
+        - listitem [ref=e2101]: "\"Max/min/sum of any subarray of exactly size K\""
+        - listitem [ref=e2102]: "\"Longest/shortest subarray satisfying condition X\""
+        - listitem [ref=e2103]: Any problem involving a contiguous window over a sequence
+      - paragraph [ref=e2104]:
+        - strong [ref=e2105]: "DS/ML connection:"
+        - text: Rolling window features in time series (7-day moving average, rolling standard deviation) are the data engineering version of this technique.
+        - code [ref=e2106]: df['value'].rolling(7).mean()
+        - text: in pandas implements exactly a sliding window.
+      - separator [ref=e2107]
+      - 'heading "Q19: What is the two-pointer technique?" [level=2] [ref=e2108]'
+      - paragraph [ref=e2109]:
+        - strong [ref=e2110]: "Intuition:"
+        - text: Two pointers move through an array — usually from opposite ends or at different speeds — to avoid nested loops. Turns O(n²) into O(n).
+      - paragraph [ref=e2111]:
+        - strong [ref=e2112]: "Classic — find a pair summing to target in a SORTED array:"
+      - code [ref=e2114]: "def has_pair_sum(arr, target): lo, hi = 0, len(arr) - 1 while lo < hi: s = arr[lo] + arr[hi] if s == target: return True elif s < target: lo += 1 # sum too small → move left pointer right (increase sum) else: hi -= 1 # sum too large → move right pointer left (decrease sum) return False # [1, 3, 5, 7, 9], target=10 → 3+7=10 → True"
+      - paragraph [ref=e2115]: "Brute force: check all pairs → O(n²). Two pointers: one pass → O(n)."
+      - paragraph [ref=e2116]:
+        - strong [ref=e2117]: "Removing duplicates from a sorted array in-place:"
+      - code [ref=e2119]: "def remove_duplicates(nums): if not nums: return 0 slow = 0 for fast in range(1, len(nums)): if nums[fast] != nums[slow]: slow += 1 nums[slow] = nums[fast] return slow + 1 # length of unique portion"
+      - paragraph [ref=e2120]:
+        - strong [ref=e2121]: "Fast/slow pointer — detect a cycle in a linked list:"
+      - code [ref=e2123]: "def has_cycle(head): slow = fast = head while fast and fast.next: slow = slow.next # advances 1 step fast = fast.next.next # advances 2 steps if slow is fast: return True # they meet → cycle exists return False"
+      - paragraph [ref=e2124]:
+        - strong [ref=e2125]: "When to use two pointers:"
+      - list [ref=e2126]:
+        - listitem [ref=e2127]: "Sorted array: pairs/triplets summing to a target"
+        - listitem [ref=e2128]: Partition problems (move negatives to one side)
+        - listitem [ref=e2129]: Remove duplicates in-place
+        - listitem [ref=e2130]: Palindrome check
+      - separator [ref=e2131]
+      - 'heading "Q20: What is the difference between BFS and DFS?" [level=2] [ref=e2132]'
+      - paragraph [ref=e2133]: Both traverse every node in a graph or tree. They differ in the order visited.
+      - paragraph [ref=e2134]:
+        - strong [ref=e2135]: "BFS (Breadth-First Search):"
+        - text: Visit all neighbors at the current level before going deeper. Uses a
+        - strong [ref=e2136]: queue (FIFO)
+        - text: .
+      - paragraph [ref=e2137]:
+        - strong [ref=e2138]: "DFS (Depth-First Search):"
+        - text: Go as deep as possible down one path before backtracking. Uses a
+        - strong [ref=e2139]: stack / recursion (LIFO)
+        - text: .
+      - code [ref=e2141]:
+        - text: "from collections import deque def bfs(graph, start): visited = set([start]) queue = deque([start]) order = [] while queue: node = queue.popleft() # FIFO: process oldest (shallowest) first order.append(node) for neighbor in graph[node]: if neighbor not in visited: visited.add(neighbor) queue.append(neighbor) return order def dfs("
+        - generic [ref=e2142]: graph, start, visited=None
+        - text: "): if visited is None: visited = set() visited.add(start) result = [start] for neighbor in graph[start]: if neighbor not in visited: result += dfs(graph, neighbor, visited) return result"
+      - paragraph [ref=e2143]:
+        - strong [ref=e2144]: "When to use each:"
+      - table [ref=e2146]:
+        - rowgroup [ref=e2147]:
+          - row "Use case Algorithm Why" [ref=e2148]:
+            - columnheader "Use case" [ref=e2149]
+            - columnheader "Algorithm" [ref=e2150]
+            - columnheader "Why" [ref=e2151]
+        - rowgroup [ref=e2152]:
+          - row "Shortest path (unweighted graph) BFS BFS always finds the fewest-edge path first" [ref=e2153]:
+            - cell "Shortest path (unweighted graph)" [ref=e2154]
+            - cell "BFS" [ref=e2155]:
+              - strong [ref=e2156]: BFS
+            - cell "BFS always finds the fewest-edge path first" [ref=e2157]
+          - row "Level-order tree traversal BFS Processes level by level naturally" [ref=e2158]:
+            - cell "Level-order tree traversal" [ref=e2159]
+            - cell "BFS" [ref=e2160]:
+              - strong [ref=e2161]: BFS
+            - cell "Processes level by level naturally" [ref=e2162]
+          - row "All paths / connected components DFS Simpler recursion" [ref=e2163]:
+            - cell "All paths / connected components" [ref=e2164]
+            - cell "DFS" [ref=e2165]:
+              - strong [ref=e2166]: DFS
+            - cell "Simpler recursion" [ref=e2167]
+          - row "Cycle detection DFS Back-edge detection during DFS" [ref=e2168]:
+            - cell "Cycle detection" [ref=e2169]
+            - cell "DFS" [ref=e2170]
+            - cell "Back-edge detection during DFS" [ref=e2171]
+          - row "Topological sort (DAG) DFS Post-order DFS gives reverse topological order" [ref=e2172]:
+            - cell "Topological sort (DAG)" [ref=e2173]
+            - cell "DFS" [ref=e2174]
+            - cell "Post-order DFS gives reverse topological order" [ref=e2175]
+      - paragraph [ref=e2176]:
+        - strong [ref=e2177]: "Complexity:"
+        - text: Both O(V + E) where V = number of vertices, E = number of edges.
+      - paragraph [ref=e2178]:
+        - strong [ref=e2179]: "DS/ML connection:"
+        - text: Dependency resolution in ML pipelines (DAG of feature transformations) uses topological sort. Graph neural networks use neighborhood aggregation — conceptually related to BFS.
+      - separator [ref=e2180]
+      - 'heading "Q21: What is dynamic programming? When do you use it?" [level=2] [ref=e2181]'
+      - paragraph [ref=e2182]:
+        - strong [ref=e2183]: "Intuition:"
+        - text: Dynamic programming (DP) solves a problem by breaking it into overlapping subproblems and caching each result so it's computed only once. It trades extra memory for dramatically better time complexity.
+      - paragraph [ref=e2184]:
+        - strong [ref=e2185]: "Two signals that DP might be the right approach:"
+      - list [ref=e2186]:
+        - listitem [ref=e2187]: The problem can be broken into subproblems of the same type (optimal substructure)
+        - listitem [ref=e2188]: The same subproblems appear multiple times (overlapping subproblems)
+      - paragraph [ref=e2189]:
+        - strong [ref=e2190]: "Example — Fibonacci without DP (exponential time O(2ⁿ)):"
+      - code [ref=e2192]: "def fib(n): if n <= 1: return n return fib(n-1) + fib(n-2) # fib(40) recomputes fib(20) over a million times — extremely slow"
+      - paragraph [ref=e2193]:
+        - strong [ref=e2194]: "Top-down DP (memoization) — cache results as you recurse:"
+      - code [ref=e2196]:
+        - text: from functools import lru_cache
+        - generic [ref=e2197]:
+          - text: "@lru_cache("
+          - generic [ref=e2198]: maxsize=None
+          - text: )
+        - text: "def fib(n): if n <= 1: return n return fib(n-1) + fib(n-2) # each value computed exactly once → O(n)"
+      - paragraph [ref=e2199]:
+        - strong [ref=e2200]: "Bottom-up DP (tabulation) — build up from base cases:"
+      - code [ref=e2202]: "def fib(n): dp = [0] * (n + 1) dp[1] = 1 for i in range(2, n + 1): dp[i] = dp[i-1] + dp[i-2] return dp[n] # O(n) time, O(n) space"
+      - paragraph [ref=e2203]:
+        - strong [ref=e2204]: "Space-optimized (only keep last two values):"
+      - code [ref=e2206]: "def fib(n): a, b = 0, 1 for _ in range(n): a, b = b, a + b return a # O(n) time, O(1) space"
+      - paragraph [ref=e2207]:
+        - strong [ref=e2208]: "Common DP patterns:"
+      - table [ref=e2210]:
+        - rowgroup [ref=e2211]:
+          - row "Pattern Example problem State" [ref=e2212]:
+            - columnheader "Pattern" [ref=e2213]
+            - columnheader "Example problem" [ref=e2214]
+            - columnheader "State" [ref=e2215]
+        - rowgroup [ref=e2216]:
+          - row "1D DP Climbing stairs, max stock profit dp[i]" [ref=e2217]:
+            - cell "1D DP" [ref=e2218]
+            - cell "Climbing stairs, max stock profit" [ref=e2219]
+            - cell "dp[i]" [ref=e2220]:
+              - code [ref=e2221]: dp[i]
+          - row "2D DP Longest common subsequence, edit distance dp[i][j]" [ref=e2222]:
+            - cell "2D DP" [ref=e2223]
+            - cell "Longest common subsequence, edit distance" [ref=e2224]
+            - cell "dp[i][j]" [ref=e2225]:
+              - code [ref=e2226]: dp[i][j]
+          - row "0/1 Knapsack Max value within weight limit dp[i][w]" [ref=e2227]:
+            - cell "0/1 Knapsack" [ref=e2228]
+            - cell "Max value within weight limit" [ref=e2229]
+            - cell "dp[i][w]" [ref=e2230]:
+              - code [ref=e2231]: dp[i][w]
+          - row "Interval DP Burst balloons, matrix chain multiplication dp[i][j]" [ref=e2232]:
+            - cell "Interval DP" [ref=e2233]
+            - cell "Burst balloons, matrix chain multiplication" [ref=e2234]
+            - cell "dp[i][j]" [ref=e2235]:
+              - code [ref=e2236]: dp[i][j]
+      - paragraph [ref=e2237]:
+        - strong [ref=e2238]: "Worked example — coin change (minimum number of coins for amount n):"
+      - code [ref=e2240]: "def coin_change(coins, amount): dp = [float('inf')] * (amount + 1) dp[0] = 0 # base case: 0 coins needed for amount 0 for amt in range(1, amount + 1): for coin in coins: if coin <= amt: dp[amt] = min(dp[amt], dp[amt - coin] + 1) return dp[amount] if dp[amount] != float('inf') else -1 coin_change([1, 5, 10, 25], 36) # → 3 coins: 25 + 10 + 1"
+      - paragraph [ref=e2241]:
+        - strong [ref=e2242]: "DS/ML connections:"
+      - list [ref=e2243]:
+        - listitem [ref=e2244]: Viterbi algorithm (HMM decoding in NLP/speech) — DP over sequences
+        - listitem [ref=e2245]: Edit distance / Levenshtein distance — used as a string similarity feature
+        - listitem [ref=e2246]: Optimal tree splitting in decision trees
+        - listitem [ref=e2247]: Sequence alignment in bioinformatics feature engineering
+    - complementary [ref=e2248]:
+      - generic [ref=e2249]: On this page
+      - list [ref=e2250]:
+        - listitem [ref=e2251]:
+          - 'link "Q1: What is the difference between a DataFrame and a Series?" [ref=e2253] [cursor=pointer]':
+            - /url: "#q1-what-is-the-difference-between-a-dataframe-and-a-series"
+        - listitem [ref=e2254]:
+          - 'link "Q2: What is the difference between .loc and .iloc?" [ref=e2256] [cursor=pointer]':
+            - /url: "#q2-what-is-the-difference-between-loc-and-iloc"
+        - listitem [ref=e2257]:
+          - 'link "Q3: How do you handle missing values in pandas?" [ref=e2259] [cursor=pointer]':
+            - /url: "#q3-how-do-you-handle-missing-values-in-pandas"
+        - listitem [ref=e2260]:
+          - 'link "Q4: How does groupby work? What is the split-apply-combine pattern?" [ref=e2262] [cursor=pointer]':
+            - /url: "#q4-how-does-groupby-work-what-is-the-split-apply-combine-pattern"
+        - listitem [ref=e2263]:
+          - 'link "Q5: What is the difference between merge, join, and concat?" [ref=e2265] [cursor=pointer]':
+            - /url: "#q5-what-is-the-difference-between-merge-join-and-concat"
+        - listitem [ref=e2266]:
+          - 'link "Q6: How do you apply a function to a DataFrame? (apply, map, vectorized ops)" [ref=e2268] [cursor=pointer]':
+            - /url: "#q6-how-do-you-apply-a-function-to-a-dataframe-apply-map-vectorized-ops"
+        - listitem [ref=e2269]:
+          - 'link "Q7: What is the difference between a pandas copy and a view?" [ref=e2271] [cursor=pointer]':
+            - /url: "#q7-what-is-the-difference-between-a-pandas-copy-and-a-view"
+        - listitem [ref=e2272]:
+          - 'link "Q8: How do you filter rows in a DataFrame efficiently?" [ref=e2274] [cursor=pointer]':
+            - /url: "#q8-how-do-you-filter-rows-in-a-dataframe-efficiently"
+        - listitem [ref=e2275]:
+          - 'link "Q9: What is the difference between agg, transform, and filter in pandas groupby?" [ref=e2277] [cursor=pointer]':
+            - /url: "#q9-what-is-the-difference-between-agg-transform-and-filter-in-pandas-groupby"
+        - listitem [ref=e2278]:
+          - 'link "Q10: How do window-style transforms work in pandas?" [ref=e2280] [cursor=pointer]':
+            - /url: "#q10-how-do-window-style-transforms-work-in-pandas"
+        - listitem [ref=e2281]:
+          - 'link "Q11: What is the difference between pivot, pivot_table, and crosstab?" [ref=e2283] [cursor=pointer]':
+            - /url: "#q11-what-is-the-difference-between-pivot-pivot_table-and-crosstab"
+        - listitem [ref=e2284]:
+          - 'link "Q12: Why is NumPy faster than pure Python lists for numerical work?" [ref=e2286] [cursor=pointer]':
+            - /url: "#q12-why-is-numpy-faster-than-pure-python-lists-for-numerical-work"
+        - listitem [ref=e2287]:
+          - 'link "Q13: What is broadcasting in NumPy?" [ref=e2289] [cursor=pointer]':
+            - /url: "#q13-what-is-broadcasting-in-numpy"
+        - listitem [ref=e2290]:
+          - 'link "Q14: What is the difference between NumPy views and copies?" [ref=e2292] [cursor=pointer]':
+            - /url: "#q14-what-is-the-difference-between-numpy-views-and-copies"
+        - listitem [ref=e2293]:
+          - 'link "Q15: What is Big O notation? Time complexities of common Python data structures." [ref=e2295] [cursor=pointer]':
+            - /url: "#q15-what-is-big-o-notation-time-complexities-of-common-python-data-structures"
+        - listitem [ref=e2296]:
+          - 'link "Q16: What is a hash map and why is it O(1) lookup?" [ref=e2298] [cursor=pointer]':
+            - /url: "#q16-what-is-a-hash-map-and-why-is-it-o1-lookup"
+        - listitem [ref=e2299]:
+          - 'link "Q17: What is binary search and when do you use it?" [ref=e2301] [cursor=pointer]':
+            - /url: "#q17-what-is-binary-search-and-when-do-you-use-it"
+        - listitem [ref=e2302]:
+          - 'link "Q18: What is the sliding window technique?" [ref=e2304] [cursor=pointer]':
+            - /url: "#q18-what-is-the-sliding-window-technique"
+        - listitem [ref=e2305]:
+          - 'link "Q19: What is the two-pointer technique?" [ref=e2307] [cursor=pointer]':
+            - /url: "#q19-what-is-the-two-pointer-technique"
+        - listitem [ref=e2308]:
+          - 'link "Q20: What is the difference between BFS and DFS?" [ref=e2310] [cursor=pointer]':
+            - /url: "#q20-what-is-the-difference-between-bfs-and-dfs"
+        - listitem [ref=e2311]:
+          - 'link "Q21: What is dynamic programming? When do you use it?" [ref=e2313] [cursor=pointer]':
+            - /url: "#q21-what-is-dynamic-programming-when-do-you-use-it"
+  - button "↑" [ref=e2314] [cursor=pointer]

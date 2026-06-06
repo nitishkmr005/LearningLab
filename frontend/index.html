@@ -154,15 +154,27 @@
     /* ════════════════════════════════════════════════════════════
        SECTION 3 — DOCS & PDFs
     ════════════════════════════════════════════════════════════ */
-    .docs-grid { padding: 0 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-    .pdf-card { background: var(--bg-card); border: 1px solid var(--border); padding: 24px 22px; display: flex; flex-direction: column; gap: 10px; transition: background .15s; position: relative; overflow: hidden; }
+    /* category accordion */
+    .docs-categories { padding: 0 48px; display: flex; flex-direction: column; gap: 3px; }
+    .doc-cat-section { border: 1px solid var(--border); overflow: hidden; }
+    .doc-cat-hd { display: flex; align-items: center; gap: 12px; padding: 13px 20px; cursor: pointer; background: var(--bg-card); user-select: none; transition: background .15s; }
+    .doc-cat-hd:hover { background: var(--bg-hover); }
+    .doc-cat-arrow { font-size: 9px; color: var(--faint); flex-shrink: 0; transition: transform .2s ease; line-height: 1; }
+    .doc-cat-section.open > .doc-cat-hd .doc-cat-arrow { transform: rotate(90deg); }
+    .doc-cat-name { font-family: var(--f-m); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text); flex: 1; }
+    .doc-cat-count { font-family: var(--f-m); font-size: 10px; color: var(--faint); background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; }
+    .doc-cat-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; border-top: 0 solid var(--border); }
+    .doc-cat-section.open > .doc-cat-body { max-height: 2000px; border-top-width: 1px; }
+    .doc-cat-body .docs-grid { padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+
+    /* doc cards */
+    .pdf-card { background: var(--bg); border: 1px solid var(--border); padding: 20px 18px; display: flex; flex-direction: column; gap: 8px; transition: background .15s; position: relative; overflow: hidden; }
     .pdf-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s var(--ease); }
-    .pdf-card:hover { background: var(--bg-hover); }
+    .pdf-card:hover { background: var(--bg-card); }
     .pdf-card:hover::before { transform: scaleY(1); }
-    .pdf-icon { font-size: 28px; line-height: 1; opacity: .7; }
-    .pdf-cat { font-family: var(--f-m); font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--faint); }
-    .pdf-title { font-family: var(--f-d); font-size: 16px; line-height: 1.3; color: var(--text); }
-    .pdf-desc { font-size: 12.5px; line-height: 1.6; color: var(--muted); flex: 1; }
+    .pdf-icon { font-size: 24px; line-height: 1; opacity: .65; }
+    .pdf-title { font-family: var(--f-d); font-size: 15px; line-height: 1.3; color: var(--text); }
+    .pdf-desc { font-size: 12px; line-height: 1.6; color: var(--muted); flex: 1; }
     .pdf-open { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-m); font-size: 9.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); text-decoration: none; margin-top: 4px; transition: opacity .12s; }
     .pdf-open:hover { opacity: .7; }
 
@@ -195,15 +207,15 @@
     /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 1024px) {
       .interview-subjects { grid-template-columns: repeat(3, 1fr); }
-      .docs-grid { grid-template-columns: repeat(2, 1fr); }
+      .doc-cat-body .docs-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 760px) {
-      .main-nav, .section-nav, .hero, .progress-bar-section, .section-hd, .refs-wrap, .interview-wrap, .docs-grid { padding-left: 20px; padding-right: 20px; }
+      .main-nav, .section-nav, .hero, .progress-bar-section, .section-hd, .refs-wrap, .interview-wrap, .docs-categories { padding-left: 20px; padding-right: 20px; }
       .topics-grid { padding-left: 20px; padding-right: 20px; grid-template-columns: 1fr; }
       .tc-num-col { display: none; }
       .section-nav { gap: 2px; overflow-x: auto; }
       .interview-subjects { grid-template-columns: 1fr 1fr; }
-      .docs-grid { grid-template-columns: 1fr; }
+      .doc-cat-body .docs-grid { grid-template-columns: 1fr; }
       .interview-overview-card { flex-direction: column; align-items: flex-start; }
     }
   </style>
@@ -591,88 +603,169 @@
 <section class="section" id="docs">
   <div class="section-hd">
     <h2>Docs &amp; PDFs</h2>
-    <span class="section-meta">10 documents · opens in browser</span>
+    <span class="section-meta">10 documents · 7 categories</span>
   </div>
-  <div class="docs-grid">
+  <div class="docs-categories">
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📝</span>
-      <span class="pdf-cat">Docs</span>
-      <span class="pdf-title">Limitations & Solutions</span>
-      <p class="pdf-desc">Known limitations in the LearningLab project and their workarounds.</p>
-      <a href="../docs/limitations-solutions.md" class="pdf-open" target="_blank">Open Markdown ↗</a>
+    <div class="doc-cat-section open">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">Docs</span>
+        <span class="doc-cat-count">1</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📝</span>
+          <span class="pdf-title">Limitations & Solutions</span>
+          <p class="pdf-desc">Known limitations in the LearningLab project and their workarounds.</p>
+          <a href="doc-limitations-solutions.html" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
     </div>
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📄</span>
-      <span class="pdf-cat">Claude Code</span>
-      <span class="pdf-title">Complete Guide to Building Skills</span>
-      <p class="pdf-desc">Official guide — skill structure, prompts, tool use, and publishing Claude Code skills.</p>
-      <a href="../docs/claude-code/complete-guide-to-building-skill-for-claude.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    <div class="doc-cat-section">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">Claude Code</span>
+        <span class="doc-cat-count">2</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Complete Guide to Building Skills</span>
+          <p class="pdf-desc">Official guide — skill structure, prompts, tool use, and publishing Claude Code skills.</p>
+          <a href="../docs/claude-code/complete-guide-to-building-skill-for-claude.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📝</span>
+          <span class="pdf-title">Skill Building Guide</span>
+          <p class="pdf-desc">Condensed reference for building and publishing Claude Code skills.</p>
+          <a href="doc-skill-building-guide.html" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
     </div>
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📝</span>
-      <span class="pdf-cat">Claude Code</span>
-      <span class="pdf-title">Skill Building Guide</span>
-      <p class="pdf-desc">Condensed reference for building and publishing Claude Code skills.</p>
-      <a href="../docs/claude-code/skill-building-guide.md" class="pdf-open" target="_blank">Open Markdown ↗</a>
+    <div class="doc-cat-section">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">LLM</span>
+        <span class="doc-cat-count">3</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Inference Engineering</span>
+          <p class="pdf-desc">Deep dive into LLM inference optimization — batching strategies, throughput vs latency, hardware.</p>
+          <a href="../docs/llm/inference-engineering.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">LLM Inference</span>
+          <p class="pdf-desc">Comprehensive reference — KV cache, quantization, speculative decoding, deployment patterns.</p>
+          <a href="../docs/llm/llm-inference.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📝</span>
+          <span class="pdf-title">Transformer Internals: What Changed Since 2017</span>
+          <p class="pdf-desc">Deep dive into positional embeddings, normalization, attention variants, and MoE from 2017 to today.</p>
+          <a href="doc-transformer-internals-what-changed-since-2017.html" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
     </div>
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📄</span>
-      <span class="pdf-cat">LLM</span>
-      <span class="pdf-title">Inference Engineering</span>
-      <p class="pdf-desc">Deep dive into LLM inference optimization — batching strategies, throughput vs latency, hardware.</p>
-      <a href="../docs/llm/inference-engineering.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    <div class="doc-cat-section">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">LLM · Fine-tuning</span>
+        <span class="doc-cat-count">1</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Ultimate Guide to Fine-Tuning LLMs</span>
+          <p class="pdf-desc">End-to-end guide — data prep, LoRA/QLoRA, full fine-tuning, RLHF, DPO, production deployment.</p>
+          <a href="../docs/llm/ultimate-guide-to-fine-tuning-llms.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
     </div>
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📄</span>
-      <span class="pdf-cat">LLM</span>
-      <span class="pdf-title">LLM Inference</span>
-      <p class="pdf-desc">Comprehensive reference — KV cache, quantization, speculative decoding, deployment patterns.</p>
-      <a href="../docs/llm/llm-inference.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+    <div class="doc-cat-section">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">Personal</span>
+        <span class="doc-cat-count">1</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Nitish Harsoor — Résumé 2026</span>
+          <p class="pdf-desc">Current résumé — data science, ML engineering, and AI engineering roles.</p>
+          <a href="../docs/personal/nitish-harsoor-resume-2026.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
     </div>
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📝</span>
-      <span class="pdf-cat">LLM</span>
-      <span class="pdf-title">Transformer Internals: What Changed Since 2017</span>
-      <p class="pdf-desc">Deep dive into positional embeddings, normalization, attention variants, and MoE from 2017 to today.</p>
-      <a href="../docs/llm/transformer-internals-what-changed-since-2017.md" class="pdf-open" target="_blank">Open Markdown ↗</a>
+    <div class="doc-cat-section">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">RAG</span>
+        <span class="doc-cat-count">1</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">RAG Evaluation & Testing in Production</span>
+          <p class="pdf-desc">Practical guide to evaluating RAG pipelines — faithfulness, relevance, retrieval metrics.</p>
+          <a href="../docs/rag/rag-evaluation-testing-in-production.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
     </div>
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📄</span>
-      <span class="pdf-cat">LLM · Fine-tuning</span>
-      <span class="pdf-title">Ultimate Guide to Fine-Tuning LLMs</span>
-      <p class="pdf-desc">End-to-end guide — data prep, LoRA/QLoRA, full fine-tuning, RLHF, DPO, production deployment.</p>
-      <a href="../docs/llm/ultimate-guide-to-fine-tuning-llms.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
-    </div>
+    <div class="doc-cat-section">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">Statistics</span>
+        <span class="doc-cat-count">1</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📄</span>
-      <span class="pdf-cat">Personal</span>
-      <span class="pdf-title">Nitish Harsoor — Résumé 2026</span>
-      <p class="pdf-desc">Current résumé — data science, ML engineering, and AI engineering roles.</p>
-      <a href="../docs/personal/nitish-harsoor-resume-2026.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
-    </div>
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Daily Dose of Data Science</span>
+          <p class="pdf-desc">Visual explanations of statistics, ML concepts, and Python techniques — compiled reference PDF.</p>
+          <a href="../docs/statistics/daily-dose-of-ds.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
 
-    <div class="pdf-card">
-      <span class="pdf-icon">📄</span>
-      <span class="pdf-cat">RAG</span>
-      <span class="pdf-title">RAG Evaluation & Testing in Production</span>
-      <p class="pdf-desc">Practical guide to evaluating RAG pipelines — faithfulness, relevance, retrieval metrics.</p>
-      <a href="../docs/rag/rag-evaluation-testing-in-production.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
-    </div>
-
-    <div class="pdf-card">
-      <span class="pdf-icon">📄</span>
-      <span class="pdf-cat">Statistics</span>
-      <span class="pdf-title">Daily Dose of Data Science</span>
-      <p class="pdf-desc">Visual explanations of statistics, ML concepts, and Python techniques — compiled reference PDF.</p>
-      <a href="../docs/statistics/daily-dose-of-ds.pdf" class="pdf-open" target="_blank">Open PDF ↗</a>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -779,6 +872,13 @@
   }, { rootMargin: '-20% 0px -70% 0px' });
 
   sections.forEach(s => s && sectionIO.observe(s));
+
+  /* docs category accordion */
+  document.querySelectorAll('.doc-cat-hd').forEach(hd => {
+    hd.addEventListener('click', () => {
+      hd.closest('.doc-cat-section').classList.toggle('open');
+    });
+  });
 </script>
 </body>
 </html>

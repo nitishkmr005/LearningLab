@@ -572,7 +572,9 @@ def _cat_from_dirpath(dirpath):
     return os.path.basename(dirpath).replace('-', ' ').title()
 
 def scan_docs():
-    """Walk docs/ and return list of (rel_path, category, title, description, ext)."""
+    """Walk docs/ and return list of (rel_path, category, title, description, ext, link_href).
+    For .md files link_href points to the generated doc-{stem}.html in frontend/;
+    for .pdf/.html files it points directly to the source file via ../."""
     docs_dir = os.path.join(PROJECT_ROOT, 'docs')
     entries = []
     for root, dirs, files in os.walk(docs_dir):
@@ -592,7 +594,12 @@ def scan_docs():
                 cat   = _cat_from_dirpath(root)
                 title = _title_from_stem(stem)
                 desc  = ''
-            entries.append((rel, cat, title, desc, ext))
+            # .md files are rendered to styled HTML; others open directly
+            if ext == '.md':
+                link_href = 'doc-' + stem + '.html'
+            else:
+                link_href = '../' + rel.replace(os.sep, '/')
+            entries.append((rel, cat, title, desc, ext, link_href))
     return entries
 
 def _doc_icon(ext):
@@ -602,31 +609,55 @@ def _doc_link_label(ext):
     return 'Open Markdown ↗' if ext == '.md' else 'Open HTML ↗' if ext == '.html' else 'Open PDF ↗'
 
 def gen_docs_section(entries):
-    """Generate the full <section id='docs'>…</section> HTML."""
-    count = len(entries)
-    cards = []
-    for rel_path, cat, title, desc, ext in entries:
-        href = '../' + rel_path.replace(os.sep, '/')
-        icon = _doc_icon(ext)
-        link_label = _doc_link_label(ext)
-        desc_html = f'\n      <p class="pdf-desc">{desc}</p>' if desc else ''
-        cards.append(f"""\
-    <div class="pdf-card">
-      <span class="pdf-icon">{icon}</span>
-      <span class="pdf-cat">{cat}</span>
-      <span class="pdf-title">{title}</span>{desc_html}
-      <a href="{href}" class="pdf-open" target="_blank">{link_label}</a>
+    """Generate the full <section id='docs'>…</section> with category accordion."""
+    # group by category, preserving insertion order
+    cats = {}
+    for rel_path, cat, title, desc, ext, link_href in entries:
+        cats.setdefault(cat, []).append((title, desc, ext, link_href))
+
+    count  = len(entries)
+    n_cats = len(cats)
+
+    cat_sections = []
+    for i, (cat, docs) in enumerate(cats.items()):
+        open_cls = ' open' if i == 0 else ''
+        cards = []
+        for title, desc, ext, link_href in docs:
+            icon      = _doc_icon(ext)
+            desc_html = f'\n          <p class="pdf-desc">{desc}</p>' if desc else ''
+            cards.append(f"""\
+        <div class="pdf-card">
+          <span class="pdf-icon">{icon}</span>
+          <span class="pdf-title">{title}</span>{desc_html}
+          <a href="{link_href}" class="pdf-open" target="_blank">Read ↗</a>
+        </div>""")
+        cards_html = '\n\n'.join(cards)
+        cat_sections.append(f"""\
+    <div class="doc-cat-section{open_cls}">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">{cat}</span>
+        <span class="doc-cat-count">{len(docs)}</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+{cards_html}
+
+        </div>
+      </div>
     </div>""")
-    cards_html = '\n\n'.join(cards)
+
+    sections_html = '\n\n'.join(cat_sections)
     return f"""\
 <section class="section" id="docs">
   <div class="section-hd">
     <h2>Docs &amp; PDFs</h2>
-    <span class="section-meta">{count} document{'s' if count != 1 else ''} · opens in browser</span>
+    <span class="section-meta">{count} document{'s' if count != 1 else ''} · {n_cats} {'categories' if n_cats != 1 else 'category'}</span>
   </div>
-  <div class="docs-grid">
+  <div class="docs-categories">
 
-{cards_html}
+{sections_html}
 
   </div>
 </section>"""
@@ -698,6 +729,43 @@ def build_all(force=False):
 
         generated.append(out_html)
         print(f"  ✓  BUILD {out_html}")
+
+    # build styled HTML for any .md files inside docs/
+    docs_dir = os.path.join(PROJECT_ROOT, 'docs')
+    for root, dirs, files in os.walk(docs_dir):
+        dirs.sort()
+        for fname in sorted(files):
+            if not fname.endswith('.md') or fname.startswith('.'):
+                continue
+            stem     = os.path.splitext(fname)[0]
+            md_path  = os.path.join(root, fname)
+            out_html = 'doc-' + stem + '.html'
+            out_path = os.path.join(BASE_DIR, out_html)
+
+            if not force and os.path.exists(out_path):
+                if os.path.getmtime(md_path) <= os.path.getmtime(out_path):
+                    uptodate.append(out_html)
+                    continue
+
+            with open(md_path, 'r', encoding='utf-8') as f:
+                raw = f.read()
+
+            meta     = DOCS_META.get(stem)
+            title    = meta[1] if meta else _title_from_stem(stem)
+            img_base = ('../' + os.path.relpath(root, PROJECT_ROOT).replace(os.sep, '/') + '/').replace('//', '/')
+
+            html_out = HTML_TEMPLATE.format(
+                title     = title,
+                style     = STYLE,
+                b64       = encode_md(raw),
+                back_link = 'index.html#docs',
+                img_base  = img_base,
+            )
+            with open(out_path, 'w', encoding='utf-8') as f:
+                f.write(html_out)
+
+            generated.append(out_html)
+            print(f"  ✓  BUILD {out_html}  (doc)")
 
     # rebuild docs section in index.html whenever we run
     update_index_docs()

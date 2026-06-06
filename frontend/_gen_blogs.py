@@ -15,7 +15,8 @@ It compares modification times and only regenerates changed files.
 Use --force to rebuild everything regardless.
 ──────────────────────────────────────────────────────────────────────────────
 """
-import os, sys, base64, time, json, re
+import os, sys, base64, time, json, re, shutil
+import html as html_lib
 
 BASE_DIR     = os.path.dirname(os.path.abspath(__file__))   # frontend/
 PROJECT_ROOT = os.path.dirname(BASE_DIR)                    # repo root
@@ -138,6 +139,9 @@ STYLE = r"""
 
   article hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
   article img { max-width: 100%; margin: 14px 0; }
+  .missing-image { border: 1px dashed var(--border); background: var(--bg-mid); color: var(--muted); padding: 14px 16px; margin: 16px 0; font-size: 13px; }
+  .missing-image figcaption { font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .missing-image code { display: inline-block; margin-top: 4px; color: var(--muted); word-break: break-all; }
 
   /* ── math ── */
   .math-block  { overflow-x: auto; padding: 12px 0; text-align: center; margin: 20px 0; }
@@ -297,6 +301,19 @@ function decodeB64(b64) {{
 /* ── Math: protect $..$ and $$...$$ before marked processes them ── */
 function extractMath(src) {{
   const store = [];
+  const codeStore = [];
+
+  src = src.replace(/```[\\s\\S]*?```/g, function(code) {{
+    const token = '@@LLCODEBLK_' + codeStore.length + '@@';
+    codeStore.push({{ token: token, code: code }});
+    return token;
+  }});
+
+  src = src.replace(/`[^`\\n]*`/g, function(code) {{
+    const token = '@@LLCODEINL_' + codeStore.length + '@@';
+    codeStore.push({{ token: token, code: code }});
+    return token;
+  }});
 
   /* block math  $$...$$ */
   src = src.replace(/[$][$]([\\s\\S]+?)[$][$]/g, function(_, math) {{
@@ -310,6 +327,10 @@ function extractMath(src) {{
     const token = '@@LLMATHINL_' + store.length + '@@';
     store.push({{ math: math, block: false, token: token }});
     return token;
+  }});
+
+  codeStore.forEach(function(entry) {{
+    src = src.split(entry.token).join(entry.code);
   }});
 
   return {{ src: src, store: store }};
@@ -754,6 +775,49 @@ def gen_scripts_config():
     print(f"  ✓  SCRIPTS CONFIG — {total} script(s) in {len(topics)} topic(s)")
 
 # ─────────────────────────────────────────────────────────────────────────────
+# ASSET PREP
+# ─────────────────────────────────────────────────────────────────────────────
+IMG_MD_RE = re.compile(r'!\[([^\]]*)\]\(([^)\s]+)(?:\s+["\'][^"\']*["\'])?\)')
+
+def _copy_asset(src_path, web_path):
+    """Copy a local asset into frontend/ at the same URL path used by HTML."""
+    dest_path = os.path.join(BASE_DIR, web_path.lstrip('/'))
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    if not os.path.exists(dest_path) or os.path.getmtime(src_path) > os.path.getmtime(dest_path):
+        shutil.copy2(src_path, dest_path)
+
+def prepare_markdown_assets(raw, src_dir, subdir):
+    """Copy image assets that exist; replace missing local assets with a note."""
+    subdir = subdir.strip('/.')
+
+    def repl(match):
+        alt, href = match.group(1), match.group(2)
+        if re.match(r'^(https?:)?//|^data:|^#', href):
+            return match.group(0)
+
+        if href.startswith('/'):
+            local_path = os.path.join(PROJECT_ROOT, href.lstrip('/'))
+            web_path = href.lstrip('/')
+        else:
+            local_path = os.path.normpath(os.path.join(src_dir, href))
+            web_path = os.path.normpath(os.path.join(subdir, href)).replace(os.sep, '/') if subdir else href
+
+        if os.path.exists(local_path):
+            _copy_asset(local_path, web_path)
+            return match.group(0)
+
+        safe_alt = html_lib.escape(alt or 'Image')
+        safe_href = html_lib.escape(href)
+        return (
+            f'<figure class="missing-image" role="note">'
+            f'<figcaption>Image unavailable: {safe_alt}</figcaption>'
+            f'<code>{safe_href}</code>'
+            f'</figure>'
+        )
+
+    return IMG_MD_RE.sub(repl, raw)
+
+# ─────────────────────────────────────────────────────────────────────────────
 # BUILD FUNCTION
 # ─────────────────────────────────────────────────────────────────────────────
 def build_all(force=False):
@@ -777,10 +841,11 @@ def build_all(force=False):
 
         with open(md_path, 'r', encoding='utf-8') as f:
             raw = f.read()
+        raw = prepare_markdown_assets(raw, src_dir, subdir)
 
-        # img_base: relative URL from frontend/ to the source md directory
-        # e.g. subdir="20-interview/Target" → "../20-interview/Target/"
-        img_base = ('../' + subdir.rstrip('/') + '/').replace('//', '/')
+        # img_base: URL path inside frontend/, where copied source assets live.
+        # e.g. subdir="20-interview/Target" → "20-interview/Target/"
+        img_base = (subdir.rstrip('/') + '/').replace('//', '/')
 
         html_out = HTML_TEMPLATE.format(
             title     = title,
@@ -818,7 +883,9 @@ def build_all(force=False):
 
             meta     = DOCS_META.get(stem)
             title    = meta[1] if meta else _title_from_stem(stem)
-            img_base = ('../' + os.path.relpath(root, PROJECT_ROOT).replace(os.sep, '/') + '/').replace('//', '/')
+            rel_root = os.path.relpath(root, PROJECT_ROOT).replace(os.sep, '/')
+            raw      = prepare_markdown_assets(raw, root, rel_root)
+            img_base = (rel_root + '/').replace('//', '/')
 
             html_out = HTML_TEMPLATE.format(
                 title     = title,

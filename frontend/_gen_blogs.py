@@ -854,6 +854,12 @@ def prepare_markdown_assets(raw, src_dir, subdir):
             local_path = os.path.normpath(os.path.join(src_dir, href))
             web_path = 'images/' + os.path.basename(href)
 
+        # fallback: check frontend/images/ if not found next to the markdown file
+        if not os.path.exists(local_path):
+            fallback = os.path.join(BASE_DIR, 'images', os.path.basename(href))
+            if os.path.exists(fallback):
+                local_path = fallback
+
         if os.path.exists(local_path):
             _copy_asset(local_path, web_path)
             return match.group(0)

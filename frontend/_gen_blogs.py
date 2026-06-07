@@ -852,7 +852,7 @@ def prepare_markdown_assets(raw, src_dir, subdir):
             web_path = href.lstrip('/')
         else:
             local_path = os.path.normpath(os.path.join(src_dir, href))
-            web_path = os.path.normpath(os.path.join(subdir, href)).replace(os.sep, '/') if subdir else href
+            web_path = 'images/' + os.path.basename(href)
 
         if os.path.exists(local_path):
             _copy_asset(local_path, web_path)
@@ -895,9 +895,8 @@ def build_all(force=False):
             raw = f.read()
         raw = prepare_markdown_assets(raw, src_dir, subdir)
 
-        # img_base: URL path inside frontend/, where copied source assets live.
-        # e.g. subdir="20-interview/Target" → "20-interview/Target/"
-        img_base = (subdir.rstrip('/') + '/').replace('//', '/')
+        # img_base: all images are centralised in frontend/images/
+        img_base = 'images/'
 
         html_out = HTML_TEMPLATE.format(
             title     = title,
@@ -937,7 +936,7 @@ def build_all(force=False):
             title    = meta[1] if meta else _title_from_stem(stem)
             rel_root = os.path.relpath(root, PROJECT_ROOT).replace(os.sep, '/')
             raw      = prepare_markdown_assets(raw, root, rel_root)
-            img_base = (rel_root + '/').replace('//', '/')
+            img_base = 'images/'
 
             html_out = HTML_TEMPLATE.format(
                 title     = title,

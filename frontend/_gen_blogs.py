@@ -620,7 +620,7 @@ DOCS_META = {
         "Deep dive into LLM inference optimization — batching strategies, throughput vs latency, hardware."),
     "llm-inference":                        ("LLM", "LLM Inference",
         "Comprehensive reference — KV cache, quantization, speculative decoding, deployment patterns."),
-    "ultimate-guide-to-fine-tuning-llms":   ("LLM · Fine-tuning", "Ultimate Guide to Fine-Tuning LLMs",
+    "ultimate-guide-to-fine-tuning-llms":   ("LLM", "Ultimate Guide to Fine-Tuning LLMs",
         "End-to-end guide — data prep, LoRA/QLoRA, full fine-tuning, RLHF, DPO, production deployment."),
     "rag-evaluation-testing-in-production": ("RAG", "RAG Evaluation & Testing in Production",
         "Practical guide to evaluating RAG pipelines — faithfulness, relevance, retrieval metrics."),

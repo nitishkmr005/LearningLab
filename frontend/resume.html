@@ -9,7 +9,7 @@
   html, body { margin: 0; padding: 0; background: #e9e9ec; }
 
   :root {
-    --blue:   #2b5c9e;   /* company / project / section-link accent */
+    --blue:   #1f4e79;   /* company / project / section-link accent (navy) */
     --ink:    #2a2a2a;   /* body text */
     --dark:   #1a1a1a;   /* name & section titles */
     --grey:   #555;      /* contact + secondary */
@@ -33,7 +33,7 @@
   /* ── header ── */
   .name { text-align: center; font-family: var(--serif); font-weight: 700; font-size: 20pt; letter-spacing: .6px; color: var(--dark); }
   .role { text-align: center; color: var(--blue); font-size: 11pt; margin-top: 3px; }
-  .contact { text-align: center; color: var(--grey); font-size: 8.4pt; margin-top: 7px; }
+  .contact { text-align: center; color: var(--grey); font-size: 9pt; margin-top: 7px; }
   .contact a { color: var(--grey); text-decoration: none; }
   .contact .sep { margin: 0 6px; color: #999; }
 
@@ -57,6 +57,7 @@
 
   ul { margin: 3px 0 4px; padding-left: 15px; }
   li { margin: 2.5px 0; break-inside: avoid; }
+  li::marker { color: var(--blue); }
   strong { font-weight: 700; color: #1e1e1e; }
 
   /* ── skills ── */
@@ -68,8 +69,8 @@
 
   /* ── awards grid ── */
   .awards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px 20px; margin-top: 6px; break-inside: avoid; }
-  .award { display: flex; gap: 6px; align-items: flex-start; }
-  .award .ic { color: var(--blue); flex-shrink: 0; line-height: 1.3; }
+  .award { display: flex; gap: 7px; align-items: flex-start; }
+  .award .ic { color: var(--blue); flex-shrink: 0; font-size: 7pt; line-height: 1.9; }
 
   /* ── floating toolbar (screen only) ── */
   .toolbar { position: fixed; top: 18px; right: 18px; z-index: 10; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
@@ -228,10 +229,10 @@
   <!-- ══ Awards ══ -->
   <div class="sec"><h2>Awards</h2></div>
   <div class="awards">
-    <div class="award"><span class="ic">🏅</span><span>EIA Award 2025 - AgentBot 3.0 development and GenAI Capabilities</span></div>
-    <div class="award"><span class="ic">🏅</span><span>Eureka Award H2 2024 - Charter Champion category for Workplace Seminar Recommendation</span></div>
-    <div class="award"><span class="ic">🏅</span><span>EIA Award 2024 - AI model migration from CWE to EDL (WPS &amp; Helios Collections)</span></div>
-    <div class="award"><span class="ic">🏅</span><span>Excellent Performer 2025 - Year End Performance Rating</span></div>
+    <div class="award"><span class="ic">◆</span><span>EIA Award 2025 - AgentBot 3.0 development and GenAI Capabilities</span></div>
+    <div class="award"><span class="ic">◆</span><span>Eureka Award H2 2024 - Charter Champion category for Workplace Seminar Recommendation</span></div>
+    <div class="award"><span class="ic">◆</span><span>EIA Award 2024 - AI model migration from CWE to EDL (WPS &amp; Helios Collections)</span></div>
+    <div class="award"><span class="ic">◆</span><span>Excellent Performer 2025 - Year End Performance Rating</span></div>
   </div>
 
   <!-- ══ Education ══ -->

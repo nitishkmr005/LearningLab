@@ -234,14 +234,14 @@
   <div class="entry first">
     <div class="row"><span class="org"><a href="https://github.com/nitishkmr005/neuroTalk">NeuroTalk — Real-Time Voice Assistant</a></span><a class="repo" href="https://github.com/nitishkmr005/neuroTalk">github.com/nitishkmr005/neuroTalk</a></div>
     <ul>
-      <li>Built a <strong>real-time voice-assistant pipeline</strong> around open-source lightweight models — <strong>speech-to-text → LLM → text-to-speech</strong> with interruption handling.</li>
+      <li>Built a fully-local <strong>real-time voice assistant</strong> — <strong>faster-whisper</strong> (STT) → <strong>gemma3 via Ollama</strong> (LLM) → <strong>Kokoro/Chatterbox</strong> (TTS) over WebSockets, with streaming partial transcripts, first-sentence TTS overlap, VAD, and barge-in interruption handling for low latency.</li>
     </ul>
   </div>
 
   <div class="entry">
     <div class="row"><span class="org"><a href="https://github.com/nitishkmr005/PrismDocs">PrismDocs — Multi-Modal Document Generator</a></span><a class="repo" href="https://github.com/nitishkmr005/PrismDocs">github.com/nitishkmr005/PrismDocs</a></div>
     <ul>
-      <li>Built a <strong>LangGraph-orchestrated multi-modal pipeline</strong> that transforms research papers, web articles, and documents into <strong>PDFs, presentations, mind maps, podcasts, and FAQs</strong>.</li>
+      <li>Built a <strong>LangGraph</strong> (27-node) multi-modal document generator converting papers and articles into <strong>PDFs, slides, mind maps, podcasts, and FAQs</strong> — <strong>multi-provider LLMs</strong> (Gemini 2.5, Claude, GPT-4o-mini) with fallback, FastAPI <strong>SSE streaming</strong>, structured JSON outputs, content-hash caching, and <strong>Opik</strong> observability.</li>
     </ul>
   </div>
 

@@ -695,12 +695,9 @@ def gen_docs_section(entries):
     count  = len(entries)
     n_cats = len(cats)
 
-    # open the first category by default, but keep "Claude Code" collapsed
-    default_open = next((c for c in cats if c != 'Claude Code'), None)
-
     cat_sections = []
     for i, (cat, docs) in enumerate(cats.items()):
-        open_cls = ' open' if cat == default_open else ''
+        open_cls = ''  # all categories collapsed by default
         cards = []
         for title, desc, ext, link_href in docs:
             icon      = _doc_icon(ext)

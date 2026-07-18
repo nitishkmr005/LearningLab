@@ -629,11 +629,18 @@ DOCS_META = {
     "complete-guide-to-building-skill-for-claude": ("Claude Code", "Complete Guide to Building Skills",
         "Official guide — skill structure, prompts, tool use, and publishing Claude Code skills."),
     "nitish-harsoor-resume-2026":           ("Personal", "Nitish Harsoor — Résumé 2026",
-        "Current résumé — data science, ML engineering, and AI engineering roles."),
+        "Current résumé — data science, ML & AI engineering. Open the HTML version and Save as PDF for a pixel-matching export."),
     "transformer-internals-what-changed-since-2017": ("LLM", "Transformer Internals: What Changed Since 2017",
         "Deep dive into positional embeddings, normalization, attention variants, and MoE from 2017 to today."),
     "skill-building-guide":                 ("Claude Code", "Skill Building Guide",
         "Condensed reference for building and publishing Claude Code skills."),
+}
+
+# Stems that have a hand-built standalone page in frontend/ — the docs card
+# links to this page instead of the raw source (e.g. an HTML résumé you can
+# print to PDF). Key = filename stem (no ext), value = frontend/ page.
+DOCS_HTML_PAGE = {
+    "nitish-harsoor-resume-2026": "resume.html",
 }
 
 SKIP_FILES = {'.DS_Store', 'bookmarks_24_05_2026.html'}
@@ -671,8 +678,10 @@ def scan_docs():
                 cat   = _cat_from_dirpath(root)
                 title = _title_from_stem(stem)
                 desc  = ''
-            # .md → rendered HTML page; others → GitHub blob viewer
-            if ext == '.md':
+            # standalone frontend page → .md rendered page → GitHub blob viewer
+            if stem in DOCS_HTML_PAGE:
+                link_href = DOCS_HTML_PAGE[stem]
+            elif ext == '.md':
                 link_href = 'doc-' + stem + '.html'
             else:
                 link_href = GITHUB_BLOB + rel.replace(os.sep, '/')

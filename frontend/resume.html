@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nitish Harsoor — Résumé</title>
+<style>
+  /* ── Print setup: A4-ish Letter page, exact colors ── */
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; padding: 0; background: #e9e9ec; }
+
+  :root {
+    --blue:   #2b5c9e;   /* company / project / section-link accent */
+    --ink:    #2a2a2a;   /* body text */
+    --dark:   #1a1a1a;   /* name & section titles */
+    --grey:   #555;      /* contact + secondary */
+    --rule:   #c3c3c8;   /* hairlines */
+    --serif:  Georgia, 'Times New Roman', 'Liberation Serif', serif;
+    --sans:   'Calibri', 'Segoe UI', 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif;
+  }
+
+  body { font-family: var(--sans); color: var(--ink); font-size: 9.6pt; line-height: 1.42; }
+
+  /* the printable sheet */
+  .sheet {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 24px auto;
+    padding: 13mm 15mm;
+    background: #fff;
+    box-shadow: 0 2px 18px rgba(0,0,0,.18);
+  }
+
+  /* ── header ── */
+  .name { text-align: center; font-family: var(--serif); font-weight: 700; font-size: 20pt; letter-spacing: .6px; color: var(--dark); }
+  .role { text-align: center; color: var(--blue); font-size: 11pt; margin-top: 3px; }
+  .contact { text-align: center; color: var(--grey); font-size: 8.4pt; margin-top: 7px; }
+  .contact a { color: var(--grey); text-decoration: none; }
+  .contact .sep { margin: 0 6px; color: #999; }
+
+  /* ── section header: centered title on a full-width rule ── */
+  .sec { display: flex; align-items: center; margin: 13px 0 7px; }
+  .sec::before, .sec::after { content: ''; flex: 1; border-top: 1px solid var(--rule); }
+  .sec h2 { font-family: var(--serif); font-weight: 600; font-size: 13pt; color: var(--dark); padding: 0 14px; white-space: nowrap; }
+
+  /* ── entries (experience / projects / education) ── */
+  .entry { border-top: 1px solid var(--rule); padding-top: 6px; margin-top: 6px; break-inside: avoid; }
+  .entry.first { border-top: none; padding-top: 0; margin-top: 0; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .org  { color: var(--blue); font-weight: 700; font-size: 10.5pt; }
+  .loc  { color: var(--ink); font-size: 9pt; white-space: nowrap; }
+  .role2 { color: #222; font-size: 9.6pt; }
+  .date  { color: var(--ink); font-size: 9pt; white-space: nowrap; }
+  .desc  { color: #333; margin: 3px 0; }
+
+  ul { margin: 3px 0 4px; padding-left: 15px; }
+  li { margin: 2.5px 0; }
+  strong { font-weight: 700; color: #1e1e1e; }
+
+  /* ── skills ── */
+  .skill { margin-top: 6px; }
+  .skill:first-child { margin-top: 2px; }
+  .skill-cat { color: var(--blue); font-weight: 700; }
+  .skill-cat .dia { color: var(--blue); margin-right: 5px; font-size: 8pt; }
+  .skill-inline .skill-cat { display: inline; }
+
+  /* ── awards grid ── */
+  .awards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px 20px; margin-top: 6px; break-inside: avoid; }
+  .award { display: flex; gap: 6px; align-items: flex-start; }
+  .award .ic { color: var(--blue); flex-shrink: 0; line-height: 1.3; }
+
+  /* ── floating print button (screen only) ── */
+  .print-bar { position: fixed; top: 18px; right: 18px; z-index: 10; }
+  .print-btn {
+    font-family: var(--sans); font-size: 12px; letter-spacing: .3px;
+    background: var(--blue); color: #fff; border: none; padding: 9px 16px;
+    border-radius: 6px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,.2);
+  }
+  .print-btn:hover { background: #21497e; }
+
+  /* ── print rules ── */
+  @page { size: letter; margin: 13mm 15mm; }
+  @media print {
+    html, body { background: #fff; }
+    .sheet { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
+    .print-bar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+  <button class="print-btn" onclick="window.print()">⭳ Save as PDF</button>
+</div>
+
+<div class="sheet">
+
+  <!-- ══ Header ══ -->
+  <div class="name">NITISH HARSOOR</div>
+  <div class="role">Data Scientist</div>
+  <div class="contact">
+    9663956073<span class="sep">•</span>
+    <a href="mailto:nharsoor048@gmail.com">nharsoor048@gmail.com</a><span class="sep">•</span>
+    <a href="https://www.linkedin.com/in/nitish-harsoor/">https://www.linkedin.com/in/nitish-harsoor/</a><span class="sep">•</span>
+    <a href="https://nitishkmr005.github.io/">https://nitishkmr005.github.io/</a><span class="sep">•</span>
+    Bangalore
+  </div>
+
+  <!-- ══ Summary ══ -->
+  <div class="sec"><h2>Summary</h2></div>
+  <p class="desc">Data Scientist specializing in <strong>Generative AI, LLM evaluation, recommender systems, and NLP</strong>. Proven expertise in building <strong>production-grade ML and LLM systems</strong> end-to-end—from problem framing and model development to deployment and monitoring. Delivered <strong>$197M+ business impact</strong>, enabled <strong>64,600+ incremental user engagements</strong>, and shipped multiple <strong>ARB-approved enterprise model deployments</strong> in large-scale financial services environments.</p>
+
+  <!-- ══ Skills and Certifications ══ -->
+  <div class="sec"><h2>Skills and Certifications</h2></div>
+  <div class="skill">
+    <span class="skill-cat"><span class="dia">◆</span>Generative AI &amp; LLMs:</span>
+    Large Language Models (LLM), LLM as a Judge, LLM Evaluation, LLM Leaderboard, RAG, Prompt Engineering, Chain Of Thought Prompting, Reflection Agents, Information Extraction, Voice Agents, Speech to Text (STT), Text to Speech (TTS), T5 Fine-tuning, LangChain, LangGraph, FAISS, Vector Databases, Transformers
+  </div>
+  <div class="skill">
+    <span class="skill-cat"><span class="dia">◆</span>Machine Learning &amp; NLP:</span>
+    Machine Learning, Recommender Systems, Two-Tower, LightGBM, XGBoost, Neural Networks, BERT, Feature Engineering, Model Explainability (SHAP), Fairness and Bias Analysis (Jurity), Scikit-Learn, Pandas, Feature Selection, Sentence Transformers, Precision/Recall/F1/CTR Metrics, Lift Report Creation, A/B Testing
+  </div>
+  <div class="skill">
+    <span class="skill-cat"><span class="dia">◆</span>Engineering &amp; MLOps:</span>
+    Python, PyTorch, Streamlit, FastAPI, Pydantic, Docker, Linux, AWS SageMaker, Bedrock, S3, Snowflake, SQL, SQL Joins, SQL CTE, SQL Window Functions, Tableau
+  </div>
+  <div class="skill skill-inline">
+    <span class="skill-cat"><span class="dia">◆</span>Coursera Certifications:</span>
+    Natural Language Processing Specialization, Deep Learning Specialization, Machine Learning by Andrew Ng
+  </div>
+
+  <!-- ══ Experience ══ -->
+  <div class="sec"><h2>Experience</h2></div>
+
+  <div class="entry first">
+    <div class="row"><span class="org">Fidelity Investments</span><span class="loc">Bangalore, India</span></div>
+    <div class="row"><span class="role2">Data Scientist</span><span class="date">11/2022 - Present</span></div>
+    <p class="desc">Fidelity Investments is a global financial services leader managing $5.8T in assets, offering brokerage, mutual funds, retirement services, and wealth management solutions.</p>
+    <ul>
+      <li>Developed the <strong>Workplace Seminar Recommendation System</strong> for over 15 million participants using two stage architecture utilizing LightGBM and neural network, delivering a <strong>2.3× lift in event attendance, adding 64,600+ participants</strong>, and generating over <strong>$197 Million in incremental P/W flows</strong>.</li>
+      <li>Led AgentBot 3.0, building an enterprise GenAI pipeline where LLM-extracted structured JSON from call transcripts powered downstream pre-call insights, in-call assistance, and post-call rep note/email generation—<strong>driving $32M annual cost savings, 44% reduction in after-call work, and 1% increased appointment rate</strong>.</li>
+      <li>Deployed the Helios Collections recommender to production using LinGreedy contextual multi-armed bandits, modeling each collection as an arm and learning context-aware rewards via ridge regression, resulting in a <strong>2.13× lift in CTR@1</strong> over the baseline in the Helios mobile app.</li>
+      <li>Fine-tuned T5 transformer models for <strong>email summarization</strong> on noisy email chains, combining regex-based parsing and embedding-driven noise filtering to isolate salient content and improve summary quality.</li>
+      <li>Implemented <strong>model interpretability and fairness evaluation</strong> for every recommender systems using <strong>SHAP and Jurity libraries</strong>, improving transparency, reliability, and bias detection.</li>
+      <li>Built an end-to-end <strong>voice agent pipeline</strong>—covering <strong>speech-to-text, turn detection, LLM-based tool calling, and text-to-speech</strong>—as part of a Fidelity GenAI hackathon initiative.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="row"><span class="org">Fidelity Investments</span><span class="loc">Bangalore, India</span></div>
+    <div class="row"><span class="role2">Lead Systems Analyst</span><span class="date">04/2021 - 10/2022</span></div>
+    <ul>
+      <li>Built a retrieval-and-re-ranker–based neural search engine for the Gurubar tech support app, enabling associates to self-resolve laptop issues and <strong>reducing ticket volume by ~40%</strong> through relevant KB article recommendations.</li>
+      <li>Built enterprise-grade ML systems including a holiday incident classifier and BERT-based clustering engine, automating manual ticket review and achieving <strong>90%+ accuracy</strong> in identifying repeated incidents during peak periods and enabling proactive prevention of recurring incidents.</li>
+      <li>Developed ML-driven ticket routing models (XGBoost + BERT NLP) that achieved <strong>85%+ assignment accuracy</strong>, reducing MTTR by routing tickets to correct teams automatically.</li>
+      <li>Architected and deployed to production Data Intelligence Platform serving 720+ users who can view all dashboards in one place, implementing Dockerized infrastructure, NGINX load handling concurrent connections and enterprise-grade SSO/SSL security.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="row"><span class="org">Fidelity Investments</span><span class="loc">Bangalore, India</span></div>
+    <div class="row"><span class="role2">Software Engineer</span><span class="date">04/2016 - 04/2021</span></div>
+    <ul>
+      <li>Worked as a Software Engineer on the Purchase and Sales (P&amp;S) application, a trade processing system that captures trade data from multiple feeds such as order-entry systems, validates and processes trades, and delivers formatted transactions to back-office systems via a dispatcher component. The system also manages trade exceptions, supports reprocessing of failed transactions, and provides functionality to cancel or correct trades.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="row"><span class="org">IBM</span><span class="loc">Bangalore, India</span></div>
+    <div class="row"><span class="role2">System Engineer</span><span class="date">04/2013 - 04/2016</span></div>
+    <p class="desc">IBM (International Business Machines Corporation) is a leading American multinational technology company that provides hybrid cloud and AI solutions, software, services, and mainframe computers.</p>
+    <ul>
+      <li>Worked in Universal Payment System (UPS) application, supporting large-scale cheque issuance, ACH payments, and generation of EOP/EOB statements for healthcare providers and members.</li>
+    </ul>
+  </div>
+
+  <!-- ══ Projects ══ -->
+  <div class="sec"><h2>Projects</h2></div>
+
+  <div class="entry first">
+    <div class="row"><span class="org">AgentBot 3.0 - Streamline Contact Centre Associate Task using GenAI Capabilities</span><span class="date">10/2025</span></div>
+    <p class="desc">Streamline contact centre associate task and routines by automating experiences at different stages of the call (pre-call, during, after) using state-of-the-art LLM Models.</p>
+    <ul>
+      <li>Designed a two-stage GenAI pipeline where <strong>structured JSON extraction</strong> served as a data foundation for downstream rep note, email, and pre-call insight generation.</li>
+      <li>Built an <strong>LLM-as-a-Judge evaluation framework</strong> with attribute-level precision/recall, missing vs incorrect signals, and model leaderboards for systematic comparison.</li>
+      <li>Built a <strong>production-grade LLM validation platform</strong> using streamlit for validating <strong>150+ extracted attributes across 2,000+ calls</strong>, enabling hallucination detection, missing-field analysis, real-time dashboards, and automated prompt optimization—replacing months of manual QA.</li>
+      <li>Leveraged <strong>Claude 3.5 Sonnet</strong> to extract <strong>150+ structured attributes</strong> from call transcripts, enforcing output correctness through <strong>Pydantic-based JSON schema validation</strong>.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="row"><span class="org">Contextual Multi-Armed Bandit Recommender for Investment Collections</span><span class="date">09/2024</span></div>
+    <p class="desc">The goal of this project was to personalize the <strong>Collections</strong> component in the Helios mobile app to increase customer engagement, where each collection represents an <strong>investment idea</strong> composed of thematically similar underlying products.</p>
+    <ul>
+      <li>Implemented a <strong>LinGreedy contextual multi-armed bandit</strong>, modeling each investment collection as an arm with <strong>per-arm ridge regression</strong>.</li>
+      <li>We utilized <strong>Mab2Rec</strong> library to evaluate linear policies from MABWiser and benchmarked these against non-contextual random policies.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="row"><span class="org">Workplace Seminar Recommendation</span><span class="date">11/2023</span></div>
+    <p class="desc">The objective was to identify the <strong>most relevant seminar topics for each participant</strong> and aggregate these recommendations at the <strong>plan-sponsor level</strong>, enabling targeted and personalized communication campaigns.</p>
+    <ul>
+      <li>Designed two stage modeling approach - Stage1 predict the likelihood of a participant to attend any seminar and Stage2 predict the likelihood of a participant to attend a particular theme.</li>
+      <li>Implemented a <strong>LightGBM binary classifier</strong> for Stage 1 and a <strong>neural network–based multi-label classifier</strong> for Stage 2, trained on <strong>two years of historical attendance data</strong> and validated on <strong>out-of-time datasets</strong> with consistent performance.</li>
+    </ul>
+  </div>
+
+  <!-- ══ Awards ══ -->
+  <div class="sec"><h2>Awards</h2></div>
+  <div class="awards">
+    <div class="award"><span class="ic">🏅</span><span>EIA Award 2025 - AgentBot 3.0 development and GenAI Capabilities</span></div>
+    <div class="award"><span class="ic">🏅</span><span>Eureka Award H2 2024 - Charter Champion category for Workplace Seminar Recommendation</span></div>
+    <div class="award"><span class="ic">🏅</span><span>EIA Award 2024 - AI model migration from CWE to EDL (WPS &amp; Helios Collections)</span></div>
+    <div class="award"><span class="ic">🏅</span><span>Excellent Performer 2025 - Year End Performance Rating</span></div>
+  </div>
+
+  <!-- ══ Education ══ -->
+  <div class="sec"><h2>Education</h2></div>
+  <div class="entry first">
+    <div class="row"><span class="org">PES Institute of Technology - Bangalore</span><span class="date">08/2010 - 10/2012</span></div>
+    <div class="row"><span class="role2">M. Tech in Digital Electronics</span></div>
+  </div>
+
+</div>
+</body>
+</html>

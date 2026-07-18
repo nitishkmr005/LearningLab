@@ -698,19 +698,24 @@ def _doc_icon(ext):
 def _doc_link_label(ext):
     return 'Open Markdown ↗' if ext == '.md' else 'Open HTML ↗' if ext == '.html' else 'Open PDF ↗'
 
-def gen_docs_section(entries):
-    """Generate the full <section id='docs'>…</section> with category accordion."""
+def _meta_line(count, n_cats):
+    """'8 documents · 4 categories'"""
+    return (f"{count} document{'s' if count != 1 else ''} · "
+            f"{n_cats} {'categories' if n_cats != 1 else 'category'}")
+
+def gen_cat_sections(entries, open_all=False):
+    """Build the category accordion (<div class='doc-cat-section'>…) as HTML.
+
+    open_all=True renders every category expanded (used on the standalone
+    docs.html library page); False leaves them collapsed."""
     # group by category, preserving insertion order
     cats = {}
     for rel_path, cat, title, desc, ext, link_href in entries:
         cats.setdefault(cat, []).append((title, desc, ext, link_href))
 
-    count  = len(entries)
-    n_cats = len(cats)
-
+    open_cls = ' open' if open_all else ''
     cat_sections = []
-    for i, (cat, docs) in enumerate(cats.items()):
-        open_cls = ''  # all categories collapsed by default
+    for cat, docs in cats.items():
         cards = []
         for title, desc, ext, link_href in docs:
             icon      = _doc_icon(ext)
@@ -738,16 +743,31 @@ def gen_docs_section(entries):
       </div>
     </div>""")
 
-    sections_html = '\n\n'.join(cat_sections)
+    return '\n\n'.join(cat_sections)
+
+def gen_docs_section(entries):
+    """Compact homepage docs section: black banner + link to the full library.
+
+    The document list itself lives on the standalone docs.html page so the
+    homepage stays short as the library grows."""
+    count  = len(entries)
+    n_cats = len({cat for _, cat, *_ in entries})
     return f"""\
 <section class="section" id="docs">
   <div class="section-hd">
     <h2>Docs &amp; PDFs</h2>
-    <span class="section-meta">{count} document{'s' if count != 1 else ''} · {n_cats} {'categories' if n_cats != 1 else 'category'}</span>
+    <span class="section-meta">{_meta_line(count, n_cats)}</span>
   </div>
   <div class="docs-categories">
 
-{sections_html}
+    <div class="section-banner" data-wm="PDF">
+      <div class="ioc-left">
+        <p class="ioc-eyebrow">Reference Library</p>
+        <h3 class="ioc-title">Docs &amp; PDFs</h3>
+        <p class="ioc-desc">Curated PDFs and long-form guides across Claude Code, LLMs, RAG, and statistics — grouped by topic. Open the library to browse every document.</p>
+      </div>
+      <a href="docs.html" class="ioc-btn">Open Document Library →</a>
+    </div>
 
   </div>
 </section>"""

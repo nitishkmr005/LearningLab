@@ -38,14 +38,17 @@
   .contact .sep { margin: 0 6px; color: #999; }
 
   /* ── section header: centered title on a full-width rule ── */
-  .sec { display: flex; align-items: center; margin: 13px 0 7px; }
+  /* break-after:avoid keeps a heading from being stranded at a page bottom */
+  .sec { display: flex; align-items: center; margin: 13px 0 7px; break-after: avoid; }
   .sec::before, .sec::after { content: ''; flex: 1; border-top: 1px solid var(--rule); }
   .sec h2 { font-family: var(--serif); font-weight: 600; font-size: 13pt; color: var(--dark); padding: 0 14px; white-space: nowrap; }
 
   /* ── entries (experience / projects / education) ── */
-  .entry { border-top: 1px solid var(--rule); padding-top: 6px; margin-top: 6px; break-inside: avoid; }
+  /* entries may flow across a page break so pages fill fully (no big blanks);
+     the header rows and individual bullets stay intact via the rules below */
+  .entry { border-top: 1px solid var(--rule); padding-top: 6px; margin-top: 6px; }
   .entry.first { border-top: none; padding-top: 0; margin-top: 0; }
-  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; break-inside: avoid; break-after: avoid; }
   .org  { color: var(--blue); font-weight: 700; font-size: 10.5pt; }
   .loc  { color: var(--ink); font-size: 9pt; white-space: nowrap; }
   .role2 { color: #222; font-size: 9.6pt; }
@@ -53,7 +56,7 @@
   .desc  { color: #333; margin: 3px 0; }
 
   ul { margin: 3px 0 4px; padding-left: 15px; }
-  li { margin: 2.5px 0; }
+  li { margin: 2.5px 0; break-inside: avoid; }
   strong { font-weight: 700; color: #1e1e1e; }
 
   /* ── skills ── */

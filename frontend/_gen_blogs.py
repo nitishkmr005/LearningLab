@@ -639,11 +639,9 @@ DOCS_META = {
 # hand-built, self-contained page in frontend/ — so they show up even on a
 # fresh CI checkout where the private source is absent.
 # (category, title, description, link_href, ext_for_icon)
-EXTRA_DOCS = [
-    ("Personal", "Nitish Harsoor — Résumé 2026",
-     "Interactive HTML résumé — open and Save as PDF for a pixel-matching export.",
-     "resume.html", ".pdf"),
-]
+# Note: the résumé now has its own homepage section (#resume), so it is no
+# longer surfaced here under Docs & PDFs.
+EXTRA_DOCS = []
 
 SKIP_FILES = {'.DS_Store', 'bookmarks_24_05_2026.html',
               'nitish-harsoor-resume-2026.pdf'}

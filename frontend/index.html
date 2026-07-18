@@ -155,6 +155,18 @@
     .ioc-btn { font-family: var(--f-m); font-size: 10px; letter-spacing: .8px; text-transform: uppercase; padding: 10px 20px; background: var(--accent); color: var(--white); text-decoration: none; border: 1px solid var(--accent); transition: background .15s; white-space: nowrap; flex-shrink: 0; }
     .ioc-btn:hover { background: #a84d28; border-color: #a84d28; }
 
+    /* ── Résumé section ── */
+    .resume-wrap { padding: 0 48px; }
+    .resume-card { background: var(--bg-dark); color: var(--white); padding: 32px 36px; margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between; gap: 32px; border: 1px solid var(--bg-dark); position: relative; overflow: hidden; }
+    .resume-card::before { content: 'CV'; position: absolute; right: 34px; top: -12px; font-family: var(--f-d); font-size: 120px; color: rgba(255,255,255,.05); letter-spacing: -6px; pointer-events: none; }
+    .resume-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+    .rfeat { background: var(--bg-card); border: 1px solid var(--border); padding: 18px 20px; display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; }
+    .rfeat::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s var(--ease); }
+    .rfeat:hover::before { transform: scaleY(1); }
+    .rfeat .ic { font-size: 18px; }
+    .rfeat .t { font-family: var(--f-d); font-size: 14px; color: var(--text); }
+    .rfeat .d { font-size: 12px; line-height: 1.55; color: var(--muted); }
+
     .interview-subjects { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
     .isub-card { background: var(--bg-card); border: 1px solid var(--border); padding: 20px 18px; display: flex; flex-direction: column; gap: 12px; transition: background .15s; position: relative; overflow: hidden; }
     .isub-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s var(--ease); }
@@ -225,13 +237,14 @@
       .doc-cat-body .docs-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 760px) {
-      .main-nav, .section-nav, .hero, .progress-bar-section, .section-hd, .refs-wrap, .interview-wrap, .docs-categories { padding-left: 20px; padding-right: 20px; }
+      .main-nav, .section-nav, .hero, .progress-bar-section, .section-hd, .refs-wrap, .interview-wrap, .docs-categories, .resume-wrap { padding-left: 20px; padding-right: 20px; }
       .topics-grid { padding-left: 20px; padding-right: 20px; grid-template-columns: 1fr; }
       .tc-num-col { display: none; }
       .section-nav { gap: 2px; overflow-x: auto; }
       .interview-subjects { grid-template-columns: 1fr 1fr; }
       .doc-cat-body .docs-grid { grid-template-columns: 1fr; }
-      .interview-overview-card { flex-direction: column; align-items: flex-start; }
+      .interview-overview-card, .resume-card { flex-direction: column; align-items: flex-start; }
+      .resume-features { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -263,6 +276,7 @@
 <div class="section-nav" id="sectionNav">
   <a href="#interview" class="snav-item active" data-section="interview">Interview Prep</a>
   <!-- <a href="#topics"    class="snav-item"         data-section="topics">Topics (20)</a> -->
+  <a href="#resume"    class="snav-item"         data-section="resume">Résumé</a>
   <a href="#docs"      class="snav-item"         data-section="docs">Docs &amp; PDFs</a>
   <a href="#references" class="snav-item"        data-section="references">References</a>
 </div>
@@ -351,6 +365,46 @@
         <span class="isub-num">Subject 07</span>
         <span class="isub-title">NLP &amp; Large Language Models</span>
         <a href="interview-nlp-llm.html" class="isub-link">Study Q&amp;A →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION — RÉSUMÉ
+══════════════════════════════════════════════════════════ -->
+<section class="section" id="resume">
+  <div class="section-hd">
+    <h2>Résumé</h2>
+    <span class="section-meta">Editable · Print-ready</span>
+  </div>
+  <div class="resume-wrap">
+
+    <div class="resume-card">
+      <div class="ioc-left">
+        <p class="ioc-eyebrow">Personal</p>
+        <h3 class="ioc-title">Nitish Harsoor — Résumé</h3>
+        <p class="ioc-desc">Edit your résumé inline in the browser — click any line to change it, and it auto-saves. Export a pixel-perfect PDF or download the updated HTML to publish.</p>
+      </div>
+      <a href="resume.html" class="ioc-btn" target="_blank">Open &amp; Edit →</a>
+    </div>
+
+    <div class="resume-features">
+      <div class="rfeat">
+        <span class="ic">✎</span>
+        <span class="t">Edit inline</span>
+        <span class="d">Toggle edit mode and click any field. Changes auto-save to your browser.</span>
+      </div>
+      <div class="rfeat">
+        <span class="ic">⭳</span>
+        <span class="t">Save as PDF</span>
+        <span class="d">Print to a clean, pixel-matching PDF — no browser headers or footers.</span>
+      </div>
+      <div class="rfeat">
+        <span class="ic">↓</span>
+        <span class="t">Download HTML</span>
+        <span class="d">Export the edited résumé as a file you can commit to publish it live.</span>
       </div>
     </div>
 
@@ -652,7 +706,7 @@
 <section class="section" id="docs">
   <div class="section-hd">
     <h2>Docs &amp; PDFs</h2>
-    <span class="section-meta">9 documents · 5 categories</span>
+    <span class="section-meta">8 documents · 4 categories</span>
   </div>
   <div class="docs-categories">
 
@@ -764,26 +818,6 @@
       </div>
     </div>
 
-    <div class="doc-cat-section">
-      <div class="doc-cat-hd">
-        <span class="doc-cat-arrow">&#9658;</span>
-        <span class="doc-cat-name">Personal</span>
-        <span class="doc-cat-count">1</span>
-      </div>
-      <div class="doc-cat-body">
-        <div class="docs-grid">
-
-        <div class="pdf-card">
-          <span class="pdf-icon">📄</span>
-          <span class="pdf-title">Nitish Harsoor — Résumé 2026</span>
-          <p class="pdf-desc">Interactive HTML résumé — open and Save as PDF for a pixel-matching export.</p>
-          <a href="resume.html" class="pdf-open" target="_blank">Read ↗</a>
-        </div>
-
-        </div>
-      </div>
-    </div>
-
   </div>
 </section>
 <!-- DOCS_SECTION_END -->
@@ -832,7 +866,7 @@
 
 <!-- ══════════ FOOTER ══════════ -->
 <footer>
-  <span class="foot-left">LearningLab · <strong>7 interview guides</strong> · 9 docs + references</span>
+  <span class="foot-left">LearningLab · <strong>7 interview guides</strong> · résumé · docs + references</span>
   <span class="foot-right">DS · ML · AI · GenAI</span>
 </footer>
 
@@ -874,7 +908,7 @@
   });
 
   /* section nav highlight on scroll */
-  const sections  = ['topics','interview','docs','references'].map(id => document.getElementById(id));
+  const sections  = ['interview','resume','docs','references'].map(id => document.getElementById(id));
   const snavItems = document.querySelectorAll('.snav-item');
 
   const sectionIO = new IntersectionObserver((entries) => {

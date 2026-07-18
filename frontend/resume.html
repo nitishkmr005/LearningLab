@@ -91,12 +91,14 @@
   [contenteditable="true"]:focus { outline: none; }
 
   /* ── print rules ── */
-  /* margin:0 on @page removes the browser's injected date/title/URL/page-number
-     headers & footers; page margins are recreated via .sheet padding below. */
-  @page { size: letter; margin: 0; }
+  /* Real @page margins so every page (including page 2+) keeps a top/bottom
+     gutter — content never hugs the page break. To hide the browser's
+     date/title/URL/page-number, untick "Headers and footers" in the print
+     dialog (Chrome remembers the choice). */
+  @page { size: letter; margin: 13mm 15mm; }
   @media print {
     html, body { background: #fff; }
-    .sheet { width: auto; min-height: 0; margin: 0; padding: 13mm 15mm; box-shadow: none; outline: none; background: #fff; }
+    .sheet { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; outline: none; background: #fff; }
     .toolbar { display: none; }
   }
 </style>

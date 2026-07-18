@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearningLab — Docs & PDFs Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Tokens ─────────────────────────────────────────────── */
+    :root {
+      --bg:        #f6f1e7;
+      --bg-card:   #ede6d6;
+      --bg-hover:  #e5dcc8;
+      --bg-dark:   #1c1814;
+      --border:    #d9cfc0;
+      --border-m:  #c9bfaf;
+      --text:      #1c1814;
+      --muted:     #6e6259;
+      --faint:     #a89f94;
+      --accent:    #c85e35;
+      --white:     #fdfaf4;
+      --f-d: 'DM Serif Display', Georgia, serif;
+      --f-b: 'Syne', sans-serif;
+      --f-m: 'JetBrains Mono', 'Fira Code', monospace;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --nav-h: 52px;
+    }
+    :root[data-theme="dark"] {
+      --bg:        #13110f;
+      --bg-card:   #221d18;
+      --bg-hover:  #2a241f;
+      --bg-dark:   #0d0b09;
+      --border:    #3a3129;
+      --border-m:  #4a4036;
+      --text:      #f2e9d9;
+      --muted:     #c1b6a8;
+      --faint:     #8f8375;
+      --accent:    #ef8b57;
+      --white:     #fdfaf4;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { font-family: var(--f-b); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 180px; }
+
+    /* ── Main nav ────────────────────────────────────────────── */
+    .main-nav { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: var(--nav-h); background: var(--bg); border-bottom: 1px solid var(--border); }
+    .nav-back { font-family: var(--f-m); font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .15s; }
+    .nav-back:hover { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-title { font-family: var(--f-d); font-size: 15px; color: var(--muted); }
+    .theme-toggle { font-family: var(--f-m); font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); background: transparent; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+    .theme-toggle:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+    /* ── Page shell ──────────────────────────────────────────── */
+    .page { max-width: 1180px; margin: 0 auto; padding: 0 48px 80px; }
+
+    /* ── Black banner ────────────────────────────────────────── */
+    .section-banner { background: var(--bg-dark); color: var(--white); padding: 40px 40px; margin: 40px 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 32px; border: 1px solid var(--bg-dark); position: relative; overflow: hidden; }
+    .section-banner::before { content: attr(data-wm); position: absolute; right: 34px; top: -18px; font-family: var(--f-d); font-size: 150px; color: rgba(255,255,255,.05); letter-spacing: -6px; pointer-events: none; }
+    .ioc-left {}
+    .ioc-eyebrow { font-family: var(--f-m); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 10px; }
+    .ioc-title { font-family: var(--f-d); font-size: 32px; color: var(--white); letter-spacing: -0.3px; margin-bottom: 10px; }
+    .ioc-desc { font-size: 13px; line-height: 1.65; color: rgba(255,255,255,.55); max-width: 560px; }
+    .ioc-meta { font-family: var(--f-m); font-size: 10px; letter-spacing: .5px; color: rgba(255,255,255,.35); margin-top: 14px; }
+
+    /* ── Category accordion ──────────────────────────────────── */
+    .docs-categories { display: flex; flex-direction: column; gap: 3px; }
+    .doc-cat-section { border: 1px solid var(--border); overflow: hidden; }
+    .doc-cat-hd { display: flex; align-items: center; gap: 12px; padding: 15px 20px; cursor: pointer; background: var(--bg-card); user-select: none; transition: background .15s; }
+    .doc-cat-hd:hover { background: var(--bg-hover); }
+    .doc-cat-arrow { font-size: 9px; color: var(--faint); flex-shrink: 0; transition: transform .2s ease; line-height: 1; }
+    .doc-cat-section.open > .doc-cat-hd .doc-cat-arrow { transform: rotate(90deg); }
+    .doc-cat-name { font-family: var(--f-m); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text); flex: 1; }
+    .doc-cat-count { font-family: var(--f-m); font-size: 10px; color: var(--faint); background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; }
+    .doc-cat-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; border-top: 0 solid var(--border); }
+    .doc-cat-section.open > .doc-cat-body { max-height: 2000px; border-top-width: 1px; }
+    .doc-cat-body .docs-grid { padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+
+    /* ── Doc cards ───────────────────────────────────────────── */
+    .pdf-card { background: var(--bg); border: 1px solid var(--border); padding: 20px 18px; display: flex; flex-direction: column; gap: 8px; transition: background .15s; position: relative; overflow: hidden; }
+    .pdf-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s var(--ease); }
+    .pdf-card:hover { background: var(--bg-card); }
+    .pdf-card:hover::before { transform: scaleY(1); }
+    .pdf-icon { font-size: 24px; line-height: 1; opacity: .65; }
+    .pdf-title { font-family: var(--f-d); font-size: 15px; line-height: 1.3; color: var(--text); }
+    .pdf-desc { font-size: 12px; line-height: 1.6; color: var(--muted); flex: 1; }
+    .pdf-open { display: inline-flex; align-items: center; gap: 5px; font-family: var(--f-m); font-size: 9.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); text-decoration: none; margin-top: 4px; transition: opacity .12s; }
+    .pdf-open:hover { opacity: .7; }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .doc-cat-body .docs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 760px) {
+      .main-nav, .page { padding-left: 20px; padding-right: 20px; }
+      .doc-cat-body .docs-grid { grid-template-columns: 1fr; }
+      .section-banner { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+      .ioc-title { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+<script>
+  (function() {
+    var savedTheme = localStorage.getItem('learninglab-theme');
+    if (savedTheme === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
+  })();
+</script>
+
+<nav class="main-nav">
+  <a href="index.html#docs" class="nav-back">← Back to LearningLab</a>
+  <div class="nav-right">
+    <span class="nav-title">Docs &amp; PDFs Library</span>
+    <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="section-banner" data-wm="PDF">
+    <div class="ioc-left">
+      <p class="ioc-eyebrow">Reference Library</p>
+      <h3 class="ioc-title">Docs &amp; PDFs</h3>
+      <p class="ioc-desc">Curated PDFs and long-form guides across Claude Code, LLMs, RAG, and statistics — grouped by topic. Expand a category to open any document.</p>
+      <p class="ioc-meta">8 documents · 4 categories</p>
+    </div>
+  </div>
+
+  <div class="docs-categories">
+
+    <div class="doc-cat-section open">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">Claude Code</span>
+        <span class="doc-cat-count">2</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Complete Guide to Building Skills</span>
+          <p class="pdf-desc">Official guide — skill structure, prompts, tool use, and publishing Claude Code skills.</p>
+          <a href="https://github.com/nitishkmr005/LearningLab/blob/main/docs/claude-code/complete-guide-to-building-skill-for-claude.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📝</span>
+          <span class="pdf-title">Skill Building Guide</span>
+          <p class="pdf-desc">Condensed reference for building and publishing Claude Code skills.</p>
+          <a href="doc-skill-building-guide.html" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-cat-section open">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">LLM</span>
+        <span class="doc-cat-count">4</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Inference Engineering</span>
+          <p class="pdf-desc">Deep dive into LLM inference optimization — batching strategies, throughput vs latency, hardware.</p>
+          <a href="https://github.com/nitishkmr005/LearningLab/blob/main/docs/llm/inference-engineering.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">LLM Inference</span>
+          <p class="pdf-desc">Comprehensive reference — KV cache, quantization, speculative decoding, deployment patterns.</p>
+          <a href="https://github.com/nitishkmr005/LearningLab/blob/main/docs/llm/llm-inference.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📝</span>
+          <span class="pdf-title">Transformer Internals: What Changed Since 2017</span>
+          <p class="pdf-desc">Deep dive into positional embeddings, normalization, attention variants, and MoE from 2017 to today.</p>
+          <a href="doc-transformer-internals-what-changed-since-2017.html" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Ultimate Guide to Fine-Tuning LLMs</span>
+          <p class="pdf-desc">End-to-end guide — data prep, LoRA/QLoRA, full fine-tuning, RLHF, DPO, production deployment.</p>
+          <a href="https://github.com/nitishkmr005/LearningLab/blob/main/docs/llm/ultimate-guide-to-fine-tuning-llms.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-cat-section open">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">RAG</span>
+        <span class="doc-cat-count">1</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">RAG Evaluation &amp; Testing in Production</span>
+          <p class="pdf-desc">Practical guide to evaluating RAG pipelines — faithfulness, relevance, retrieval metrics.</p>
+          <a href="https://github.com/nitishkmr005/LearningLab/blob/main/docs/rag/rag-evaluation-testing-in-production.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-cat-section open">
+      <div class="doc-cat-hd">
+        <span class="doc-cat-arrow">&#9658;</span>
+        <span class="doc-cat-name">Statistics</span>
+        <span class="doc-cat-count">1</span>
+      </div>
+      <div class="doc-cat-body">
+        <div class="docs-grid">
+
+        <div class="pdf-card">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-title">Daily Dose of Data Science</span>
+          <p class="pdf-desc">Visual explanations of statistics, ML concepts, and Python techniques — compiled reference PDF.</p>
+          <a href="https://github.com/nitishkmr005/LearningLab/blob/main/docs/statistics/daily-dose-of-ds.pdf" class="pdf-open" target="_blank">Read ↗</a>
+        </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* category accordion */
+  document.querySelectorAll('.doc-cat-hd').forEach(hd => {
+    hd.addEventListener('click', () => {
+      hd.closest('.doc-cat-section').classList.toggle('open');
+    });
+  });
+
+  /* theme toggle */
+  const themeToggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  function syncThemeToggle() {
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    themeToggle.textContent = isDark ? 'Light' : 'Dark';
+    themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+  themeToggle.addEventListener('click', () => {
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    if (isDark) { root.removeAttribute('data-theme'); localStorage.setItem('learninglab-theme', 'light'); }
+    else { root.setAttribute('data-theme', 'dark'); localStorage.setItem('learninglab-theme', 'dark'); }
+    syncThemeToggle();
+  });
+  syncThemeToggle();
+</script>
+</body>
+</html>

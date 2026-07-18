@@ -155,6 +155,10 @@
     .ioc-btn { font-family: var(--f-m); font-size: 10px; letter-spacing: .8px; text-transform: uppercase; padding: 10px 20px; background: var(--accent); color: var(--white); text-decoration: none; border: 1px solid var(--accent); transition: background .15s; white-space: nowrap; flex-shrink: 0; }
     .ioc-btn:hover { background: #a84d28; border-color: #a84d28; }
 
+    /* ── Shared black banner (Résumé / Docs / References) ── */
+    .section-banner { background: var(--bg-dark); color: var(--white); padding: 32px 36px; margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between; gap: 32px; border: 1px solid var(--bg-dark); position: relative; overflow: hidden; }
+    .section-banner::before { content: attr(data-wm); position: absolute; right: 34px; top: -12px; font-family: var(--f-d); font-size: 120px; color: rgba(255,255,255,.05); letter-spacing: -6px; pointer-events: none; }
+
     /* ── Résumé section ── */
     .resume-wrap { padding: 0 48px; }
     .resume-card { background: var(--bg-dark); color: var(--white); padding: 32px 36px; margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between; gap: 32px; border: 1px solid var(--bg-dark); position: relative; overflow: hidden; }
@@ -209,11 +213,8 @@
        SECTION 4 — REFERENCES
     ════════════════════════════════════════════════════════════ */
     .refs-wrap { padding: 0 48px; }
-    .refs-desc { font-size: 14px; line-height: 1.7; color: var(--muted); max-width: 600px; margin-bottom: 28px; }
     .refs-cats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
     .ref-cat-pill { font-family: var(--f-m); font-size: 9.5px; letter-spacing: .6px; text-transform: uppercase; padding: 5px 12px; border: 1px solid var(--border); color: var(--muted); background: var(--bg-card); }
-    .refs-open-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px; font-family: var(--f-m); font-size: 11px; letter-spacing: .8px; text-transform: uppercase; text-decoration: none; background: var(--accent); color: var(--white); border: 1px solid var(--accent); transition: background .15s, color .15s, border-color .15s; }
-    .refs-open-btn:hover { background: var(--text); border-color: var(--text); color: var(--bg); }
 
     /* ── Footer ──────────────────────────────────────────────── */
     footer { border-top: 2px solid var(--text); padding: 24px 48px; display: flex; align-items: center; justify-content: space-between; margin-top: 40px; }
@@ -243,7 +244,7 @@
       .section-nav { gap: 2px; overflow-x: auto; }
       .interview-subjects { grid-template-columns: 1fr 1fr; }
       .doc-cat-body .docs-grid { grid-template-columns: 1fr; }
-      .interview-overview-card, .resume-card { flex-direction: column; align-items: flex-start; }
+      .interview-overview-card, .resume-card, .section-banner { flex-direction: column; align-items: flex-start; }
       .resume-features { grid-template-columns: 1fr; }
     }
   </style>
@@ -710,6 +711,14 @@
   </div>
   <div class="docs-categories">
 
+    <div class="section-banner" data-wm="PDF">
+      <div class="ioc-left">
+        <p class="ioc-eyebrow">Reference Library</p>
+        <h3 class="ioc-title">Docs &amp; PDFs</h3>
+        <p class="ioc-desc">Curated PDFs and long-form guides across Claude Code, LLMs, RAG, and statistics — grouped by topic. Expand a category to open any document.</p>
+      </div>
+    </div>
+
     <div class="doc-cat-section">
       <div class="doc-cat-hd">
         <span class="doc-cat-arrow">&#9658;</span>
@@ -831,7 +840,16 @@
     <span class="section-meta">26 categories · 150+ curated links</span>
   </div>
   <div class="refs-wrap">
-    <p class="refs-desc">All reference URLs sourced from bookmarks — 16 topic-specific sections plus general resources covering AI platforms, MCP, Claude Code, MLOps, visualization, data APIs, and dev tools.</p>
+
+    <div class="section-banner" data-wm="URL">
+      <div class="ioc-left">
+        <p class="ioc-eyebrow">Curated Links</p>
+        <h3 class="ioc-title">References</h3>
+        <p class="ioc-desc">All reference URLs sourced from bookmarks — 16 topic-specific sections plus general resources covering AI platforms, MCP, Claude Code, MLOps, visualization, data APIs, and dev tools.</p>
+      </div>
+      <a href="references.html" class="ioc-btn">Open Full References →</a>
+    </div>
+
     <div class="refs-cats">
       <span class="ref-cat-pill">01 SQL</span>
       <span class="ref-cat-pill">02 Statistics</span>
@@ -860,7 +878,6 @@
       <span class="ref-cat-pill">I · Algorithms</span>
       <span class="ref-cat-pill">J · Dev Tools</span>
     </div>
-    <a href="references.html" class="refs-open-btn">Open Full References →</a>
   </div>
 </section>
 

@@ -628,22 +628,25 @@ DOCS_META = {
         "Visual explanations of statistics, ML concepts, and Python techniques — compiled reference PDF."),
     "complete-guide-to-building-skill-for-claude": ("Claude Code", "Complete Guide to Building Skills",
         "Official guide — skill structure, prompts, tool use, and publishing Claude Code skills."),
-    "nitish-harsoor-resume-2026":           ("Personal", "Nitish Harsoor — Résumé 2026",
-        "Current résumé — data science, ML & AI engineering. Open the HTML version and Save as PDF for a pixel-matching export."),
     "transformer-internals-what-changed-since-2017": ("LLM", "Transformer Internals: What Changed Since 2017",
         "Deep dive into positional embeddings, normalization, attention variants, and MoE from 2017 to today."),
     "skill-building-guide":                 ("Claude Code", "Skill Building Guide",
         "Condensed reference for building and publishing Claude Code skills."),
 }
 
-# Stems that have a hand-built standalone page in frontend/ — the docs card
-# links to this page instead of the raw source (e.g. an HTML résumé you can
-# print to PDF). Key = filename stem (no ext), value = frontend/ page.
-DOCS_HTML_PAGE = {
-    "nitish-harsoor-resume-2026": "resume.html",
-}
+# Curated docs that have no committed source file in docs/ (e.g. personal
+# files that are gitignored). These always render as cards linking to a
+# hand-built, self-contained page in frontend/ — so they show up even on a
+# fresh CI checkout where the private source is absent.
+# (category, title, description, link_href, ext_for_icon)
+EXTRA_DOCS = [
+    ("Personal", "Nitish Harsoor — Résumé 2026",
+     "Interactive HTML résumé — open and Save as PDF for a pixel-matching export.",
+     "resume.html", ".pdf"),
+]
 
-SKIP_FILES = {'.DS_Store', 'bookmarks_24_05_2026.html'}
+SKIP_FILES = {'.DS_Store', 'bookmarks_24_05_2026.html',
+              'nitish-harsoor-resume-2026.pdf'}
 VIEWABLE_EXTS = {'.pdf', '.md', '.html'}
 GITHUB_BLOB = 'https://github.com/nitishkmr005/LearningLab/blob/main/'
 GITHUB_RAW  = 'https://raw.githubusercontent.com/nitishkmr005/LearningLab/main/'
@@ -678,14 +681,17 @@ def scan_docs():
                 cat   = _cat_from_dirpath(root)
                 title = _title_from_stem(stem)
                 desc  = ''
-            # standalone frontend page → .md rendered page → GitHub blob viewer
-            if stem in DOCS_HTML_PAGE:
-                link_href = DOCS_HTML_PAGE[stem]
-            elif ext == '.md':
+            # .md → rendered HTML page; others → GitHub blob viewer
+            if ext == '.md':
                 link_href = 'doc-' + stem + '.html'
             else:
                 link_href = GITHUB_BLOB + rel.replace(os.sep, '/')
             entries.append((rel, cat, title, desc, ext, link_href))
+
+    # curated cards with no source file in docs/ (link straight to frontend page)
+    for cat, title, desc, link_href, ext in EXTRA_DOCS:
+        entries.append((link_href, cat, title, desc, ext, link_href))
+
     return entries
 
 def _doc_icon(ext):
